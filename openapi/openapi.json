@@ -1,0 +1,4333 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/sante": {
+      "get": {
+        "operationId": "Sante_sante",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Sante"
+        ]
+      }
+    },
+    "/api/v1/auth/connexion": {
+      "post": {
+        "operationId": "Auth_connexion",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnexionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/rafraichir": {
+      "post": {
+        "operationId": "Auth_rafraichir",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RafraichirDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Pas de domaine commun entre l'API et l'interface : le jeton de rafraîchissement circule dans le corps.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/deconnexion": {
+      "post": {
+        "operationId": "Auth_deconnexion",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RafraichirDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/moi": {
+      "get": {
+        "operationId": "Auth_moi",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/jetons": {
+      "get": {
+        "operationId": "Jetons_lister",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "administration"
+        ]
+      },
+      "post": {
+        "operationId": "Jetons_creer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreerJetonDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "administration"
+        ]
+      }
+    },
+    "/api/v1/jetons/{id}": {
+      "delete": {
+        "operationId": "Jetons_revoquer",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "administration"
+        ]
+      }
+    },
+    "/api/v1/referentiels": {
+      "get": {
+        "operationId": "Referentiels_referentiels",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReferentielsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "référentiels"
+        ]
+      }
+    },
+    "/api/v1/catalogue": {
+      "get": {
+        "operationId": "Referentiels_catalogue",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogueDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "référentiels"
+        ]
+      }
+    },
+    "/api/v1/modeles/{code}": {
+      "get": {
+        "operationId": "Referentiels_modele",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModeleDocument"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "référentiels"
+        ]
+      }
+    },
+    "/api/v1/projets": {
+      "get": {
+        "operationId": "Projets_portefeuille",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Portefeuille : projets accessibles et indicateurs clés.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjetResumeDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}": {
+      "get": {
+        "operationId": "Projets_detail",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjetDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/tdr": {
+      "get": {
+        "operationId": "Projets_tdr",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TexteDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/indicateurs": {
+      "get": {
+        "operationId": "Projets_indicateurs",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": false,
+            "in": "query",
+            "description": "Date de calcul AAAA-MM-JJ (défaut : aujourd’hui, Africa/Abidjan).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndicateursDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/alertes": {
+      "get": {
+        "operationId": "Projets_alertes",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AlerteDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/fonctionnalites": {
+      "get": {
+        "operationId": "Projets_fonctionnalites",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "statut",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "depot",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lot",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FonctionnaliteDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/fonctionnalites/{ref}": {
+      "get": {
+        "operationId": "Projets_fonctionnalite",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FonctionnaliteDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/exigences": {
+      "get": {
+        "operationId": "Projets_exigences",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Exigence"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/cas-test": {
+      "get": {
+        "operationId": "Projets_casTest",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CasTest"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/campagnes": {
+      "get": {
+        "operationId": "Projets_campagnes",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Campagne"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/campagnes/{ref}": {
+      "get": {
+        "operationId": "Projets_campagne",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampagneDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/retours": {
+      "get": {
+        "operationId": "Projets_retours",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RetourClient"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/retours/{ref}": {
+      "get": {
+        "operationId": "Projets_retour",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetourDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/documents": {
+      "get": {
+        "operationId": "Projets_documents",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "phase",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "statut",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/documents/{doc}": {
+      "get": {
+        "operationId": "Projets_document",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "doc",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/jalons": {
+      "get": {
+        "operationId": "Projets_jalons",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Jalon"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/risques": {
+      "get": {
+        "operationId": "Projets_risques",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Risque"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/actions": {
+      "get": {
+        "operationId": "Projets_actions",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Action"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/changements": {
+      "get": {
+        "operationId": "Projets_changements",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Changement"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/reunions": {
+      "get": {
+        "operationId": "Projets_reunions",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Reunion"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/parties-prenantes": {
+      "get": {
+        "operationId": "Projets_partiesPrenantes",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PartiePrenante"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/adr": {
+      "get": {
+        "operationId": "Projets_adr",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Adr"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/changelog": {
+      "get": {
+        "operationId": "Projets_changelog",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChangelogEntree"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/doc-technique": {
+      "get": {
+        "operationId": "Projets_docTechnique",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "depot",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "chemin",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DocTechniqueDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/sessions": {
+      "get": {
+        "operationId": "Projets_sessions",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SessionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/journal": {
+      "get": {
+        "operationId": "Projets_journal",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "par_page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "jusqua",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          },
+          {
+            "name": "depuis",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          },
+          {
+            "name": "fonctionnalite",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          },
+          {
+            "name": "evt",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          },
+          {
+            "name": "auteur",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          },
+          {
+            "name": "depot",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageEvenementsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/import/kit-v1": {
+      "post": {
+        "operationId": "Import_importer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "archive": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "archive"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportBilanDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Importe une archive .zip d'un dossier projets/<code> du kit v1.",
+        "tags": [
+          "administration"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "API Pilotage",
+    "description": "API REST de l'application Pilotage (suivi des projets de développement). Tous les indicateurs et alertes sont calculés par l'API.",
+    "version": "v1",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT ou jeton d’API (plt_…)",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "ConnexionDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "mot_de_passe": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "email",
+          "mot_de_passe"
+        ]
+      },
+      "RafraichirDto": {
+        "type": "object",
+        "properties": {
+          "jeton_rafraichissement": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "jeton_rafraichissement"
+        ]
+      },
+      "CreerJetonDto": {
+        "type": "object",
+        "properties": {
+          "utilisateur_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "projets": {
+            "minItems": 1,
+            "description": "Identifiants des projets autorisés",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "expire_le": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "utilisateur_id",
+          "nom",
+          "projets"
+        ]
+      },
+      "EntreeReferentielDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "libelle": {
+            "type": "string"
+          },
+          "couleur": {
+            "type": "string"
+          },
+          "poids": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "code",
+          "libelle",
+          "couleur"
+        ]
+      },
+      "ReferentielsDto": {
+        "type": "object",
+        "properties": {
+          "version_api": {
+            "type": "string"
+          },
+          "fuseau": {
+            "type": "string"
+          },
+          "statuts_fonctionnalite": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "statuts_depot": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "statuts_document": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "resultats_test": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "statuts_retour": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "priorites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "types_retour": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "statuts_risque": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "statuts_action": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "decisions_changement": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "statuts_jalon": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "statuts_projet": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "producteurs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "niveaux_alerte": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "phases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "libelles": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "version_api",
+          "fuseau",
+          "statuts_fonctionnalite",
+          "statuts_depot",
+          "statuts_document",
+          "resultats_test",
+          "statuts_retour",
+          "priorites",
+          "types_retour",
+          "statuts_risque",
+          "statuts_action",
+          "decisions_changement",
+          "statuts_jalon",
+          "statuts_projet",
+          "producteurs",
+          "niveaux_alerte",
+          "phases",
+          "libelles"
+        ]
+      },
+      "PhaseDocument": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "ordre": {
+            "type": "number"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "code",
+          "titre",
+          "ordre",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "TypeDocument": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "phase": {
+            "type": "string"
+          },
+          "producteur": {
+            "type": "string",
+            "enum": [
+              "humain",
+              "agent",
+              "mixte"
+            ]
+          },
+          "livrable": {
+            "type": "boolean"
+          },
+          "signature": {
+            "type": "boolean"
+          },
+          "recurrent": {
+            "type": "boolean"
+          },
+          "modele_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "emplacement": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "ordre": {
+            "type": "number"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "code",
+          "titre",
+          "phase",
+          "producteur",
+          "livrable",
+          "signature",
+          "recurrent",
+          "modele_id",
+          "emplacement",
+          "description",
+          "ordre",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "CatalogueDto": {
+        "type": "object",
+        "properties": {
+          "phases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PhaseDocument"
+            }
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TypeDocument"
+            }
+          }
+        },
+        "required": [
+          "phases",
+          "types"
+        ]
+      },
+      "ModeleDocument": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Nom du modèle (ex. « sfd.md », « session.md »)."
+          },
+          "contenu": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "code",
+          "contenu",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "JalonStatutDto": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "date_prevue": {
+            "type": "string"
+          },
+          "date_reelle": {
+            "type": "string"
+          },
+          "lot": {
+            "type": "string"
+          },
+          "facturation": {
+            "type": "string"
+          },
+          "livrables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "statut": {
+            "type": "string",
+            "description": "atteint | en_retard | a_venir",
+            "enum": [
+              "atteint",
+              "a_venir",
+              "en_retard"
+            ]
+          },
+          "ecart": {
+            "type": "number",
+            "nullable": true,
+            "description": "Écart en jours (retard positif)."
+          }
+        },
+        "required": [
+          "ref",
+          "nom",
+          "date_prevue",
+          "date_reelle",
+          "lot",
+          "facturation",
+          "livrables",
+          "statut",
+          "ecart"
+        ]
+      },
+      "RecetteNiveauxDto": {
+        "type": "object",
+        "properties": {
+          "haute": {
+            "type": "number"
+          },
+          "moyenne": {
+            "type": "number"
+          },
+          "basse": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "haute",
+          "moyenne",
+          "basse"
+        ]
+      },
+      "ProjetResumeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "client": {
+            "type": "string"
+          },
+          "statut": {
+            "type": "string"
+          },
+          "date_livraison_prevue": {
+            "type": "string",
+            "nullable": true
+          },
+          "avancement": {
+            "type": "number"
+          },
+          "couverture": {
+            "type": "number",
+            "nullable": true
+          },
+          "taux_recette": {
+            "type": "number",
+            "nullable": true
+          },
+          "avancement_documents": {
+            "type": "number",
+            "nullable": true
+          },
+          "nb_retours_ouverts": {
+            "type": "number"
+          },
+          "nb_actions_en_retard": {
+            "type": "number"
+          },
+          "prochain_jalon": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/JalonStatutDto"
+              }
+            ]
+          },
+          "nb_alertes": {
+            "$ref": "#/components/schemas/RecetteNiveauxDto"
+          },
+          "derniere_activite": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "nom",
+          "client",
+          "statut",
+          "date_livraison_prevue",
+          "avancement",
+          "couverture",
+          "taux_recette",
+          "avancement_documents",
+          "nb_retours_ouverts",
+          "nb_actions_en_retard",
+          "prochain_jalon",
+          "nb_alertes",
+          "derniere_activite"
+        ]
+      },
+      "DepotDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "stack": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "nom",
+          "url",
+          "stack",
+          "role"
+        ]
+      },
+      "ProjetDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "client": {
+            "type": "string"
+          },
+          "chef_projet": {
+            "type": "string",
+            "nullable": true
+          },
+          "equipe": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "date_debut": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_livraison_prevue": {
+            "type": "string",
+            "nullable": true
+          },
+          "statut": {
+            "type": "string"
+          },
+          "seuil_rappel_doc": {
+            "type": "number"
+          },
+          "revision_perimetre": {
+            "type": "boolean"
+          },
+          "depots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DepotDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "nom",
+          "client",
+          "chef_projet",
+          "equipe",
+          "description",
+          "date_debut",
+          "date_livraison_prevue",
+          "statut",
+          "seuil_rappel_doc",
+          "revision_perimetre",
+          "depots"
+        ]
+      },
+      "TexteDto": {
+        "type": "object",
+        "properties": {
+          "contenu": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "contenu"
+        ]
+      },
+      "AvancementNommeDto": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string"
+          },
+          "nb": {
+            "type": "number"
+          },
+          "avancement": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "nom",
+          "nb",
+          "avancement"
+        ]
+      },
+      "RecetteDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "number"
+          },
+          "ko": {
+            "type": "number"
+          },
+          "reserve": {
+            "type": "number"
+          },
+          "non_teste": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "ok",
+          "ko",
+          "reserve",
+          "non_teste"
+        ]
+      },
+      "ActiviteJourDto": {
+        "type": "object",
+        "properties": {
+          "jour": {
+            "type": "string"
+          },
+          "nb": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "jour",
+          "nb"
+        ]
+      },
+      "PhaseAvancementDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "nb": {
+            "type": "number"
+          },
+          "finalises": {
+            "type": "number"
+          },
+          "avancement": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "code",
+          "titre",
+          "nb",
+          "finalises",
+          "avancement"
+        ]
+      },
+      "RisqueCritiqueDto": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "statut": {
+            "type": "string"
+          },
+          "criticite": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "ref",
+          "titre",
+          "statut",
+          "criticite"
+        ]
+      },
+      "SynchroDepotDto": {
+        "type": "object",
+        "properties": {
+          "depot": {
+            "type": "string"
+          },
+          "derniere_synchro": {
+            "type": "string",
+            "nullable": true,
+            "description": "Horodatage du dernier événement de journal reçu pour ce dépôt."
+          }
+        },
+        "required": [
+          "depot",
+          "derniere_synchro"
+        ]
+      },
+      "AlerteDto": {
+        "type": "object",
+        "properties": {
+          "niveau": {
+            "description": "haute | moyenne | basse",
+            "enum": [
+              "moyenne",
+              "haute",
+              "basse"
+            ],
+            "type": "string"
+          },
+          "texte": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "niveau",
+          "texte"
+        ]
+      },
+      "IndicateursDto": {
+        "type": "object",
+        "properties": {
+          "date_calcul": {
+            "type": "string"
+          },
+          "avancement": {
+            "type": "number"
+          },
+          "nb_fonctionnalites": {
+            "type": "number"
+          },
+          "par_statut": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "par_lot": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AvancementNommeDto"
+            }
+          },
+          "par_depot": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AvancementNommeDto"
+            }
+          },
+          "couverture": {
+            "type": "number",
+            "nullable": true
+          },
+          "exigences_non_couvertes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "recette": {
+            "$ref": "#/components/schemas/RecetteDto"
+          },
+          "taux_recette": {
+            "type": "number",
+            "nullable": true
+          },
+          "resultats_tests": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "retours_ouverts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "delai_moyen_resolution": {
+            "type": "number",
+            "nullable": true
+          },
+          "activite_par_jour": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActiviteJourDto"
+            }
+          },
+          "derniere_activite": {
+            "type": "string",
+            "nullable": true
+          },
+          "derniere_activite_fonctionnalite": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "nb_commits": {
+            "type": "number"
+          },
+          "avancement_documents": {
+            "type": "number",
+            "nullable": true
+          },
+          "documents_par_phase": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PhaseAvancementDto"
+            }
+          },
+          "jalons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JalonStatutDto"
+            }
+          },
+          "prochain_jalon": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/JalonStatutDto"
+              }
+            ]
+          },
+          "risques": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RisqueCritiqueDto"
+            }
+          },
+          "nb_risques_actifs": {
+            "type": "number"
+          },
+          "actions_ouvertes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "actions_en_retard": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "changements_en_analyse": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "synchronisation": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SynchroDepotDto"
+            }
+          },
+          "alertes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AlerteDto"
+            }
+          }
+        },
+        "required": [
+          "date_calcul",
+          "avancement",
+          "nb_fonctionnalites",
+          "par_statut",
+          "par_lot",
+          "par_depot",
+          "couverture",
+          "exigences_non_couvertes",
+          "recette",
+          "taux_recette",
+          "resultats_tests",
+          "retours_ouverts",
+          "delai_moyen_resolution",
+          "activite_par_jour",
+          "derniere_activite",
+          "derniere_activite_fonctionnalite",
+          "nb_commits",
+          "avancement_documents",
+          "documents_par_phase",
+          "jalons",
+          "prochain_jalon",
+          "risques",
+          "nb_risques_actifs",
+          "actions_ouvertes",
+          "actions_en_retard",
+          "changements_en_analyse",
+          "synchronisation",
+          "alertes"
+        ]
+      },
+      "StatutDepotDto": {
+        "type": "object",
+        "properties": {
+          "depot": {
+            "type": "string"
+          },
+          "statut": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "depot",
+          "statut"
+        ]
+      },
+      "FonctionnaliteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ref": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "jalon": {
+            "type": "string"
+          },
+          "poids": {
+            "type": "number"
+          },
+          "statut": {
+            "type": "string"
+          },
+          "statut_effectif": {
+            "type": "string"
+          },
+          "avancement": {
+            "type": "number"
+          },
+          "origine": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "exigences": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "depots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StatutDepotDto"
+            }
+          },
+          "cas_test": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "retours": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "derniere_activite": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "ref",
+          "titre",
+          "jalon",
+          "poids",
+          "statut",
+          "statut_effectif",
+          "avancement",
+          "origine",
+          "notes",
+          "exigences",
+          "depots",
+          "cas_test",
+          "retours",
+          "derniere_activite"
+        ]
+      },
+      "CasTestResultatDto": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "resultat": {
+            "type": "string"
+          },
+          "campagne": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ref",
+          "titre",
+          "resultat",
+          "campagne"
+        ]
+      },
+      "EvenementDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ts": {
+            "type": "string"
+          },
+          "evt": {
+            "type": "string"
+          },
+          "depot": {
+            "type": "string",
+            "nullable": true
+          },
+          "auteur": {
+            "type": "string"
+          },
+          "outil": {
+            "type": "string"
+          },
+          "fichier": {
+            "type": "string"
+          },
+          "commande": {
+            "type": "string"
+          },
+          "hash": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "fonctionnalites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "ts",
+          "evt",
+          "depot",
+          "auteur",
+          "outil",
+          "fichier",
+          "commande",
+          "hash",
+          "message",
+          "fonctionnalites"
+        ]
+      },
+      "FonctionnaliteDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ref": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "jalon": {
+            "type": "string"
+          },
+          "poids": {
+            "type": "number"
+          },
+          "statut": {
+            "type": "string"
+          },
+          "statut_effectif": {
+            "type": "string"
+          },
+          "avancement": {
+            "type": "number"
+          },
+          "origine": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "exigences": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "depots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StatutDepotDto"
+            }
+          },
+          "cas_test": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "retours": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "derniere_activite": {
+            "type": "string",
+            "nullable": true
+          },
+          "tests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CasTestResultatDto"
+            }
+          },
+          "journal": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvenementDto"
+            }
+          },
+          "commits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvenementDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "ref",
+          "titre",
+          "jalon",
+          "poids",
+          "statut",
+          "statut_effectif",
+          "avancement",
+          "origine",
+          "notes",
+          "exigences",
+          "depots",
+          "cas_test",
+          "retours",
+          "derniere_activite",
+          "tests",
+          "journal",
+          "commits"
+        ]
+      },
+      "Exigence": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "section_tdr": {
+            "type": "string"
+          },
+          "priorite": {
+            "type": "string",
+            "enum": [
+              "should",
+              "must",
+              "could"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "ordre": {
+            "type": "number"
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ref",
+          "titre",
+          "section_tdr",
+          "priorite",
+          "description",
+          "ordre",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "CasTest": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "fonctionnalite_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "titre": {
+            "type": "string"
+          },
+          "preconditions": {
+            "type": "string"
+          },
+          "etapes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "attendu": {
+            "type": "string"
+          },
+          "ordre": {
+            "type": "number"
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ref",
+          "fonctionnalite_id",
+          "titre",
+          "preconditions",
+          "etapes",
+          "attendu",
+          "ordre",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "Campagne": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "client",
+              "interne"
+            ]
+          },
+          "environnement": {
+            "type": "string"
+          },
+          "testeurs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ref",
+          "titre",
+          "date",
+          "type",
+          "environnement",
+          "testeurs",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "ResultatLigneDto": {
+        "type": "object",
+        "properties": {
+          "test": {
+            "type": "string"
+          },
+          "resultat": {
+            "type": "string"
+          },
+          "commentaire": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "test",
+          "resultat",
+          "commentaire"
+        ]
+      },
+      "CampagneDetailDto": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "enum": [
+              "client",
+              "interne"
+            ],
+            "type": "string"
+          },
+          "environnement": {
+            "type": "string"
+          },
+          "testeurs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "resultats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResultatLigneDto"
+            }
+          }
+        },
+        "required": [
+          "ref",
+          "titre",
+          "date",
+          "type",
+          "environnement",
+          "testeurs",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le",
+          "resultats"
+        ]
+      },
+      "RetourClient": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "source": {
+            "type": "string"
+          },
+          "contact_client": {
+            "type": "string"
+          },
+          "saisi_par": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "priorite": {
+            "type": "string"
+          },
+          "statut": {
+            "type": "string"
+          },
+          "date_resolution": {
+            "type": "string",
+            "nullable": true
+          },
+          "retour": {
+            "type": "string"
+          },
+          "analyse": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "contenu": {
+            "type": "string",
+            "description": "Corps Markdown complet (import kit v1)."
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ref",
+          "date",
+          "source",
+          "contact_client",
+          "saisi_par",
+          "type",
+          "priorite",
+          "statut",
+          "date_resolution",
+          "retour",
+          "analyse",
+          "action",
+          "contenu",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "RetourDetailDto": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "source": {
+            "type": "string"
+          },
+          "contact_client": {
+            "type": "string"
+          },
+          "saisi_par": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "priorite": {
+            "type": "string"
+          },
+          "statut": {
+            "type": "string"
+          },
+          "date_resolution": {
+            "type": "string",
+            "nullable": true
+          },
+          "retour": {
+            "type": "string"
+          },
+          "analyse": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "contenu": {
+            "type": "string",
+            "description": "Corps Markdown complet (import kit v1)."
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "fonctionnalites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ref",
+          "date",
+          "source",
+          "contact_client",
+          "saisi_par",
+          "type",
+          "priorite",
+          "statut",
+          "date_resolution",
+          "retour",
+          "analyse",
+          "action",
+          "contenu",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le",
+          "fonctionnalites"
+        ]
+      },
+      "DocumentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "phase": {
+            "type": "string"
+          },
+          "producteur": {
+            "type": "string"
+          },
+          "livrable": {
+            "type": "boolean"
+          },
+          "signature": {
+            "type": "boolean"
+          },
+          "recurrent": {
+            "type": "boolean"
+          },
+          "statut": {
+            "type": "string"
+          },
+          "echeance": {
+            "type": "string",
+            "nullable": true
+          },
+          "echeance_effective": {
+            "type": "string",
+            "nullable": true,
+            "description": "Échéance effective : échéance propre ou date du jalon qui attend ce document."
+          },
+          "responsable": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "date_validation": {
+            "type": "string",
+            "nullable": true
+          },
+          "lien_externe": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "nb_versions": {
+            "type": "number"
+          },
+          "nb_scans": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "titre",
+          "phase",
+          "producteur",
+          "livrable",
+          "signature",
+          "recurrent",
+          "statut",
+          "echeance",
+          "echeance_effective",
+          "responsable",
+          "version",
+          "date_validation",
+          "lien_externe",
+          "notes",
+          "nb_versions",
+          "nb_scans"
+        ]
+      },
+      "VersionResumeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "resume_modif": {
+            "type": "string"
+          },
+          "auteur_type": {
+            "type": "string",
+            "enum": [
+              "humain",
+              "agent"
+            ]
+          },
+          "auteur": {
+            "type": "string"
+          },
+          "figee": {
+            "type": "boolean"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "numero",
+          "resume_modif",
+          "auteur_type",
+          "auteur",
+          "figee",
+          "cree_le"
+        ]
+      },
+      "VersionDocumentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "resume_modif": {
+            "type": "string"
+          },
+          "auteur_type": {
+            "enum": [
+              "humain",
+              "agent"
+            ],
+            "type": "string"
+          },
+          "auteur": {
+            "type": "string"
+          },
+          "figee": {
+            "type": "boolean"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "contenu": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "numero",
+          "resume_modif",
+          "auteur_type",
+          "auteur",
+          "figee",
+          "cree_le",
+          "contenu"
+        ]
+      },
+      "DocumentDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "phase": {
+            "type": "string"
+          },
+          "producteur": {
+            "type": "string"
+          },
+          "livrable": {
+            "type": "boolean"
+          },
+          "signature": {
+            "type": "boolean"
+          },
+          "recurrent": {
+            "type": "boolean"
+          },
+          "statut": {
+            "type": "string"
+          },
+          "echeance": {
+            "type": "string",
+            "nullable": true
+          },
+          "echeance_effective": {
+            "type": "string",
+            "nullable": true,
+            "description": "Échéance effective : échéance propre ou date du jalon qui attend ce document."
+          },
+          "responsable": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "date_validation": {
+            "type": "string",
+            "nullable": true
+          },
+          "lien_externe": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "nb_versions": {
+            "type": "number"
+          },
+          "nb_scans": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "modele": {
+            "type": "string",
+            "nullable": true
+          },
+          "versions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VersionResumeDto"
+            }
+          },
+          "version_courante": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/VersionDocumentDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "titre",
+          "phase",
+          "producteur",
+          "livrable",
+          "signature",
+          "recurrent",
+          "statut",
+          "echeance",
+          "echeance_effective",
+          "responsable",
+          "version",
+          "date_validation",
+          "lien_externe",
+          "notes",
+          "nb_versions",
+          "nb_scans",
+          "description",
+          "modele",
+          "versions",
+          "version_courante"
+        ]
+      },
+      "Jalon": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "date_prevue": {
+            "type": "string",
+            "nullable": true
+          },
+          "date_reelle": {
+            "type": "string",
+            "nullable": true
+          },
+          "lot": {
+            "type": "string"
+          },
+          "facturation": {
+            "type": "string"
+          },
+          "ordre": {
+            "type": "number"
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ref",
+          "nom",
+          "date_prevue",
+          "date_reelle",
+          "lot",
+          "facturation",
+          "ordre",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "Risque": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "categorie": {
+            "type": "string"
+          },
+          "probabilite": {
+            "type": "number"
+          },
+          "impact": {
+            "type": "number"
+          },
+          "parade": {
+            "type": "string"
+          },
+          "responsable": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "statut": {
+            "type": "string",
+            "enum": [
+              "ouvert",
+              "surveille",
+              "survenu",
+              "clos"
+            ]
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ref",
+          "titre",
+          "categorie",
+          "probabilite",
+          "impact",
+          "parade",
+          "responsable",
+          "date",
+          "statut",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "Action": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "responsable": {
+            "type": "string"
+          },
+          "echeance": {
+            "type": "string",
+            "nullable": true
+          },
+          "statut": {
+            "type": "string",
+            "enum": [
+              "en_cours",
+              "a_faire",
+              "fait",
+              "annule"
+            ]
+          },
+          "origine_type": {
+            "type": "string"
+          },
+          "origine_id": {
+            "type": "string"
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ref",
+          "action",
+          "responsable",
+          "echeance",
+          "statut",
+          "origine_type",
+          "origine_id",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "Changement": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "demandeur": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string"
+          },
+          "origine": {
+            "type": "string"
+          },
+          "impact_delai_jours": {
+            "type": "number"
+          },
+          "impact_cout": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "en_analyse",
+              "accepte",
+              "refuse",
+              "reporte"
+            ]
+          },
+          "date_decision": {
+            "type": "string",
+            "nullable": true
+          },
+          "avenant": {
+            "type": "string"
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ref",
+          "titre",
+          "demandeur",
+          "date",
+          "description",
+          "origine",
+          "impact_delai_jours",
+          "impact_cout",
+          "decision",
+          "date_decision",
+          "avenant",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "Reunion": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "lieu": {
+            "type": "string"
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "redacteur": {
+            "type": "string"
+          },
+          "contenu": {
+            "type": "string"
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "date",
+          "type",
+          "titre",
+          "lieu",
+          "participants",
+          "redacteur",
+          "contenu",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "PartiePrenante": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string"
+          },
+          "fonction": {
+            "type": "string"
+          },
+          "organisme": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "influence": {
+            "type": "string"
+          },
+          "attentes": {
+            "type": "string"
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "nom",
+          "fonction",
+          "organisme",
+          "role",
+          "influence",
+          "attentes",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "Adr": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "statut": {
+            "type": "string"
+          },
+          "depots": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "fonctionnalites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "contexte": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "consequences": {
+            "type": "string"
+          },
+          "alternatives": {
+            "type": "string"
+          },
+          "contenu": {
+            "type": "string",
+            "description": "Texte intégral (import kit v1)."
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ref",
+          "titre",
+          "date",
+          "statut",
+          "depots",
+          "fonctionnalites",
+          "contexte",
+          "decision",
+          "consequences",
+          "alternatives",
+          "contenu",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "ChangelogEntree": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ajoute",
+              "modifie",
+              "corrige",
+              "retire"
+            ]
+          },
+          "texte": {
+            "type": "string"
+          },
+          "fonctionnalite_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "ordre": {
+            "type": "number"
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "version",
+          "date",
+          "type",
+          "texte",
+          "fonctionnalite_id",
+          "ordre",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "DocTechniqueDto": {
+        "type": "object",
+        "properties": {
+          "depot": {
+            "type": "string",
+            "nullable": true
+          },
+          "depot_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "chemin": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "contenu": {
+            "type": "string"
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "depot",
+          "depot_id",
+          "chemin",
+          "titre",
+          "contenu",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "NoteSessionDto": {
+        "type": "object",
+        "properties": {
+          "ts": {
+            "type": "string"
+          },
+          "texte": {
+            "type": "string"
+          },
+          "fonctionnalites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ts",
+          "texte",
+          "fonctionnalites"
+        ]
+      },
+      "SessionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "depot": {
+            "type": "string",
+            "nullable": true
+          },
+          "auteur": {
+            "type": "string"
+          },
+          "utilisateur_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "debut": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "fin": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "resume": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NoteSessionDto"
+            }
+          },
+          "fonctionnalites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "depot",
+          "auteur",
+          "utilisateur_id",
+          "debut",
+          "fin",
+          "resume",
+          "notes",
+          "fonctionnalites"
+        ]
+      },
+      "PageEvenementsDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "par_page": {
+            "type": "number"
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvenementDto"
+            }
+          }
+        },
+        "required": [
+          "total",
+          "page",
+          "par_page",
+          "elements"
+        ]
+      },
+      "ProjetMinDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "nom"
+        ]
+      },
+      "ImportBilanDto": {
+        "type": "object",
+        "properties": {
+          "projet": {
+            "$ref": "#/components/schemas/ProjetMinDto"
+          },
+          "bilan": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "erreurs_lecture": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "projet",
+          "bilan",
+          "erreurs_lecture"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "bearer": []
+    }
+  ]
+}

@@ -7,15 +7,17 @@ import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
 import { IndicateursModule } from './indicateurs/indicateurs.module';
 import { ImportModule } from './import/import.module';
+import { LectureModule } from './lecture/lecture.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRootAsync({ useFactory: () => ({ ...optionsBase(), migrationsRun: process.env.MIGRATIONS_AU_DEMARRAGE === '1' }) }),
+    TypeOrmModule.forRootAsync({ useFactory: () => ({ ...optionsBase(), migrationsRun: process.env.MIGRATIONS_AU_DEMARRAGE === '1', manualInitialization: process.env.OPENAPI_SEULEMENT === '1' }) }),
     AuthModule,
     CommonModule,
     IndicateursModule,
     ImportModule,
+    LectureModule,
   ],
   controllers: [SanteController],
 })

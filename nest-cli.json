@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "tsConfigPath": "tsconfig.build.json",
+    "deleteOutDir": true,
+    "plugins": [{ "name": "@nestjs/swagger", "options": { "dtoFileNameSuffix": [".dto.ts", "entities/organisation.ts", "entities/projet.ts", "entities/recette.ts", "entities/documents.ts", "entities/gestion.ts", "entities/journal.ts", "entities/base.ts"], "classValidatorShim": true, "introspectComments": true } }]
+  }
+}
