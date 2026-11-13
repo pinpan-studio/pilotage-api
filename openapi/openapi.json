@@ -5307,6 +5307,21 @@
           "supprime_le"
         ]
       },
+      "ModeleResumeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code"
+        ]
+      },
       "CatalogueDto": {
         "type": "object",
         "properties": {
@@ -5321,11 +5336,18 @@
             "items": {
               "$ref": "#/components/schemas/TypeDocument"
             }
+          },
+          "modeles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModeleResumeDto"
+            }
           }
         },
         "required": [
           "phases",
-          "types"
+          "types",
+          "modeles"
         ]
       },
       "ModeleDocument": {

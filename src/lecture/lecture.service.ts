@@ -214,7 +214,8 @@ export class LectureService {
     if (f.evt) qb.andWhere('e.evt = :evt', { evt: f.evt });
     if (f.fonctionnalite) qb.andWhere(':fo = ANY(e.fonctionnalites)', { fo: f.fonctionnalite });
     if (f.depuis) qb.andWhere('e.ts >= :depuis', { depuis: f.depuis });
-    if (f.jusqua) qb.andWhere('e.ts <= :jusqua', { jusqua: f.jusqua });
+    // Une date seule (AAAA-MM-JJ) inclut toute la journée.
+    if (f.jusqua) qb.andWhere(/^\d{4}-\d{2}-\d{2}$/.test(String(f.jusqua)) ? "e.ts < (:jusqua::date + interval '1 day')" : 'e.ts <= :jusqua', { jusqua: f.jusqua });
     const total = await qb.getCount();
     const rows = await qb.orderBy('e.ts', 'DESC').addOrderBy('e.seq', 'DESC').offset((page - 1) * par_page).limit(par_page).getRawMany();
     return { total, page, par_page, elements: rows.map((r) => ({ ...r, ts: new Date(r.ts).toISOString() })) };
@@ -268,11 +269,12 @@ export class LectureService {
   }
 
   async catalogue(a: Acteur) {
-    const [phases, types] = await Promise.all([
+    const [phases, types, modeles] = await Promise.all([
       this.em.find(E.PhaseDocument, { where: { organisation_id: a.organisation_id }, order: { ordre: 'ASC' } }),
       this.em.find(E.TypeDocument, { where: { organisation_id: a.organisation_id }, order: { ordre: 'ASC' } }),
+      this.em.find(E.ModeleDocument, { select: { id: true, code: true }, where: { organisation_id: a.organisation_id }, order: { code: 'ASC' } }),
     ]);
-    return { phases, types };
+    return { phases, types, modeles: modeles.map((m) => ({ id: m.id, code: m.code })) };
   }
 
   async modele(a: Acteur, code: string) {
