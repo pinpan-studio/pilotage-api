@@ -12,6 +12,8 @@ export function optionsBase(url = process.env.DATABASE_URL): DataSourceOptions {
     entities: ENTITES as any[],
     migrations: [__dirname + '/migrations/*.{ts,js}'],
     synchronize: false,
+    // Serverless (Vercel) : petit pool par instance ; utiliser la chaîne « pooled » de Neon.
+    extra: { max: Number(process.env.DB_POOL_MAX ?? (process.env.VERCEL ? 3 : 10)), idleTimeoutMillis: 10_000 },
   };
 }
 export default new DataSource(optionsBase());

@@ -7,7 +7,8 @@ import { json } from 'express';
 import { AppModule } from './app.module';
 import { documentOpenApi } from './openapi';
 
-async function bootstrap() {
+/** Configure l'application (partagé entre le serveur classique et la fonction Vercel). */
+export async function creerApplication() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, { bodyParser: false });
   app.use(helmet());
   app.use(json({ limit: '5mb' }));
@@ -17,6 +18,9 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   const doc = documentOpenApi(app);
   app.getHttpAdapter().get('/api/v1/openapi.json', (_req: any, res: any) => res.json(doc));
-  await app.listen(Number(process.env.PORT ?? 3000));
+  return app;
 }
-bootstrap();
+
+if (require.main === module) {
+  creerApplication().then((app) => app.listen(Number(process.env.PORT ?? 3000)));
+}

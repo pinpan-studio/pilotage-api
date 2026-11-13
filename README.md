@@ -27,6 +27,22 @@ Production : base **Neon** (`DATABASE_URL` avec `sslmode=require`), fichiers sur
 (`BLOB_READ_WRITE_TOKEN`), API conteneurisée (`Dockerfile`, migrations au démarrage avec
 `MIGRATIONS_AU_DEMARRAGE=1`).
 
+## Déploiement sur Vercel
+
+L'API tourne en fonction serverless (`api/index.js` → `dist/serverless.js`, instance Nest réutilisée).
+1. Vercel → **Add New → Project** → importer `pilotage-api` (les réglages viennent de `vercel.json`).
+2. **Storage → Neon** (Marketplace) → créer la base et la connecter au projet : `DATABASE_URL` est
+   ajoutée automatiquement (utiliser la chaîne *pooled*).
+3. **Storage → Blob** → créer un store **Private** et le connecter au projet : `BLOB_READ_WRITE_TOKEN`
+   est ajoutée automatiquement.
+4. **Settings → Environment Variables** : `JWT_SECRET` (≥ 32 caractères aléatoires), `WEB_ORIGIN`
+   (ex. `https://pilotage-web.vercel.app`), `ADMIN_EMAIL`, `ADMIN_MOT_DE_PASSE`, et `SEED_DEMO=1` pour
+   importer le projet d'exemple.
+5. Déployer : en production, le build exécute les migrations puis le seed (`scripts-vercel-build.sh`).
+
+Limites Vercel : 4 Mo par fichier téléversé (corps de requête limité à 4,5 Mo) ; limitation de débit
+par instance.
+
 ## Organisation
 
 ```
