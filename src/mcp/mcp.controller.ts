@@ -8,6 +8,7 @@ import { EcritureService } from '../ecriture/ecriture.service';
 import { IndicateursService } from '../indicateurs/indicateurs.service';
 import { LectureService } from '../lecture/lecture.service';
 import { creerServeurMcp } from './serveur-mcp';
+import { EquipesService } from '../equipes/equipes.service';
 
 /**
  * Serveur MCP (transport Streamable HTTP, mode sans état : un serveur par requête, adapté
@@ -16,7 +17,7 @@ import { creerServeurMcp } from './serveur-mcp';
 @ApiExcludeController()
 @Controller('mcp')
 export class McpController {
-  constructor(private readonly lecture: LectureService, private readonly ecriture: EcritureService, private readonly ind: IndicateursService, private readonly acces: AccesService) {}
+  constructor(private readonly lecture: LectureService, private readonly ecriture: EcritureService, private readonly ind: IndicateursService, private readonly acces: AccesService, private readonly equipes: EquipesService) {}
 
   @All()
   async gerer(@Req() req: Request & { acteur: Acteur }, @Res() res: Response) {
@@ -25,7 +26,7 @@ export class McpController {
       return;
     }
     if (!req.acteur) throw new UnauthorizedException('Authentification requise.');
-    const serveur = creerServeurMcp(req.acteur, { lecture: this.lecture, ecriture: this.ecriture, ind: this.ind, acces: this.acces });
+    const serveur = creerServeurMcp(req.acteur, { lecture: this.lecture, ecriture: this.ecriture, ind: this.ind, acces: this.acces, equipes: this.equipes });
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
     res.on('close', () => { transport.close(); serveur.close(); });
     await serveur.connect(transport);

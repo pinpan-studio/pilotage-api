@@ -11,6 +11,7 @@ const COULEUR: Record<string, string> = {
   ouvert: '--warn', surveille: '--accent', survenu: '--ko', clos: '--mute', fait: '--ok', annule: '--mute',
   en_analyse: '--warn', accepte: '--ok', refuse: '--ko', reporte: '--mute', atteint: '--ok', a_venir: '--accent', en_retard: '--ko',
   livre: '--ok', cloture: '--mute', en_pause: '--warn', agent: '--accent', mixte: '--warn', humain: '--mute',
+  admin: '--ko', chef_projet: '--accent', developpeur: '--ok', client_lecteur: '--mute',
   bug: '--ko', evolution: '--accent', question: '--warn', remarque: '--mute',
 };
 const e = (codes: readonly string[], poids?: Record<string, number>): EntreeReferentielDto[] =>
@@ -34,6 +35,8 @@ export function referentiels(phases: { code: string; titre: string }[]): Referen
     statuts_projet: e(['en_cours', 'en_pause', 'livre', 'cloture']),
     producteurs: e(['agent', 'mixte', 'humain']),
     niveaux_alerte: e(['haute', 'moyenne', 'basse']),
+    roles_equipe: e(['admin', 'chef_projet', 'developpeur', 'client_lecteur']),
+    roles_projet: e(['chef_projet', 'developpeur', 'client_lecteur']),
     phases: phases.map((p) => ({ code: p.code, libelle: p.titre, couleur: '--accent' })),
     libelles: R.LIBELLES,
   };

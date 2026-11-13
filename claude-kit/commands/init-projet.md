@@ -9,6 +9,10 @@ Le TDR et les exigences sont **protégés** : l'API refuse que l'agent les modif
 chef de projet n'a pas ouvert une « révision du périmètre » dans l'interface. Vérifie-le
 d'abord (`etat_projet`, `lire_tdr`).
 
+0. Si le projet n'existe pas encore dans Pilotage (`lister_projets`), propose de le créer avec
+   `creer_projet` (code court en minuscules, nom, client, dates, dépôts) — réservé à un développeur
+   administrateur ou chef de projet ; l'administrateur autorise ensuite ton jeton sur ce projet.
+   `lister_membres` donne l'équipe du projet et les rôles.
 1. Lis le TDR (.docx → texte via `pandoc` ; PDF lu directement).
 2. Prépare sa version Markdown fidèle (titres et numérotation d'origine conservés).
 3. Extrais les exigences : une exigence = un besoin vérifiable (`EX-01…`, titre, section_tdr,

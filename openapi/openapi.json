@@ -535,6 +535,40 @@
         "tags": [
           "projets"
         ]
+      },
+      "post": {
+        "operationId": "ProjetsAdmin_creer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreerProjetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjetCreeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
       }
     },
     "/api/v1/projets/{code}": {
@@ -2148,6 +2182,380 @@
           "fichiers"
         ]
       }
+    },
+    "/api/v1/equipes": {
+      "get": {
+        "operationId": "Equipes_mesEquipes",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipeDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "équipes"
+        ]
+      },
+      "post": {
+        "operationId": "Equipes_creer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreerEquipeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "équipes"
+        ]
+      }
+    },
+    "/api/v1/equipes/courante": {
+      "patch": {
+        "operationId": "Equipes_maj",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MajEquipeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "équipes"
+        ]
+      }
+    },
+    "/api/v1/equipes/changer": {
+      "post": {
+        "operationId": "Equipes_changer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangerEquipeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionAuthDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Change d'espace de travail : nouvelle session sur le compte de la même personne dans l'autre équipe.",
+        "tags": [
+          "équipes"
+        ]
+      }
+    },
+    "/api/v1/equipes/courante/membres": {
+      "get": {
+        "operationId": "Equipes_membres",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MembreEquipeDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "équipes"
+        ]
+      },
+      "post": {
+        "operationId": "Equipes_inviter",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "équipes"
+        ]
+      }
+    },
+    "/api/v1/equipes/courante/membres/{id}": {
+      "patch": {
+        "operationId": "Equipes_majMembre",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MajMembreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MembreEquipeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "équipes"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/membres": {
+      "get": {
+        "operationId": "ProjetsAdmin_membres",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MembreProjetDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      },
+      "put": {
+        "operationId": "ProjetsAdmin_definir",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefinirMembreProjetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MembreProjetDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/membres/{id}": {
+      "delete": {
+        "operationId": "ProjetsAdmin_retirer",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MembreProjetDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
     }
   },
   "info": {
@@ -2736,6 +3144,18 @@
               "$ref": "#/components/schemas/EntreeReferentielDto"
             }
           },
+          "roles_equipe": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
+          "roles_projet": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntreeReferentielDto"
+            }
+          },
           "phases": {
             "type": "array",
             "items": {
@@ -2766,6 +3186,8 @@
           "statuts_projet",
           "producteurs",
           "niveaux_alerte",
+          "roles_equipe",
+          "roles_projet",
           "phases",
           "libelles"
         ]
@@ -5835,6 +6257,331 @@
           "code",
           "titre",
           "statut"
+        ]
+      },
+      "EquipeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "courante": {
+            "type": "boolean"
+          },
+          "nb_membres": {
+            "type": "number"
+          },
+          "nb_projets": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "nom",
+          "role",
+          "courante",
+          "nb_membres",
+          "nb_projets"
+        ]
+      },
+      "CreerEquipeDto": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "nom"
+        ]
+      },
+      "MajEquipeDto": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "nom"
+        ]
+      },
+      "ChangerEquipeDto": {
+        "type": "object",
+        "properties": {
+          "organisation_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "organisation_id"
+        ]
+      },
+      "MembreEquipeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "actif": {
+            "type": "boolean"
+          },
+          "photo_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "derniere_connexion": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "invite": {
+            "type": "boolean"
+          },
+          "nb_projets": {
+            "type": "number"
+          },
+          "moi": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "nom",
+          "role",
+          "actif",
+          "photo_url",
+          "derniere_connexion",
+          "invite",
+          "nb_projets",
+          "moi"
+        ]
+      },
+      "InviterDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "nom": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "chef_projet",
+              "developpeur",
+              "client_lecteur"
+            ]
+          }
+        },
+        "required": [
+          "email",
+          "role"
+        ]
+      },
+      "InvitationDto": {
+        "type": "object",
+        "properties": {
+          "membre": {
+            "$ref": "#/components/schemas/MembreEquipeDto"
+          },
+          "lien": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "membre",
+          "lien",
+          "message"
+        ]
+      },
+      "MajMembreDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "chef_projet",
+              "developpeur",
+              "client_lecteur"
+            ]
+          },
+          "actif": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DepotACreerDto": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,40}$"
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "stack": {
+            "type": "string",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "nom"
+        ]
+      },
+      "CreerProjetDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{1,60}$",
+            "description": "Identifiant court : minuscules, chiffres, tirets"
+          },
+          "nom": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 200
+          },
+          "client": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 5000
+          },
+          "date_debut": {
+            "type": "string"
+          },
+          "date_livraison_prevue": {
+            "type": "string"
+          },
+          "depots": {
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DepotACreerDto"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "nom"
+        ]
+      },
+      "ProjetCreeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "nb_documents": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "nom",
+          "nb_documents"
+        ]
+      },
+      "MembreProjetDto": {
+        "type": "object",
+        "properties": {
+          "utilisateur_id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "photo_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "role_equipe": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "actif": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "utilisateur_id",
+          "email",
+          "nom",
+          "photo_url",
+          "role_equipe",
+          "role",
+          "actif"
+        ]
+      },
+      "DefinirMembreProjetDto": {
+        "type": "object",
+        "properties": {
+          "utilisateur_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "chef_projet",
+              "developpeur",
+              "client_lecteur"
+            ]
+          }
+        },
+        "required": [
+          "utilisateur_id",
+          "role"
         ]
       }
     }

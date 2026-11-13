@@ -47,8 +47,21 @@ export class AuthService {
     return this.emettre(u, { ...ctx, methode: 'mot_de_passe' });
   }
 
+  /** Compte actif pour cet e-mail ; avec plusieurs équipes, la dernière utilisée. */
   private parEmail(email: string) {
-    return this.utilisateurs.createQueryBuilder('u').where('lower(u.email) = :e', { e: email.trim().toLowerCase() }).andWhere('u.actif = true').orderBy('u.cree_le').getOne();
+    return this.utilisateurs.createQueryBuilder('u').where('lower(u.email) = :e', { e: email.trim().toLowerCase() }).andWhere('u.actif = true')
+      .orderBy('u.derniere_connexion', 'DESC', 'NULLS LAST').addOrderBy('u.cree_le').getOne();
+  }
+
+  /** Passe sur le compte de la même personne dans une autre équipe (nouvelle session). */
+  async changerEquipe(a: Acteur, organisation_id: string, ctx: ContexteConnexion = {}) {
+    const moi = await this.utilisateurs.findOneBy({ id: a.utilisateur_id });
+    if (!moi) throw introuvable('utilisateur');
+    const cible = await this.utilisateurs.createQueryBuilder('u').where('lower(u.email) = :e', { e: moi.email.toLowerCase() })
+      .andWhere('u.organisation_id = :o', { o: organisation_id }).andWhere('u.actif = true').getOne();
+    if (!cible) throw introuvable('équipe (vous n’en êtes pas membre)');
+    if (moi.google_sub && !cible.google_sub) await this.utilisateurs.update(cible.id, { google_sub: moi.google_sub, photo_url: moi.photo_url });
+    return this.emettre((await this.utilisateurs.findOneBy({ id: cible.id }))!, { ...ctx, methode: 'google' });
   }
 
   /** Connexion Google : le jeton d'identité est vérifié par le serveur (signature, audience, expiration). */
@@ -59,7 +72,7 @@ export class AuthService {
       throw new UnauthorizedException('Jeton Google invalide ou expiré.');
     }
     if (!g.email_verified) throw new UnauthorizedException('Adresse Google non vérifiée.');
-    let u = await this.utilisateurs.findOneBy({ google_sub: g.sub, actif: true }) ?? await this.parEmail(g.email);
+    let u = await this.utilisateurs.findOne({ where: { google_sub: g.sub, actif: true }, order: { derniere_connexion: { direction: 'DESC', nulls: 'LAST' } } }) ?? await this.parEmail(g.email);
     if (!u) throw new UnauthorizedException(`Aucun compte Pilotage pour ${g.email}. Demandez une invitation à l'administrateur de votre équipe.`);
     if (u.google_sub && u.google_sub !== g.sub) throw new UnauthorizedException('Ce compte est lié à un autre compte Google.');
     await this.utilisateurs.update(u.id, { google_sub: g.sub, photo_url: g.picture ?? u.photo_url, nom: u.nom === 'Administrateur' && g.name ? g.name : u.nom });

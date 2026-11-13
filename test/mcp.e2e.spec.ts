@@ -101,6 +101,12 @@ describe('Serveur MCP (client MCP officiel)', () => {
     expect((await appel('maj_retour', { projet: 'exemple-declarations', ref: 'RC-003', statut: 'resolu', action_md: 'Limite portée à 10 Mo' })).erreur).toBe(false);
   });
 
+  it('équipe : lister_membres ; creer_projet refusé à un développeur', async () => {
+    const m = await appel('lister_membres', { projet: 'exemple-declarations' });
+    expect(m.texte).toContain('dev@exemple.ci');
+    expect((await appel('creer_projet', { code: 'nouveau-projet', nom: 'Nouveau' })).texte).toMatch(/^Refusé : seul un administrateur ou un chef de projet/);
+  });
+
   it('recherche plein texte', async () => {
     const r = await appel('rechercher', { projet: 'exemple-declarations', texte: 'accusé de réception' });
     expect(r.erreur).toBe(false);

@@ -289,6 +289,8 @@ export class ReferentielsDto {
   statuts_projet: EntreeReferentielDto[];
   producteurs: EntreeReferentielDto[];
   niveaux_alerte: EntreeReferentielDto[];
+  roles_equipe: EntreeReferentielDto[];
+  roles_projet: EntreeReferentielDto[];
   phases: EntreeReferentielDto[];
   libelles: Record<string, string>;
 }

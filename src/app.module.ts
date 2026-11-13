@@ -12,6 +12,7 @@ import { EcritureModule } from './ecriture/ecriture.module';
 import { McpModule } from './mcp/mcp.module';
 import { JournalModule } from './journal/journal.module';
 import { StockageModule } from './stockage/stockage.module';
+import { EquipesModule } from './equipes/equipes.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { StockageModule } from './stockage/stockage.module';
     McpModule,
     JournalModule,
     StockageModule,
+    EquipesModule,
   ],
   controllers: [SanteController],
 })

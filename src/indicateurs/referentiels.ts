@@ -23,6 +23,7 @@ export const LIBELLES: Record<string, string> = {
   fait: 'Fait', annule: 'Annulé', en_analyse: 'En analyse', accepte: 'Accepté', refuse: 'Refusé', reporte: 'Reporté',
   atteint: 'Atteint', a_venir: 'À venir', en_retard: 'En retard',
   agent: 'Agent', mixte: 'Agent + humain', humain: 'Humain',
+  admin: 'Administrateur', chef_projet: 'Chef de projet', developpeur: 'Développeur', client_lecteur: 'Lecteur',
 };
 export const STATUTS_DOCUMENT = ['a_produire', 'en_cours', 'en_revue', 'valide', 'signe', 'sans_objet'];
 export const POIDS_DOCUMENT: Record<string, number> = { a_produire: 0, en_cours: 0.4, en_revue: 0.7, valide: 1, signe: 1 };

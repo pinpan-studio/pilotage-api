@@ -9,13 +9,14 @@ import { AccesService } from '../common/acces.service';
 import { LIBELLES } from '../indicateurs/referentiels';
 import { rechercher } from './recherche';
 import { etatProjet } from './etat';
+import { EquipesService } from '../equipes/equipes.service';
 import * as E from '../db/entities';
 
 const pct = (x: number | null | undefined) => (x == null ? '—' : `${Math.round(x * 100)} %`);
 const L = (c: string) => LIBELLES[c] ?? c;
 const PAR_PAGE = 50;
 
-export interface Services { lecture: LectureService; ecriture: EcritureService; ind: IndicateursService; acces: AccesService }
+export interface Services { lecture: LectureService; ecriture: EcritureService; ind: IndicateursService; acces: AccesService; equipes: EquipesService }
 
 type Resultat = { content: { type: 'text'; text: string }[]; structuredContent?: Record<string, unknown>; isError?: boolean };
 
@@ -268,6 +269,22 @@ export function creerServeurMcp(a: Acteur, s: Services): McpServer {
     async ({ projet: c, ref, statut, session_id }) => {
       const r = await s.ecriture.majAction(a, c, ref, statut, session_id);
       return rep(`${r.ref} → ${L(r.statut)}.`, { ref: r.ref, statut: r.statut });
+    }, false);
+
+  // =================================================================== équipe et projets
+
+  outil('lister_membres', "Membres d'un projet et leur rôle (chef de projet, développeur, lecteur).", { projet }, async ({ projet: c }) => {
+    const l: any[] = await s.equipes.membresProjet(a, c);
+    return rep(l.map((m) => `- ${m.nom} <${m.email}> — ${L(m.role)}${m.actif ? '' : ' (désactivé)'}`).join('\n') || '(aucun membre)', l.map((m) => ({ nom: m.nom, email: m.email, role: m.role })));
+  });
+
+  outil('creer_projet', "Crée un projet dans l'équipe (documents du catalogue instanciés « à produire », vous devenez chef de projet). Réservé si le développeur lié au jeton est administrateur ou chef de projet.",
+    { code: z.string().regex(/^[a-z0-9][a-z0-9-]{1,60}$/).describe('Identifiant court : minuscules, chiffres, tirets'), nom: z.string().min(2), client: z.string().optional(), description: z.string().optional(),
+      date_debut: z.string().optional().describe('AAAA-MM-JJ'), date_livraison_prevue: z.string().optional().describe('AAAA-MM-JJ'),
+      depots: z.array(z.object({ nom: z.string().regex(/^[a-z0-9][a-z0-9-]{0,40}$/), url: z.string().optional(), stack: z.string().optional() })).optional() },
+    async (x) => {
+      const r = await s.equipes.creerProjet(a, x);
+      return rep(`Projet ${r.code} créé (${r.nb_documents} documents à produire). Le jeton d'API doit être autorisé sur ce projet pour y écrire : demandez-le à l'administrateur.`, r);
     }, false);
 
   return srv;

@@ -20,7 +20,8 @@ export class Utilisateur extends Base {
   @Column({ type: 'varchar', default: 'developpeur' }) role: RoleUtilisateur;
   @Column({ default: true }) actif: boolean;
   /** Identifiant Google (« sub ») lié au compte, après la première connexion Google. */
-  @Index({ unique: true, where: 'google_sub IS NOT NULL' }) @Column({ type: 'varchar', nullable: true }) google_sub: string | null;
+  /** Une même personne peut appartenir à plusieurs équipes (une ligne par équipe, même sub). */
+  @Index() @Column({ type: 'varchar', nullable: true }) google_sub: string | null;
   @Column({ type: 'varchar', nullable: true }) photo_url: string | null;
   @Column({ type: 'timestamptz', nullable: true }) derniere_connexion: Date | null;
 }
