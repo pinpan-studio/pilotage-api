@@ -114,6 +114,9 @@ export class EcritureService {
     if (!STATUTS_FONCTIONNALITE.includes(statut)) throw invalide(`statut « ${statut} » (attendu : ${STATUTS_FONCTIONNALITE.join(', ')}).`);
     if (statut === 'valide' && a.role !== 'agent') await this.acces.exigerChefProjet(a, p, 'valider une fonctionnalité');
     ReglesAgent.statutFonctionnalite(a, statut, statut === 'recette' ? await this.testsTousOk(p, ref) : true);
+    // Règle métier pour tous : « recette » exige des tests tous OK, sauf décision du chef de projet.
+    if (statut === 'recette' && a.role !== 'agent' && (await this.acces.roleSurProjet(a, p)) !== 'chef_projet' && !(await this.testsTousOk(p, ref)))
+      throw refuse('passage en recette impossible : tous les cas de test de la fonctionnalité doivent être OK dans la dernière campagne (seul un chef de projet peut passer outre).');
     return this.tx(p, async (em) => {
       const avant = plain(f);
       f.statut = statut;
@@ -314,7 +317,7 @@ export class EcritureService {
 
   // ------------------------------------------------------------- fonctionnalités, ADR, changelog
 
-  async creerFonctionnalite(a: Acteur, code: string, x: { titre: string; exigences?: string[]; lot?: string; poids?: number; origine?: string; depots?: string[] }, session_id?: string) {
+  async creerFonctionnalite(a: Acteur, code: string, x: { titre: string; exigences?: string[]; lot?: string; poids?: number; origine?: string; depots?: string[]; description?: string }, session_id?: string) {
     const p = await this.ecrireProjet(a, code);
     const origine = x.origine ?? 'interne';
     if (a.role === 'agent' && !(origine === 'interne' || /^DC-\d{2,4}$/.test(origine)))
@@ -327,7 +330,7 @@ export class EcritureService {
       const ordre = Number((await em.query('SELECT coalesce(max(ordre), -1) + 1 n FROM fonctionnalite WHERE projet_id = $1', [p.id]))[0].n);
       const f = await em.save(E.Fonctionnalite, em.create(E.Fonctionnalite, {
         organisation_id: p.organisation_id, projet_id: p.id, cree_par: a.utilisateur_id, ref, titre: x.titre, jalon: x.lot ?? '',
-        poids: x.poids ?? 1, statut: 'a_faire', origine, ordre,
+        poids: x.poids ?? 1, statut: 'a_faire', origine, ordre, description: x.description ?? '',
       }));
       for (const e of x.exigences ?? []) {
         const ex = await em.findOneBy(E.Exigence, { projet_id: p.id, ref: e });

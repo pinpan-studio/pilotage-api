@@ -59,6 +59,8 @@ export class Fonctionnalite extends BaseProjet {
   @Column({ default: 1 }) poids: number;
   @Column({ type: 'varchar', default: 'a_faire' }) statut: string;
   @Column({ default: 'interne' }) origine: string;
+  /** Description et critères d'acceptation (Markdown). */
+  @Column(md) description: string;
   @Column(md) notes: string;
   @Column({ default: 0 }) ordre: number;
 }

@@ -135,4 +135,15 @@ describe('Serveur MCP (client MCP officiel)', () => {
     const pr: any = await client.getPrompt({ name: 'recette', arguments: { projet: P, demande: 'cas F-005' } });
     expect(pr.messages[0].content.text).toContain('creer_cas_test');
   });
+
+  it('description, jalons et risques via le MCP', async () => {
+    const P = 'exemple-declarations';
+    expect((await appel('maj_fonctionnalite', { projet: P, ref: 'F-005', description: '## Critères\n- PDF signé' })).erreur).toBe(false);
+    expect((await appel('lire_fonctionnalite', { projet: P, ref: 'F-005' })).texte).toContain('PDF signé');
+    const j = await appel('creer_jalon', { projet: P, nom: 'Mise en production', date_prevue: '2027-02-01', documents: ['PV-RECEPTION-PROVISOIRE'] });
+    expect(j.texte).toMatch(/Jalon J\d+ « Mise en production »/);
+    expect((await appel('maj_jalon', { projet: P, ref: j.donnees.ref, date_reelle: '2027-02-03' })).erreur).toBe(false);
+    expect((await appel('lister_jalons', { projet: P })).texte).toContain('Mise en production');
+    expect((await appel('maj_risque', { projet: P, ref: 'R-001', statut: 'surveille' })).texte).toContain('surveille');
+  });
 });

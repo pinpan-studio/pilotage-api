@@ -75,12 +75,12 @@ risques[], changements[])` : tout est créé dans la même transaction (rien si 
 `rechercher` la fonctionnalité concernée, `creer_retour(retour_md, …, fonctionnalites)`, puis
 `maj_retour(ref, statut, action_md)` quand il est traité. Évolution hors périmètre → `proposer_changement`.
 
-**Gestion** : `ajouter_risque` / `lister_risques`, `ajouter_action` / `maj_action(statut: a_faire|en_cours|fait|annule)`,
-`lister_jalons`, `lister_changements`, `lire_reunion(date?)`, `lister_membres`.
+**Gestion** : `ajouter_risque` / `maj_risque` / `lister_risques`, `creer_jalon` / `maj_jalon` (date_reelle = jalon atteint), `ajouter_action` / `maj_action(statut: a_faire|en_cours|fait|annule)`,
+`lister_changements`, `lire_reunion(date?)`, `lister_membres`.
 
 **Nouveau projet** (admin ou chef de projet) : `creer_projet(code, nom, client, description, date_debut,
 date_livraison_prevue, depots: [{nom, url, stack}])` → puis `creer_fonctionnalite(titre, lot, poids,
-origine: interne, depots[], exigences?)` pour chaque fonctionnalité ; la référence F-xxx est attribuée
+origine: interne, depots[], exigences?, description)` pour chaque fonctionnalité (la description porte les critères d'acceptation) ; `creer_jalon` pour le planning ; la référence F-xxx est attribuée
 par le serveur (lis-la dans la réponse).
 
 ## Prompts MCP disponibles

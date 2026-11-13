@@ -113,7 +113,8 @@ export class LectureService {
       .map((t: any) => ({ ref: t.id, titre: t.titre, resultat: m.resultatTest[t.id]?.resultat ?? 'non_teste', campagne: m.resultatTest[t.id]?.campagne ?? null }));
     const journal = (await this.journal(a, code, { fonctionnalite: ref, par_page: 50 })).elements;
     const commits = (await this.journal(a, code, { fonctionnalite: ref, evt: 'commit', par_page: 50 })).elements;
-    return { ...f, tests, journal, commits };
+    const ent = await this.em.findOneBy(E.Fonctionnalite, { projet_id: p.id, ref });
+    return { ...f, description: ent?.description ?? '', tests, journal, commits };
   }
 
   // ------------------------------------------------------------- documents

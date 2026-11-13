@@ -1,3 +1,4 @@
+import { GestionService } from '../ecriture/gestion.service';
 import { HttpException } from '@nestjs/common';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
@@ -16,7 +17,7 @@ const pct = (x: number | null | undefined) => (x == null ? '—' : `${Math.round
 const L = (c: string) => LIBELLES[c] ?? c;
 const PAR_PAGE = 50;
 
-export interface Services { lecture: LectureService; ecriture: EcritureService; ind: IndicateursService; acces: AccesService; equipes: EquipesService }
+export interface Services { lecture: LectureService; ecriture: EcritureService; ind: IndicateursService; acces: AccesService; equipes: EquipesService; gestion: GestionService }
 
 type Resultat = { content: { type: 'text'; text: string }[]; structuredContent?: Record<string, unknown>; isError?: boolean };
 
@@ -89,7 +90,7 @@ export function creerServeurMcp(a: Acteur, s: Services): McpServer {
     const f = await s.lecture.fonctionnalite(a, c, ref);
     const T = [`# ${f.ref} — ${f.titre}`, `Statut : ${L(f.statut_effectif)} (global : ${L(f.statut)}) · Avancement ${pct(f.avancement)} · ${f.jalon} · poids ${f.poids} · origine ${f.origine}`,
       `Dépôts : ${f.depots.map((d) => `${d.depot}: ${L(d.statut)}`).join(', ') || '—'}`, `Exigences : ${f.exigences.join(', ') || '—'} · Retours : ${f.retours.join(', ') || '—'}`,
-      f.notes ? `Notes : ${f.notes}` : '', '## Tests', ...(f.tests.map((t) => `- ${t.ref} ${t.titre} : ${L(t.resultat)}${t.campagne ? ` (${t.campagne})` : ''}`)), f.tests.length ? '' : '- (aucun cas de test)',
+      f.description ? `## Description\n${f.description}` : '', f.notes ? `Notes : ${f.notes}` : '', '## Tests', ...(f.tests.map((t) => `- ${t.ref} ${t.titre} : ${L(t.resultat)}${t.campagne ? ` (${t.campagne})` : ''}`)), f.tests.length ? '' : '- (aucun cas de test)',
       `Dernière activité : ${f.derniere_activite ?? '—'}`, '## Derniers commits', ...f.commits.slice(0, 10).map((e) => `- ${e.ts.slice(0, 10)} ${e.hash} ${e.message}`)];
     return rep(T.filter((x) => x !== '').join('\n'), f);
   });
@@ -237,7 +238,7 @@ export function creerServeurMcp(a: Acteur, s: Services): McpServer {
 
   outil('creer_fonctionnalite', "Crée une fonctionnalité (référence F-xxx attribuée par le serveur). Origine « interne » ou « DC-xxx » (demande de changement acceptée).",
     { projet, titre: z.string().min(1), exigences: z.array(z.string()).optional(), lot: z.string().optional(), poids: z.number().int().optional().describe('1, 2, 3, 5 ou 8'),
-      origine: z.string().optional(), depots: z.array(z.string()).optional(), session_id: z.string().uuid().optional() },
+      origine: z.string().optional(), depots: z.array(z.string()).optional(), description: z.string().optional().describe('Description et critères d’acceptation (Markdown)'), session_id: z.string().uuid().optional() },
     async ({ projet: c, session_id, ...x }) => {
       const f = await s.ecriture.creerFonctionnalite(a, c, x, session_id);
       return rep(`Fonctionnalité ${f.ref} créée (${f.origine}, poids ${f.poids}).`, { ref: f.ref });
@@ -277,6 +278,37 @@ export function creerServeurMcp(a: Acteur, s: Services): McpServer {
     const l: any[] = await s.equipes.membresProjet(a, c);
     return rep(l.map((m) => `- ${m.nom} <${m.email}> — ${L(m.role)}${m.actif ? '' : ' (désactivé)'}`).join('\n') || '(aucun membre)', l.map((m) => ({ nom: m.nom, email: m.email, role: m.role })));
   });
+
+  outil('maj_fonctionnalite', 'Modifie une fonctionnalité : titre, lot, poids, description / critères d’acceptation, dépôts concernés (pas le statut : voir maj_statut_fonctionnalite).',
+    { projet, ref: z.string(), titre: z.string().optional(), lot: z.string().optional(), poids: z.number().int().optional().describe('1, 2, 3, 5 ou 8'),
+      description: z.string().optional(), depots: z.array(z.string()).optional(), session_id: z.string().uuid().optional() },
+    async ({ projet: c, ref, session_id, ...x }) => {
+      const f = await s.gestion.majFonctionnalite(a, c, ref, x, session_id);
+      return rep(`Fonctionnalité ${f.ref} mise à jour.`, { ref: f.ref });
+    }, false);
+
+  outil('creer_jalon', 'Ajoute un jalon au planning (référence J1, J2…), avec les documents attendus à cette échéance.',
+    { projet, nom: z.string().min(2), date_prevue: z.string().optional().describe('AAAA-MM-JJ'), lot: z.string().optional(), facturation: z.string().optional().describe('ex. « 30 % »'),
+      documents: z.array(z.string()).optional().describe('Codes des documents attendus (ex. PV-RECETTE)'), session_id: z.string().uuid().optional() },
+    async ({ projet: c, session_id, ...x }) => {
+      const j = await s.gestion.creerJalon(a, c, x, session_id);
+      return rep(`Jalon ${j.ref} « ${j.nom} » ajouté${j.date_prevue ? ` (prévu le ${j.date_prevue})` : ''}.`, { ref: j.ref });
+    }, false);
+
+  outil('maj_jalon', 'Met à jour un jalon : date prévue, date réelle (jalon atteint), nom, lot.',
+    { projet, ref: z.string(), nom: z.string().optional(), date_prevue: z.string().optional(), date_reelle: z.string().optional().describe('AAAA-MM-JJ : jalon atteint'), lot: z.string().optional(), session_id: z.string().uuid().optional() },
+    async ({ projet: c, ref, session_id, ...x }) => {
+      const j = await s.gestion.majJalon(a, c, ref, x, session_id);
+      return rep(`Jalon ${j.ref} mis à jour.`, { ref: j.ref });
+    }, false);
+
+  outil('maj_risque', 'Met à jour un risque : statut (ouvert, surveille, survenu, clos), probabilité, impact, parade, responsable.',
+    { projet, ref: z.string(), statut: z.enum(['ouvert', 'surveille', 'survenu', 'clos']).optional(), probabilite: z.number().int().min(1).max(4).optional(), impact: z.number().int().min(1).max(4).optional(),
+      parade: z.string().optional(), responsable: z.string().optional(), session_id: z.string().uuid().optional() },
+    async ({ projet: c, ref, session_id, ...x }) => {
+      const r = await s.gestion.majRisque(a, c, ref, x, session_id);
+      return rep(`Risque ${r.ref} mis à jour (criticité ${r.probabilite * r.impact}/16, ${r.statut}).`, { ref: r.ref });
+    }, false);
 
   outil('creer_cas_test', 'Crée un cas de test de recette (référence RT-xxx), rattaché à une fonctionnalité.',
     { projet, titre: z.string().min(1), fonctionnalite: z.string().optional().describe('F-xxx'), preconditions: z.string().optional(), etapes: z.array(z.string()).optional(), attendu: z.string().optional(), session_id: z.string().uuid().optional() },

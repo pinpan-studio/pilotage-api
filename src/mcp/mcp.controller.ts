@@ -1,3 +1,4 @@
+import { GestionService } from '../ecriture/gestion.service';
 import { All, Controller, Req, Res, UnauthorizedException } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
@@ -17,7 +18,7 @@ import { EquipesService } from '../equipes/equipes.service';
 @ApiExcludeController()
 @Controller('mcp')
 export class McpController {
-  constructor(private readonly lecture: LectureService, private readonly ecriture: EcritureService, private readonly ind: IndicateursService, private readonly acces: AccesService, private readonly equipes: EquipesService) {}
+  constructor(private readonly lecture: LectureService, private readonly ecriture: EcritureService, private readonly ind: IndicateursService, private readonly acces: AccesService, private readonly equipes: EquipesService, private readonly gestion: GestionService) {}
 
   @All()
   async gerer(@Req() req: Request & { acteur: Acteur }, @Res() res: Response) {
@@ -26,7 +27,7 @@ export class McpController {
       return;
     }
     if (!req.acteur) throw new UnauthorizedException('Authentification requise.');
-    const serveur = creerServeurMcp(req.acteur, { lecture: this.lecture, ecriture: this.ecriture, ind: this.ind, acces: this.acces, equipes: this.equipes });
+    const serveur = creerServeurMcp(req.acteur, { lecture: this.lecture, ecriture: this.ecriture, ind: this.ind, acces: this.acces, equipes: this.equipes, gestion: this.gestion });
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
     res.on('close', () => { transport.close(); serveur.close(); });
     await serveur.connect(transport);

@@ -31,7 +31,10 @@
 | `ajouter_note_session` | session_id*, texte*, fonctionnalites[] |
 | `cloturer_session` | session_id*, resume_md* |
 | `maj_statut_fonctionnalite` | ref*, statut*, depot, notes |
-| `creer_fonctionnalite` | titre*, lot, poids (1/2/3/5/8), origine (interne \| DC-xxx), depots[], exigences[] |
+| `creer_fonctionnalite` | titre*, lot, poids (1/2/3/5/8), origine (interne \| DC-xxx), depots[], exigences[], description |
+| `maj_fonctionnalite` | ref*, titre, lot, poids, description (critères d'acceptation), depots[] |
+| `creer_jalon` / `maj_jalon` | nom*, date_prevue, lot, facturation, documents[] / ref*, date_prevue, date_reelle, nom, lot |
+| `maj_risque` | ref*, statut (ouvert\|surveille\|survenu\|clos), probabilite, impact, parade, responsable |
 | `ecrire_document` | code*, contenu_md*, resume_modif*, statut (en_cours \| en_revue) |
 | `maj_statut_document` | code*, statut* (a_produire, en_cours, en_revue — pas valide/signe) |
 | `ecrire_doc_technique` | depot, chemin*, contenu_md* |

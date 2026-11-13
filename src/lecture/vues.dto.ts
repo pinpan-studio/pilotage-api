@@ -191,6 +191,8 @@ export class EvenementDto {
 }
 
 export class FonctionnaliteDetailDto extends FonctionnaliteDto {
+  /** Description et critères d'acceptation (Markdown). */
+  description: string;
   tests: CasTestResultatDto[];
   journal: EvenementDto[];
   commits: EvenementDto[];
