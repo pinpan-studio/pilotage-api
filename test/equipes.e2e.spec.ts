@@ -40,7 +40,8 @@ describe('Équipes, invitations, rôles, création de projet', () => {
     await request(http).post('/api/v1/equipes/courante/membres').set(auth(admin)).send({ email: 'dev@gmail.com', role: 'developpeur' }).expect(409);
     const dev = (await google('g-dev', 'dev@gmail.com')).jeton_acces;
     expect(dev).toBeTruthy();
-    // pas encore membre du projet
+    // pas encore membre du projet (privé)
+    await request(http).patch('/api/v1/projets/dgh-portail/visibilite').set(auth(admin)).send({ visibilite: 'membres' }).expect(200);
     await request(http).get('/api/v1/projets/dgh-portail').set(auth(dev)).expect(404);
     await request(http).post('/api/v1/equipes/courante/membres').set(auth(dev)).send({ email: 'x@gmail.com', role: 'admin' }).expect(403);
     await request(http).post('/api/v1/projets').set(auth(dev)).send({ code: 'perso', nom: 'Perso' }).expect(403);

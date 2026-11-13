@@ -357,7 +357,8 @@ export function creerServeurMcp(a: Acteur, s: Services): McpServer {
   outil('creer_projet', "Crée un projet dans l'équipe (documents du catalogue instanciés « à produire », vous devenez chef de projet). Réservé si le développeur lié au jeton est administrateur ou chef de projet.",
     { code: z.string().regex(/^[a-z0-9][a-z0-9-]{1,60}$/).describe('Identifiant court : minuscules, chiffres, tirets'), nom: z.string().min(2), client: z.string().optional(), description: z.string().optional(),
       date_debut: z.string().optional().describe('AAAA-MM-JJ'), date_livraison_prevue: z.string().optional().describe('AAAA-MM-JJ'),
-      depots: z.array(z.object({ nom: z.string().regex(/^[a-z0-9][a-z0-9-]{0,40}$/), url: z.string().optional(), stack: z.string().optional() })).optional() },
+      depots: z.array(z.object({ nom: z.string().regex(/^[a-z0-9][a-z0-9-]{0,40}$/), url: z.string().optional(), stack: z.string().optional() })).optional(),
+      visibilite: z.enum(['equipe', 'equipe_lecture', 'membres']).optional().describe('equipe (défaut) : toute l’équipe voit et contribue ; equipe_lecture : toute l’équipe voit ; membres : privé') },
     async (x) => {
       const r = await s.equipes.creerProjet(a, x);
       const limite = a.projets_jeton?.length ? " Ce jeton est limité à certains projets : demandez à l'administrateur de l'autoriser sur celui-ci pour y écrire." : '';

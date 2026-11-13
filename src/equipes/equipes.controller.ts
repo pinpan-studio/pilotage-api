@@ -38,6 +38,9 @@ export class ProjetsAdminController {
 
   @Post() @ApiCreatedResponse({ type: D.ProjetCreeDto }) creer(@ActeurCourant() a: Acteur, @Body() dto: D.CreerProjetDto) { return this.s.creerProjet(a, dto); }
 
+  @Patch(':code/visibilite') @Roles(...HUMAINS) @ApiOkResponse({ type: D.VisibiliteResultatDto })
+  visibilite(@ActeurCourant() a: Acteur, @Param('code') code: string, @Body() dto: D.VisibiliteDto) { return this.s.majVisibilite(a, code, dto.visibilite); }
+
   @Get(':code/membres') @ApiOkResponse({ type: [D.MembreProjetDto] }) membres(@ActeurCourant() a: Acteur, @Param('code') code: string) { return this.s.membresProjet(a, code); }
   @Put(':code/membres') @Roles(...HUMAINS) @ApiOkResponse({ type: [D.MembreProjetDto] })
   definir(@ActeurCourant() a: Acteur, @Param('code') code: string, @Body() dto: D.DefinirMembreProjetDto) { return this.s.definirMembreProjet(a, code, dto.utilisateur_id, dto.role); }

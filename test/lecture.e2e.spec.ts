@@ -66,7 +66,8 @@ describe('API REST en lecture', () => {
     expect((await get('/modeles/sfd').expect(200)).body.contenu).toContain('#');
   });
 
-  it('cloisonnement : un développeur non membre ne voit pas le projet', async () => {
+  it('cloisonnement : un développeur non membre ne voit pas un projet privé', async () => {
+    await db.query(`UPDATE projet SET visibilite = 'membres'`);
     expect((await get('/projets', dev).expect(200)).body).toEqual([]);
     await get('/projets/exemple-declarations/indicateurs', dev).expect(404);
   });

@@ -37,6 +37,7 @@ export class CreerProjetDto {
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(5000) description?: string;
   @ApiPropertyOptional() @IsOptional() @IsDateString() date_debut?: string;
   @ApiPropertyOptional() @IsOptional() @IsDateString() date_livraison_prevue?: string;
+  @ApiPropertyOptional({ enum: ['equipe', 'equipe_lecture', 'membres'], default: 'equipe' }) @IsOptional() @IsIn(['equipe', 'equipe_lecture', 'membres']) visibilite?: 'equipe' | 'equipe_lecture' | 'membres';
   @ApiPropertyOptional({ type: [DepotACreerDto] }) @IsOptional() @IsArray() @ArrayMaxSize(20) @ValidateNested({ each: true }) @Type(() => DepotACreerDto) depots?: DepotACreerDto[];
 }
 export class ProjetCreeDto { id: string; code: string; nom: string; nb_documents: number; }
@@ -46,3 +47,6 @@ export class DefinirMembreProjetDto {
   @ApiProperty() @IsUUID() utilisateur_id: string;
   @ApiProperty({ enum: ROLES_PROJET }) @IsIn(ROLES_PROJET as unknown as string[]) role: string;
 }
+
+export class VisibiliteDto { @ApiProperty({ enum: ['equipe', 'equipe_lecture', 'membres'], description: 'equipe : toute l’équipe voit et contribue ; equipe_lecture : toute l’équipe voit, seuls les membres modifient ; membres : privé' }) @IsIn(['equipe', 'equipe_lecture', 'membres']) visibilite: 'equipe' | 'equipe_lecture' | 'membres'; }
+export class VisibiliteResultatDto { code: string; visibilite: string; }

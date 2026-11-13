@@ -138,6 +138,9 @@ export class ProjetDetailDto {
   depots: DepotDto[];
   /** Rôle de l'utilisateur courant sur ce projet (l'administrateur vaut chef de projet). */
   mon_role: 'chef_projet' | 'developpeur' | 'client_lecteur' | 'agent';
+  visibilite: 'equipe' | 'equipe_lecture' | 'membres';
+  /** L'utilisateur est-il membre déclaré du projet (sinon : accès par la visibilité « équipe » ou administrateur) ? */
+  membre: boolean;
 }
 
 export class DepotDto {

@@ -36,6 +36,7 @@ les références `ref`, `session_id`…).
 Connexion : jeton d'API (`Authorization: Bearer plt_…`) pour Claude Code, Cursor, etc. ; **OAuth** pour claude.ai et ChatGPT (connecteur avec l'URL `…/mcp`, consentement dans Pilotage). Le rôle effectif dépend du **jeton** : « agent » (restreint, défaut) ou un rôle humain plafonné par
 son titulaire (lecteur = lecture seule ; `creer_projet` exige administrateur ou chef de projet).
 Les écritures sont toujours marquées « Agent » dans l'historique.
+Visibilité d'un projet (`creer_projet(visibilite)`) : `equipe` (défaut : toute l'équipe voit et contribue comme développeur), `equipe_lecture`, `membres` (privé). Un projet invisible répond « introuvable ».
 
 ## Cycles de travail
 

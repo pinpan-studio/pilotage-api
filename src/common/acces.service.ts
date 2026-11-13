@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { MembreProjet, Projet } from '../db/entities';
 import { Acteur } from './acteur';
 import { introuvable, refuse } from './erreurs';
 
 /**
  * Cloisonnement strict : organisation, puis projet.
- * - admin : tous les projets de son organisation ;
- * - chef_projet / developpeur / client_lecteur : projets dont il est membre ;
- * - agent : projets du jeton ET dont le développeur lié est membre (ou admin).
+ * - admin : tous les projets de son équipe (rôle chef de projet partout) ;
+ * - membre d'un projet : son rôle sur ce projet ;
+ * - membre interne de l'équipe (chef de projet, développeur) non membre du projet : selon la visibilité du projet
+ *   (« equipe » → développeur, « equipe_lecture » → lecture, « membres » → invisible) ;
+ * - client (lecteur dans l'équipe) : uniquement les projets dont il est membre ;
+ * - jeton d'API / OAuth : comme son titulaire, limité aux projets du jeton s'il en liste.
  */
 @Injectable()
 export class AccesService {
@@ -18,21 +21,27 @@ export class AccesService {
     @InjectRepository(MembreProjet) private readonly membres: Repository<MembreProjet>,
   ) {}
 
+  /** Rôle dans l'équipe : celui du compte (ou du jeton à rôle, déjà plafonné par son titulaire). */
+  async roleEquipe(a: Acteur): Promise<string> {
+    if (a.role !== 'agent') return a.role;
+    const r = await this.projets.manager.query('SELECT role FROM utilisateur WHERE id = $1', [a.utilisateur_id]);
+    return r[0]?.role ?? 'client_lecteur';
+  }
+
   async idsAccessibles(a: Acteur): Promise<string[] | 'tous'> {
+    const role = await this.roleEquipe(a);
     let ids: string[] | 'tous';
-    const estAdmin = a.role === 'admin' || (a.role === 'agent' && (await this.estAdmin(a)));
-    if (estAdmin) ids = 'tous';
-    else ids = (await this.membres.find({ where: { utilisateur_id: a.utilisateur_id, organisation_id: a.organisation_id } })).map((m) => m.projet_id);
+    if (role === 'admin') ids = 'tous';
+    else {
+      const membre = (await this.membres.find({ where: { utilisateur_id: a.utilisateur_id, organisation_id: a.organisation_id } })).map((m) => m.projet_id);
+      const ouverts = role === 'client_lecteur' ? [] : (await this.projets.find({ select: { id: true }, where: { organisation_id: a.organisation_id, visibilite: In(['equipe', 'equipe_lecture']) } })).map((p) => p.id);
+      ids = [...new Set([...membre, ...ouverts])];
+    }
     if (a.jeton_id && a.projets_jeton?.length) {
       const jeton = a.projets_jeton;
       ids = ids === 'tous' ? jeton : ids.filter((id) => jeton.includes(id));
     }
     return ids;
-  }
-
-  private async estAdmin(a: Acteur) {
-    const r = await this.projets.manager.query('SELECT role FROM utilisateur WHERE id = $1', [a.utilisateur_id]);
-    return r[0]?.role === 'admin';
   }
 
   async lister(a: Acteur): Promise<Projet[]> {
@@ -51,12 +60,24 @@ export class AccesService {
     return p;
   }
 
-  /** Rôle de l'acteur sur le projet (admin vaut chef de projet). */
-  async roleSurProjet(a: Acteur, projet: Projet): Promise<'chef_projet' | 'developpeur' | 'client_lecteur' | 'agent'> {
-    if (a.role === 'agent') return 'agent';
-    if (a.role === 'admin') return 'chef_projet';
+  /** Rôle humain sur le projet, sans tenir compte du statut d'agent (admin vaut chef de projet). */
+  private async roleHumain(a: Acteur, projet: Projet): Promise<'chef_projet' | 'developpeur' | 'client_lecteur'> {
+    const role = await this.roleEquipe(a);
+    if (role === 'admin') return 'chef_projet';
     const m = await this.membres.findOneBy({ projet_id: projet.id, utilisateur_id: a.utilisateur_id });
-    return m?.role ?? 'client_lecteur';
+    if (m) return m.role;
+    if (role !== 'client_lecteur' && projet.visibilite === 'equipe') return 'developpeur';
+    return 'client_lecteur';
+  }
+
+  /** Rôle de l'acteur sur le projet. Un agent reste « agent » là où son titulaire peut écrire, lecteur sinon. */
+  async roleSurProjet(a: Acteur, projet: Projet): Promise<'chef_projet' | 'developpeur' | 'client_lecteur' | 'agent'> {
+    const r = await this.roleHumain(a, projet);
+    if (a.role === 'agent') return r === 'client_lecteur' ? 'client_lecteur' : 'agent';
+    // Un jeton à rôle ne dépasse pas le rôle porté par le jeton.
+    if (a.jeton_id && a.role === 'client_lecteur') return 'client_lecteur';
+    if (a.jeton_id && a.role === 'developpeur' && r === 'chef_projet') return 'developpeur';
+    return r;
   }
 
   async exigerChefProjet(a: Acteur, projet: Projet, quoi: string) {

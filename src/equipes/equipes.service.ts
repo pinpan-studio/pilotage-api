@@ -111,7 +111,7 @@ export class EquipesService {
 
   // ------------------------------------------------------------- projets
 
-  async creerProjet(a: Acteur, x: { code: string; nom: string; client?: string; description?: string; date_debut?: string; date_livraison_prevue?: string; depots?: { nom: string; url?: string; stack?: string }[] }) {
+  async creerProjet(a: Acteur, x: { code: string; nom: string; client?: string; description?: string; date_debut?: string; date_livraison_prevue?: string; depots?: { nom: string; url?: string; stack?: string }[]; visibilite?: "equipe" | "equipe_lecture" | "membres" }) {
     const role = await this.roleEquipe(a);
     if (!['admin', 'chef_projet'].includes(role)) throw refuse('seul un administrateur ou un chef de projet peut créer un projet.');
     if (x.date_debut && x.date_livraison_prevue && x.date_livraison_prevue < x.date_debut) throw invalide('la livraison prévue précède le début.');
@@ -120,7 +120,7 @@ export class EquipesService {
       const moi = await em.findOneByOrFail(E.Utilisateur, { id: a.utilisateur_id });
       const base = { organisation_id: a.organisation_id, cree_par: a.utilisateur_id };
       const p = await em.save(E.Projet, em.create(E.Projet, { ...base, code: x.code, nom: x.nom.trim(), client: x.client?.trim() ?? '', description: x.description ?? '',
-        date_debut: x.date_debut ?? null, date_livraison_prevue: x.date_livraison_prevue ?? null, chef_projet_id: moi.id, chef_projet: moi.nom, statut: 'en_cours' }));
+        date_debut: x.date_debut ?? null, date_livraison_prevue: x.date_livraison_prevue ?? null, chef_projet_id: moi.id, chef_projet: moi.nom, statut: 'en_cours', visibilite: x.visibilite ?? 'equipe' }));
       const P = { ...base, projet_id: p.id };
       for (const [ordre, d] of (x.depots ?? []).entries()) await em.save(E.Depot, em.create(E.Depot, { ...P, nom: d.nom, url: d.url ?? '', stack: d.stack ?? '', ordre }));
       // Un document « à produire » par type du catalogue (documentsInitiaux() du kit v1).
@@ -141,8 +141,19 @@ export class EquipesService {
   private async exigerChefProjet(a: Acteur, code: string) {
     if (a.role === 'agent') throw refuse("l'agent ne peut pas gérer les membres d'un projet.");
     const p = await this.acces.projet(a, code);
-    await this.acces.exigerChefProjet(a, p, 'gérer les membres du projet');
+    await this.acces.exigerChefProjet(a, p, 'gérer les membres et la visibilité du projet');
     return p;
+  }
+
+  /** Visibilité du projet dans l'équipe (chef de projet ou administrateur, humain). */
+  async majVisibilite(a: Acteur, code: string, visibilite: 'equipe' | 'equipe_lecture' | 'membres') {
+    if (a.role === 'agent') throw refuse("l'agent ne peut pas changer la visibilité d'un projet.");
+    const p = await this.exigerChefProjet(a, code);
+    await this.db.transaction(async (em: EntityManager) => {
+      await em.update(E.Projet, { id: p.id }, { visibilite });
+      await this.hist.tracer(em, a, 'projet', { id: p.id, visibilite: p.visibilite }, { id: p.id, visibilite }, { projet_id: p.id });
+    });
+    return { code: p.code, visibilite };
   }
 
   async definirMembreProjet(a: Acteur, code: string, utilisateur_id: string, role: string) {

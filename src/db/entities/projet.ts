@@ -20,6 +20,12 @@ export class Projet extends Base {
   @Column(md) tdr: string;
   /** Une révision du périmètre ouverte par un humain autorise l'agent à modifier TDR et exigences. */
   @Column({ default: false }) revision_perimetre: boolean;
+  /**
+   * Visibilité dans l'équipe : « equipe » (tous les membres internes le voient ; les non-membres y contribuent comme développeurs),
+   * « equipe_lecture » (toute l'équipe le voit, seuls ses membres le modifient), « membres » (privé).
+   * Les clients (rôle lecteur dans l'équipe) ne voient que les projets dont ils sont membres.
+   */
+  @Column({ type: 'varchar', default: 'equipe' }) visibilite: 'equipe' | 'equipe_lecture' | 'membres';
 }
 
 @Entity('membre_projet')

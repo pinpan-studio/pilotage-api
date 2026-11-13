@@ -16,6 +16,7 @@ describe('Authentification, jetons d’API et cloisonnement', () => {
     const adminB = await creerUtilisateur(db, orgB, 'admin@b.ci', 'admin');
     const p1 = await creerProjet(db, orgA, 'p1', [[dev, 'developpeur']]);
     const p2 = await creerProjet(db, orgA, 'p2');
+    await db.query(`UPDATE projet SET visibilite = 'membres' WHERE id = $1`, [p2.id]);
     const pb = await creerProjet(db, orgB, 'pb');
     ctx = { orgA, admin, dev, adminB, p1, p2, pb };
   });

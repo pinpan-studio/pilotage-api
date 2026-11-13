@@ -3491,6 +3491,51 @@
         ]
       }
     },
+    "/api/v1/projets/{code}/visibilite": {
+      "patch": {
+        "operationId": "ProjetsAdmin_visibilite",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisibiliteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisibiliteResultatDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
     "/api/v1/projets/{code}/membres": {
       "get": {
         "operationId": "ProjetsAdmin_membres",
@@ -4834,6 +4879,18 @@
               "client_lecteur",
               "agent"
             ]
+          },
+          "visibilite": {
+            "type": "string",
+            "enum": [
+              "equipe",
+              "equipe_lecture",
+              "membres"
+            ]
+          },
+          "membre": {
+            "type": "boolean",
+            "description": "L'utilisateur est-il membre déclaré du projet (sinon : accès par la visibilité « équipe » ou administrateur) ?"
           }
         },
         "required": [
@@ -4850,7 +4907,9 @@
           "seuil_rappel_doc",
           "revision_perimetre",
           "depots",
-          "mon_role"
+          "mon_role",
+          "visibilite",
+          "membre"
         ]
       },
       "TexteDto": {
@@ -8658,6 +8717,15 @@
           "date_livraison_prevue": {
             "type": "string"
           },
+          "visibilite": {
+            "enum": [
+              "equipe",
+              "equipe_lecture",
+              "membres"
+            ],
+            "type": "string",
+            "default": "equipe"
+          },
           "depots": {
             "maxItems": 20,
             "type": "array",
@@ -8692,6 +8760,38 @@
           "code",
           "nom",
           "nb_documents"
+        ]
+      },
+      "VisibiliteDto": {
+        "type": "object",
+        "properties": {
+          "visibilite": {
+            "enum": [
+              "equipe",
+              "equipe_lecture",
+              "membres"
+            ],
+            "type": "string",
+            "description": "equipe : toute l’équipe voit et contribue ; equipe_lecture : toute l’équipe voit, seuls les membres modifient ; membres : privé"
+          }
+        },
+        "required": [
+          "visibilite"
+        ]
+      },
+      "VisibiliteResultatDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "visibilite": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "visibilite"
         ]
       },
       "MembreProjetDto": {
