@@ -2618,6 +2618,128 @@
         ]
       }
     },
+    "/api/v1/documents-generables": {
+      "get": {
+        "operationId": "Generation_generables",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerablesDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "livrables"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/documents/{doc}/apercu-generation": {
+      "get": {
+        "operationId": "Generation_apercu",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "doc",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApercuGenerationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "livrables"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/documents/{doc}/generer": {
+      "post": {
+        "operationId": "Generation_generer",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "doc",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenererDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "livrables"
+        ]
+      }
+    },
     "/api/v1/projets/{code}/actions/{ref}": {
       "patch": {
         "operationId": "Ecriture_modifierTache",
@@ -5241,6 +5363,14 @@
             ],
             "type": "string"
           },
+          "importance": {
+            "description": "Indispensable dans tout projet de développement, ou facultatif (peut être déclaré « sans objet »).",
+            "enum": [
+              "facultatif",
+              "indispensable"
+            ],
+            "type": "string"
+          },
           "livrable": {
             "type": "boolean"
           },
@@ -5292,6 +5422,7 @@
           "titre",
           "phase",
           "producteur",
+          "importance",
           "livrable",
           "signature",
           "recurrent",
@@ -6983,6 +7114,14 @@
           "producteur": {
             "type": "string"
           },
+          "importance": {
+            "type": "string",
+            "description": "indispensable ou facultatif (catalogue de l'équipe)."
+          },
+          "generable": {
+            "type": "boolean",
+            "description": "Le contenu peut être généré à partir des données du projet."
+          },
           "livrable": {
             "type": "boolean"
           },
@@ -7033,6 +7172,8 @@
           "titre",
           "phase",
           "producteur",
+          "importance",
+          "generable",
           "livrable",
           "signature",
           "recurrent",
@@ -7150,6 +7291,14 @@
           "producteur": {
             "type": "string"
           },
+          "importance": {
+            "type": "string",
+            "description": "indispensable ou facultatif (catalogue de l'équipe)."
+          },
+          "generable": {
+            "type": "boolean",
+            "description": "Le contenu peut être généré à partir des données du projet."
+          },
           "livrable": {
             "type": "boolean"
           },
@@ -7222,6 +7371,8 @@
           "titre",
           "phase",
           "producteur",
+          "importance",
+          "generable",
           "livrable",
           "signature",
           "recurrent",
@@ -8142,6 +8293,70 @@
           "redirection"
         ]
       },
+      "GenerablesDto": {
+        "type": "object",
+        "properties": {
+          "codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "codes"
+        ]
+      },
+      "ApercuGenerationDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "contenu_md": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "contenu_md"
+        ]
+      },
+      "GenererDto": {
+        "type": "object",
+        "properties": {
+          "statut": {
+            "enum": [
+              "en_cours",
+              "en_revue"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "GenerationDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "statut": {
+            "type": "string"
+          },
+          "contenu_md": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "version",
+          "statut",
+          "contenu_md"
+        ]
+      },
       "CreerTacheDto": {
         "type": "object",
         "properties": {
@@ -9052,6 +9267,13 @@
           },
           "signature": {
             "type": "boolean"
+          },
+          "importance": {
+            "enum": [
+              "indispensable",
+              "facultatif"
+            ],
+            "type": "string"
           }
         }
       },

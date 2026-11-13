@@ -209,6 +209,10 @@ export class DocumentDto {
   titre: string;
   phase: string;
   producteur: string;
+  /** indispensable ou facultatif (catalogue de l'équipe). */
+  importance: string;
+  /** Le contenu peut être généré à partir des données du projet. */
+  generable: boolean;
   livrable: boolean;
   signature: boolean;
   recurrent: boolean;

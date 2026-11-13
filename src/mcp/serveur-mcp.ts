@@ -1,3 +1,4 @@
+import { GenerationService } from '../generation/generation.service';
 import { GestionService } from '../ecriture/gestion.service';
 import { HttpException } from '@nestjs/common';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -17,7 +18,7 @@ const pct = (x: number | null | undefined) => (x == null ? '—' : `${Math.round
 const L = (c: string) => LIBELLES[c] ?? c;
 const PAR_PAGE = 50;
 
-export interface Services { lecture: LectureService; ecriture: EcritureService; ind: IndicateursService; acces: AccesService; equipes: EquipesService; gestion: GestionService }
+export interface Services { lecture: LectureService; ecriture: EcritureService; ind: IndicateursService; acces: AccesService; equipes: EquipesService; gestion: GestionService; generation: GenerationService }
 
 type Resultat = { content: { type: 'text'; text: string }[]; structuredContent?: Record<string, unknown>; isError?: boolean };
 
@@ -318,6 +319,10 @@ export function creerServeurMcp(a: Acteur, s: Services): McpServer {
       const r = await s.gestion.majRisque(a, c, ref, x, session_id);
       return rep(`Risque ${r.ref} mis à jour (criticité ${r.probabilite * r.impact}/16, ${r.statut}).`, { ref: r.ref });
     }, false);
+
+  outil('generer_document', "Génère le contenu d'un livrable à partir des données du projet (SFD, DAT avec schéma d'architecture, PLANNING, CAHIER-RECETTE, PV-RECETTE, RAPPORTS, registres…) et l'enregistre comme nouvelle version « en cours ». À relire et compléter ensuite avec ecrire_document.",
+    { projet, code: z.string().describe('Code du document (ex. DAT)'), statut: z.enum(['en_cours', 'en_revue']).optional(), session_id: z.string().uuid().optional() },
+    async ({ projet: c, code, statut, session_id }) => { const r = await s.generation.generer(a, c, code, { statut, session_id }); return rep(`${code} généré : version ${r.version} (${L(r.statut)}).\n\n${r.contenu_md.slice(0, 1500)}${r.contenu_md.length > 1500 ? '\n…' : ''}`, { version: r.version }); }, false);
 
   outil('ecrire_tdr', "Remplace le texte du TDR (Markdown). Réservé au chef de projet ; l'agent seulement pendant une révision de périmètre ouverte par un humain.",
     { projet, contenu_md: z.string().min(1), session_id: z.string().uuid().optional() },

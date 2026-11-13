@@ -162,6 +162,7 @@ export class TypeDocumentMajDto {
   @ApiPropertyOptional({ enum: ['agent', 'mixte', 'humain'] }) @IsOptional() @IsIn(['agent', 'mixte', 'humain']) producteur?: 'agent' | 'mixte' | 'humain';
   @opt() @IsOptional() @IsBoolean() livrable?: boolean;
   @opt() @IsOptional() @IsBoolean() signature?: boolean;
+  @ApiPropertyOptional({ enum: ['indispensable', 'facultatif'] }) @IsOptional() @IsIn(['indispensable', 'facultatif']) importance?: 'indispensable' | 'facultatif';
 }
 export class ModeleDto { @ApiProperty() @IsString() contenu: string; }
 export class RevisionResultatDto { revision_perimetre: boolean; }

@@ -9,6 +9,8 @@ export class TypeDocument extends Base {
   @Column() titre: string;
   @Column() phase: string;
   @Column({ type: 'varchar', default: 'mixte' }) producteur: 'agent' | 'mixte' | 'humain';
+  /** Indispensable dans tout projet de développement, ou facultatif (peut être déclaré « sans objet »). */
+  @Column({ type: 'varchar', default: 'facultatif' }) importance: 'indispensable' | 'facultatif';
   @Column({ default: false }) livrable: boolean;
   @Column({ default: false }) signature: boolean;
   @Column({ default: false }) recurrent: boolean;

@@ -1,3 +1,6 @@
+/** Documents dont le contenu se génère depuis les données du projet (voir GenerationService). */
+export const CODES_GENERABLES = ['NOTE-CADRAGE', 'PLANNING', 'SFD', 'DAT', 'DOC-TECH', 'CHANGELOG', 'PLAN-RECETTE', 'CAHIER-RECETTE', 'PV-RECETTE', 'CR-REUNIONS', 'RAPPORTS',
+  'REG-RISQUES', 'REG-ACTIONS', 'REG-CHANGEMENTS', 'REG-PARTIES-PRENANTES', 'RACI', 'BORDEREAU-LIVRAISON'];
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, In } from 'typeorm';
@@ -163,7 +166,7 @@ export class LectureService {
       const t = d.type_document_id ? tp.get(d.type_document_id) : undefined;
       const vue: V.DocumentDto = {
         id: d.id, code: d.code, titre: d.titre || t?.titre || d.code, phase: d.phase || t?.phase || 'pilotage',
-        producteur: t?.producteur ?? 'mixte', livrable: t?.livrable ?? false, signature: t?.signature ?? false, recurrent: t?.recurrent ?? false,
+        producteur: t?.producteur ?? 'mixte', importance: t?.importance ?? 'facultatif', generable: CODES_GENERABLES.includes(d.code), livrable: t?.livrable ?? false, signature: t?.signature ?? false, recurrent: t?.recurrent ?? false,
         statut: d.statut, echeance: d.echeance, echeance_effective: d.echeance || jalonDe[d.code] || null, responsable: d.responsable,
         version: d.version, date_validation: d.date_validation, lien_externe: d.lien_externe, notes: d.notes,
         nb_versions: nbV[d.id] ?? 0, nb_scans: nbS[d.id] ?? 0,

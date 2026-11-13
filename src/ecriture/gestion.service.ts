@@ -217,7 +217,7 @@ export class GestionService {
   private async exigerAdmin(a: Acteur) {
     if ((await this.acces.roleEquipe(a)) !== 'admin' || a.role === 'agent') throw refuse('seul un administrateur de l’équipe peut modifier le catalogue documentaire.');
   }
-  async majTypeDocument(a: Acteur, code: string, x: Partial<{ titre: string; description: string; phase: string; producteur: 'agent' | 'mixte' | 'humain'; livrable: boolean; signature: boolean }>) {
+  async majTypeDocument(a: Acteur, code: string, x: Partial<{ titre: string; description: string; phase: string; producteur: 'agent' | 'mixte' | 'humain'; livrable: boolean; signature: boolean; importance: 'indispensable' | 'facultatif' }>) {
     await this.exigerAdmin(a);
     return this.db.transaction(async (em) => {
       const t = await em.findOneBy(E.TypeDocument, { organisation_id: a.organisation_id, code });

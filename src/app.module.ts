@@ -15,6 +15,7 @@ import { StockageModule } from './stockage/stockage.module';
 import { EquipesModule } from './equipes/equipes.module';
 import { ExportModule } from './export/export.module';
 import { OAuthModule } from './oauth/oauth.module';
+import { GenerationModule } from './generation/generation.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { OAuthModule } from './oauth/oauth.module';
     AuthModule,
     ExportModule,
     OAuthModule,
+    GenerationModule,
     CommonModule,
     IndicateursModule,
     ImportModule,

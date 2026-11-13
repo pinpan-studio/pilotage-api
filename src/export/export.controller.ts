@@ -6,6 +6,7 @@ import { Acteur, ActeurCourant } from '../common/acteur';
 import { LectureService } from '../lecture/lecture.service';
 import { introuvable } from '../common/erreurs';
 import { versDocx, versPdf } from './rendu';
+import { decrireMermaid } from '../generation/architecture';
 import { DiffDocumentDto } from './export.dto';
 
 const LIBELLES: Record<string, string> = { a_produire: 'À produire', en_cours: 'En cours', en_revue: 'En revue', valide: 'Validé', signe: 'Signé', sans_objet: 'Sans objet' };
@@ -25,7 +26,8 @@ export class ExportController {
     if (!v) throw introuvable(`contenu du document ${doc} (aucune version rédigée)`);
     const entete = { projet: p.nom, client: p.client, code: d.code, titre: d.titre, version: v.numero, statut: LIBELLES[d.statut] ?? d.statut,
       date: new Date(v.cree_le).toLocaleDateString('fr-FR'), auteur: v.auteur || undefined };
-    const contenu = format === 'pdf' ? await versPdf(entete, v.contenu) : await versDocx(entete, v.contenu);
+    const md = v.contenu.replace(/```mermaid\n([\s\S]*?)```/g, (_m, code) => decrireMermaid(code));
+    const contenu = format === 'pdf' ? await versPdf(entete, md) : await versDocx(entete, md);
     const nom = `${p.code}-${d.code}-v${v.numero}.${format}`;
     res.setHeader('Content-Type', format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     res.setHeader('Content-Disposition', `attachment; filename="${nom}"`);
