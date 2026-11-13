@@ -1,0 +1,73 @@
+- id: F-001
+  titre: "Inscription et connexion des entreprises"
+  exigences: [EX-01]
+  jalon: "Lot 1"
+  poids: 3
+  statut: recette
+  depots: { backend: developpe, web: developpe }
+  origine: TDR
+- id: F-002
+  titre: "Gestion des rôles et des agents"
+  exigences: [EX-02]
+  jalon: "Lot 1"
+  poids: 2
+  statut: valide
+  depots: { backend: developpe, web: developpe }
+  origine: TDR
+- id: F-003
+  titre: "Formulaire de déclaration mensuelle"
+  exigences: [EX-03]
+  jalon: "Lot 1"
+  poids: 5
+  statut: en_cours
+  depots: { backend: developpe, web: developpe }
+  origine: TDR
+- id: F-004
+  titre: "Dépôt des pièces justificatives"
+  exigences: [EX-03]
+  jalon: "Lot 1"
+  poids: 3
+  statut: en_cours
+  depots: { backend: developpe, web: en_cours }
+  origine: TDR
+- id: F-005
+  titre: "Accusé de réception PDF"
+  exigences: [EX-04]
+  jalon: "Lot 1"
+  poids: 2
+  statut: en_cours
+  depots: { backend: en_cours, web: a_faire }
+  origine: TDR
+- id: F-006
+  titre: "Circuit de validation / rejet"
+  exigences: [EX-05]
+  jalon: "Lot 2"
+  poids: 5
+  statut: a_faire
+  depots: { backend: en_cours, web: a_faire }
+  origine: TDR
+- id: F-007
+  titre: "Statistiques et export Excel"
+  exigences: [EX-06]
+  jalon: "Lot 2"
+  poids: 3
+  statut: a_faire
+  depots: { backend: a_faire, web: a_faire }
+  origine: TDR
+- id: F-008
+  titre: "Consultation mobile et notifications"
+  exigences: [EX-07]
+  jalon: "Lot 2"
+  poids: 5
+  statut: bloque
+  depots: { backend: a_faire, mobile: bloque }
+  origine: TDR
+  notes: "En attente des accès au service de notifications du client."
+- id: F-009
+  titre: "Brouillon automatique de la déclaration"
+  exigences: [EX-03]
+  jalon: "Lot 1"
+  poids: 2
+  statut: developpe
+  depots: { backend: developpe, web: developpe }
+  origine: RC-002

@@ -1,0 +1,10 @@
+id: R0
+titre: "Recette interne — Lot 1"
+date: AAAA-MM-JJ
+type: interne          # interne | client
+environnement: staging
+testeurs: []
+resultats:
+  - test: RT-001
+    resultat: ok        # ok | ko | reserve | non_teste
+    commentaire: ""

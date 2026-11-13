@@ -1,0 +1,43 @@
+# Suivi des documents du projet (référentiel : modeles/documents/catalogue.yaml).
+# statut : a_produire | en_cours | en_revue | valide | signe | sans_objet
+- { code: TDR, statut: valide }
+- { code: OFFRE, statut: sans_objet, notes: "Marché de gré à gré, pas d'offre formelle" }
+- { code: CONTRAT, statut: signe, date_validation: 2026-09-10, lien: "https://example.com/ged/contrat", notes: "Original conservé dans la GED (exemple)" }
+- { code: NOTE-CADRAGE, statut: valide, version: "1.0", date_validation: 2026-09-30, responsable: "Chef de projet" }
+- { code: PV-LANCEMENT, statut: valide, date_validation: 2026-09-18, fichier: 07-gestion/reunions/2026-09-18-lancement.md }
+- { code: PAQ, statut: en_revue, version: "0.3", echeance: 2026-11-20, responsable: "Chef de projet" }
+- { code: RACI, statut: valide }
+- { code: PLANNING, statut: valide }
+- { code: SFD, statut: en_cours, version: "0.6", echeance: 2026-11-10, responsable: "Chef de projet", notes: "Lot 1 rédigé, Lot 2 en cours" }
+- { code: DAT, statut: en_cours, version: "0.2", responsable: "Développeur backend" }
+- { code: MCD, statut: a_produire, responsable: "Développeur backend" }
+- { code: MAQUETTES, statut: valide, lien: "https://www.figma.com/", notes: "Maquettes validées en atelier le 2026-10-08" }
+- { code: CHARTE, statut: sans_objet, notes: "Charte du client réutilisée" }
+- { code: SECURITE, statut: a_produire, echeance: 2026-12-05 }
+- { code: PV-VALID-SPEC, statut: a_produire }
+- { code: DOC-TECH, statut: en_cours }
+- { code: CHANGELOG, statut: en_cours }
+- { code: PLAN-RECETTE, statut: valide, version: "1.0", date_validation: 2026-10-25 }
+- { code: CAHIER-RECETTE, statut: en_cours }
+- { code: PV-RECETTE, statut: a_produire }
+- { code: PV-LEVEE-RESERVES, statut: a_produire }
+- { code: PLAN-DEPLOIEMENT, statut: a_produire }
+- { code: GUIDE-INSTALLATION, statut: a_produire }
+- { code: MANUEL-UTILISATEUR, statut: a_produire }
+- { code: MANUEL-ADMIN, statut: a_produire }
+- { code: DEX, statut: a_produire }
+- { code: FORMATION, statut: a_produire }
+- { code: PV-FORMATION, statut: a_produire }
+- { code: BORDEREAU-LIVRAISON, statut: a_produire }
+- { code: PV-RECEPTION-PROVISOIRE, statut: a_produire }
+- { code: PV-RECEPTION-DEFINITIVE, statut: a_produire }
+- { code: TRANSFERT, statut: a_produire }
+- { code: RAPPORT-FIN, statut: a_produire }
+- { code: RETEX, statut: a_produire }
+- { code: MAINTENANCE, statut: a_produire }
+- { code: CR-REUNIONS, statut: en_cours }
+- { code: RAPPORTS, statut: en_cours }
+- { code: REG-RISQUES, statut: en_cours }
+- { code: REG-CHANGEMENTS, statut: en_cours }
+- { code: REG-ACTIONS, statut: en_cours }
+- { code: REG-PARTIES-PRENANTES, statut: valide }

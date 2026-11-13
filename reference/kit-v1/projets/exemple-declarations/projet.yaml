@@ -1,0 +1,12 @@
+# Projet FICTIF de démonstration — à supprimer dans votre dépôt privé.
+nom: "Portail de déclarations (exemple)"
+code: "exemple-declarations"
+client: "Client Exemple SA"
+chef_projet: "Chef de projet"
+equipe: ["Développeur backend", "Développeur web", "Développeur mobile"]
+description: "Plateforme en ligne permettant aux entreprises de déposer leurs déclarations mensuelles, suivies par l'administration."
+date_debut: "2026-09-15"
+date_livraison_prevue: "2027-01-15"
+statut: en_cours
+agent:
+  seuil_rappel_doc: 8

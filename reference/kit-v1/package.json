@@ -1,0 +1,24 @@
+{
+  "name": "sc-pilotage",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pilotage des projets de développement : TDR, fonctionnalités, doc technique, journal des agents IA, recette, retours clients, tableau de bord.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs && npx --yes serve dist -l 3000",
+    "nouveau-projet": "node scripts/nouveau-projet.mjs",
+    "installer": "node scripts/installer.mjs",
+    "etat": "node scripts/etat.mjs",
+    "verifier": "node scripts/verifier.mjs",
+    "documents": "node scripts/documents.mjs"
+  },
+  "dependencies": {
+    "@vercel/functions": "^3.1.0",
+    "marked": "^18.0.0",
+    "yaml": "^2.8.0"
+  }
+}

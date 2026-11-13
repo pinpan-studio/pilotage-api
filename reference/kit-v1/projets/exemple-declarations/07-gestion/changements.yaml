@@ -1,0 +1,22 @@
+- id: DC-001
+  titre: "Enregistrement automatique en brouillon"
+  demandeur: "Point focal client"
+  date: 2026-10-24
+  description: "Éviter la perte de saisie en cas de coupure."
+  origine: RC-002
+  impact_delai_jours: 0
+  impact_cout: "absorbé"
+  decision: accepte
+  date_decision: 2026-10-25
+  avenant: ""
+  fonctionnalites: [F-009]
+- id: DC-002
+  titre: "Export PDF des statistiques"
+  demandeur: "Point focal client"
+  date: 2026-11-11
+  description: "En plus de l'export Excel prévu au TDR."
+  origine: RC-004
+  impact_delai_jours: 3
+  impact_cout: "sur devis"
+  decision: en_analyse
+  fonctionnalites: []

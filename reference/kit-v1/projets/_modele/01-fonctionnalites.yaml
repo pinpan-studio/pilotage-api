@@ -1,0 +1,21 @@
+# Liste des fonctionnalités — source du taux d'avancement.
+#
+# statut (global) : a_faire | en_cours | bloque | developpe | recette | valide | abandonne
+#   - "recette" = tous ses cas de test sont OK dans la dernière campagne
+#   - "valide"  = validé par le client (PV, mail…) — posé UNIQUEMENT par un humain
+# depots : statut de développement par dépôt (a_faire | en_cours | bloque | developpe)
+#   Si renseigné, le statut global "en développement" est déduit automatiquement.
+# poids : taille relative (1, 2, 3, 5, 8). Sert à pondérer l'avancement.
+#
+# - id: F-001
+#   titre: "Authentification des opérateurs"
+#   exigences: [EX-01]
+#   jalon: "Lot 1"
+#   poids: 3
+#   statut: en_cours
+#   depots:
+#     backend: developpe
+#     web: en_cours
+#   origine: TDR            # TDR | RC-xxx (évolution issue d'un retour client) | interne
+#   notes: ""
+[]

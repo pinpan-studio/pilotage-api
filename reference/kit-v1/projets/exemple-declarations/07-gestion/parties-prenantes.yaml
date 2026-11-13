@@ -1,0 +1,4 @@
+- { nom: "Directeur (exemple)", fonction: "Directeur des systèmes d'information", organisme: "Client Exemple SA", role: sponsor, influence: haute, attentes: "Respect du calendrier, sécurité" }
+- { nom: "Point focal client", fonction: "Chef de service", organisme: "Client Exemple SA", role: point_focal, influence: haute, attentes: "Simplicité pour les entreprises" }
+- { nom: "Chef de projet", fonction: "Responsable digital", organisme: "Prestataire", role: equipe_projet, influence: haute }
+- { nom: "Entreprises pilotes", fonction: "Utilisateurs clés", organisme: "Externe", role: utilisateur_cle, influence: moyenne, attentes: "Moins de déplacements, accusé immédiat" }

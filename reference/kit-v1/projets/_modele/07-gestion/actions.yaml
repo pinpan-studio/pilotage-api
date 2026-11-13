@@ -1,0 +1,9 @@
+# Plan d'actions (issues des réunions, retours, recette…).
+# statut : a_faire | en_cours | fait | annule
+# - id: A-001
+#   action: "Transmettre les accès au serveur de recette"
+#   responsable: "Point focal client"
+#   echeance: 2026-11-20
+#   statut: a_faire
+#   origine: "07-gestion/reunions/2026-11-12-copil.md"
+[]

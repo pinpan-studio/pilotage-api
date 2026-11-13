@@ -1,0 +1,14 @@
+# Fiche du projet — remplie par /init-projet puis tenue à jour par l'équipe.
+nom: "Nom du projet"
+code: "__CODE__"          # identifiant court = nom du dossier dans projets/
+client: "Nom du client"
+chef_projet: ""
+equipe: []                # ex. ["Parfait Konan", "Développeur 2"]
+description: ""
+date_debut: ""            # AAAA-MM-JJ
+date_livraison_prevue: "" # AAAA-MM-JJ
+statut: en_cours          # en_cours | en_pause | livre | cloture
+
+# Réglages de l'agent documentaliste
+agent:
+  seuil_rappel_doc: 8     # nb de modifications de code avant rappel automatique de mise à jour de la doc

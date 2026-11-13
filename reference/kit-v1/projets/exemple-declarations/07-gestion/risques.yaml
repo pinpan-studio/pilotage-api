@@ -1,0 +1,36 @@
+- id: R-001
+  titre: "Accès au service de notifications du client non fournis"
+  categorie: client
+  probabilite: 4
+  impact: 3
+  parade: "Relance au COPIL ; prévoir un mode dégradé par e-mail"
+  responsable: "Chef de projet"
+  date: 2026-10-20
+  statut: survenu
+- id: R-002
+  titre: "Serveur de production livré en retard"
+  categorie: planning
+  probabilite: 2
+  impact: 4
+  parade: "Valider les caractéristiques du serveur dès novembre ; plan B d'hébergement temporaire"
+  responsable: "Point focal client"
+  date: 2026-10-01
+  statut: ouvert
+- id: R-003
+  titre: "Faible adoption par les entreprises"
+  categorie: organisationnel
+  probabilite: 2
+  impact: 3
+  parade: "Sessions de formation et guide simplifié"
+  responsable: "Chef de projet"
+  date: 2026-09-25
+  statut: surveille
+- id: R-004
+  titre: "Volumétrie des pièces jointes sous-estimée"
+  categorie: technique
+  probabilite: 2
+  impact: 2
+  parade: "Stockage objet extensible, compression des PDF"
+  responsable: "Développeur backend"
+  date: 2026-10-28
+  statut: ouvert

@@ -1,0 +1,11 @@
+id: R1
+titre: "Recette interne — Lot 1 (itération 1)"
+date: 2026-10-30
+type: interne
+environnement: staging
+testeurs: ["Équipe digitale"]
+resultats:
+  - { test: RT-001, resultat: ko, commentaire: "Le lien de validation expire trop vite" }
+  - { test: RT-002, resultat: ok }
+  - { test: RT-003, resultat: ok }
+  - { test: RT-004, resultat: ko, commentaire: "Erreur 500 à la soumission" }

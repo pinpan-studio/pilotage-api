@@ -1,0 +1,362 @@
+# Référentiel des documents de gestion de projet.
+# Chaque projet a son propre documents.yaml (copie adaptée de ce catalogue, ajustée par /init-projet
+# selon les livrables exigés par le TDR).
+#
+# producteur : agent  = rédigé par l'agent à partir des données du projet (relu par un humain)
+#              mixte  = brouillon par l'agent, complété / validé par un humain
+#              humain = produit hors de l'agent (contrat, maquettes…) — on référence le fichier
+# livrable   : true si c'est un livrable contractuel remis au client
+# signature  : true si le document doit être signé (PV) — joindre le scan dans 08-livrables/signes/
+# modele     : fichier de modeles/documents/ servant de base (vide = pas de modèle)
+# emplacement: chemin par défaut dans le dossier du projet
+
+phases:
+  - { code: cadrage, titre: "Cadrage" }
+  - { code: conception, titre: "Conception" }
+  - { code: realisation, titre: "Réalisation" }
+  - { code: recette, titre: "Recette" }
+  - { code: deploiement, titre: "Déploiement et mise en service" }
+  - { code: cloture, titre: "Clôture" }
+  - { code: pilotage, titre: "Pilotage (récurrent)" }
+
+documents:
+  # ---------------------------------------------------------------- Cadrage
+  - code: TDR
+    titre: "Termes de référence / cahier des charges"
+    phase: cadrage
+    producteur: humain
+    livrable: false
+    emplacement: 00-cadrage/tdr.md
+    description: "Document du client définissant le besoin. Référence contractuelle."
+  - code: OFFRE
+    titre: "Offre technique et financière"
+    phase: cadrage
+    producteur: humain
+    livrable: false
+    emplacement: 00-cadrage/offre.pdf
+    description: "Proposition remise au client (méthodologie, planning, équipe, coût)."
+  - code: CONTRAT
+    titre: "Contrat / convention / bon de commande"
+    phase: cadrage
+    producteur: humain
+    livrable: false
+    signature: true
+    emplacement: 00-cadrage/contrat.pdf
+    description: "Engagement signé : périmètre, délais, modalités de paiement, garanties."
+  - code: NOTE-CADRAGE
+    titre: "Note de cadrage"
+    phase: cadrage
+    producteur: mixte
+    livrable: true
+    modele: note-cadrage.md
+    emplacement: 08-livrables/note-cadrage.md
+    description: "Objectifs, périmètre et hors périmètre, hypothèses, contraintes, organisation, jalons."
+  - code: PV-LANCEMENT
+    titre: "Compte rendu de la réunion de lancement"
+    phase: cadrage
+    producteur: mixte
+    livrable: true
+    modele: compte-rendu.md
+    emplacement: 07-gestion/reunions/lancement.md
+    description: "Présentation de l'équipe, du planning, des règles de fonctionnement du projet."
+  - code: PAQ
+    titre: "Plan d'assurance qualité / plan de management du projet"
+    phase: cadrage
+    producteur: mixte
+    livrable: true
+    modele: paq.md
+    emplacement: 08-livrables/paq.md
+    description: "Organisation, instances (COPIL, comités), circuit de validation des livrables, gestion des changements, outils."
+  - code: RACI
+    titre: "Organisation du projet et matrice RACI"
+    phase: cadrage
+    producteur: mixte
+    livrable: false
+    modele: raci.md
+    emplacement: 08-livrables/organisation-raci.md
+    description: "Qui réalise, valide, est consulté et informé, pour chaque activité et livrable."
+  - code: PLANNING
+    titre: "Planning prévisionnel (jalons)"
+    phase: cadrage
+    producteur: mixte
+    livrable: true
+    emplacement: 07-gestion/planning.yaml
+    description: "Jalons, dates prévues et réelles, livrables attendus à chaque jalon."
+
+  # ---------------------------------------------------------------- Conception
+  - code: SFD
+    titre: "Spécifications fonctionnelles détaillées"
+    phase: conception
+    producteur: agent
+    livrable: true
+    modele: sfd.md
+    emplacement: 08-livrables/sfd.md
+    description: "Description détaillée de chaque fonctionnalité : acteurs, règles de gestion, écrans, cas d'erreur."
+  - code: DAT
+    titre: "Dossier d'architecture technique"
+    phase: conception
+    producteur: agent
+    livrable: true
+    modele: dat.md
+    emplacement: 08-livrables/dossier-architecture-technique.md
+    description: "Architecture logicielle et d'infrastructure, choix techniques, sécurité, performances, sauvegardes."
+  - code: MCD
+    titre: "Modèle et dictionnaire de données"
+    phase: conception
+    producteur: agent
+    livrable: true
+    modele: dictionnaire-donnees.md
+    emplacement: 08-livrables/dictionnaire-donnees.md
+    description: "Entités, attributs, types, contraintes, relations ; données personnelles identifiées."
+  - code: MAQUETTES
+    titre: "Maquettes et parcours utilisateurs"
+    phase: conception
+    producteur: humain
+    livrable: true
+    emplacement: 08-livrables/maquettes.md
+    description: "Lien vers les maquettes (Figma…) et parcours principaux validés."
+  - code: CHARTE
+    titre: "Charte graphique"
+    phase: conception
+    producteur: humain
+    livrable: false
+    emplacement: 08-livrables/charte-graphique.pdf
+    description: "Logo, couleurs, typographies fournies ou validées par le client."
+  - code: SECURITE
+    titre: "Analyse sécurité et protection des données personnelles"
+    phase: conception
+    producteur: mixte
+    livrable: true
+    modele: securite-donnees.md
+    emplacement: 08-livrables/securite-donnees.md
+    description: "Données sensibles, habilitations, chiffrement, journalisation, conformité à la réglementation sur les données personnelles."
+  - code: PV-VALID-SPEC
+    titre: "PV de validation des spécifications"
+    phase: conception
+    producteur: mixte
+    livrable: true
+    signature: true
+    modele: pv.md
+    emplacement: 08-livrables/pv-validation-specifications.md
+    description: "Validation formelle par le client des SFD (et maquettes) avant développement."
+
+  # ---------------------------------------------------------------- Réalisation
+  - code: DOC-TECH
+    titre: "Documentation technique (par dépôt)"
+    phase: realisation
+    producteur: agent
+    livrable: true
+    emplacement: 02-technique/
+    description: "API, modules, installation développeur, décisions (ADR). Tenue à jour en continu par le documentaliste."
+  - code: CHANGELOG
+    titre: "Journal des versions"
+    phase: realisation
+    producteur: agent
+    livrable: false
+    emplacement: CHANGELOG.md
+    description: "Changements par version."
+
+  # ---------------------------------------------------------------- Recette
+  - code: PLAN-RECETTE
+    titre: "Plan / stratégie de recette"
+    phase: recette
+    producteur: agent
+    livrable: true
+    modele: plan-recette.md
+    emplacement: 08-livrables/plan-recette.md
+    description: "Périmètre, environnements, jeux de données, rôles, critères d'acceptation, gestion des anomalies."
+  - code: CAHIER-RECETTE
+    titre: "Cahier de recette"
+    phase: recette
+    producteur: agent
+    livrable: true
+    emplacement: 04-recette/tests.yaml
+    description: "Cas de test par fonctionnalité (exportable depuis le tableau de bord)."
+  - code: PV-RECETTE
+    titre: "PV de recette"
+    phase: recette
+    producteur: mixte
+    livrable: true
+    signature: true
+    modele: pv-recette.md
+    emplacement: 08-livrables/pv-recette.md
+    description: "Résultat de la recette client : prononcée sans réserve, avec réserves, ou refusée."
+  - code: PV-LEVEE-RESERVES
+    titre: "PV de levée des réserves"
+    phase: recette
+    producteur: mixte
+    livrable: true
+    signature: true
+    modele: pv.md
+    emplacement: 08-livrables/pv-levee-reserves.md
+    description: "Constat de correction des réserves émises lors de la recette."
+
+  # ---------------------------------------------------------------- Déploiement
+  - code: PLAN-DEPLOIEMENT
+    titre: "Plan de mise en production"
+    phase: deploiement
+    producteur: agent
+    livrable: true
+    modele: plan-deploiement.md
+    emplacement: 08-livrables/plan-mise-en-production.md
+    description: "Prérequis, étapes, reprise des données, tests de vérification, plan de retour arrière, communication."
+  - code: GUIDE-INSTALLATION
+    titre: "Guide d'installation"
+    phase: deploiement
+    producteur: agent
+    livrable: true
+    modele: guide-installation.md
+    emplacement: 08-livrables/guide-installation.md
+    description: "Installation complète sur un serveur vierge, configuration, variables d'environnement."
+  - code: MANUEL-UTILISATEUR
+    titre: "Manuel utilisateur"
+    phase: deploiement
+    producteur: agent
+    livrable: true
+    modele: manuel-utilisateur.md
+    emplacement: 08-livrables/manuel-utilisateur.md
+    description: "Guide pas à pas par profil d'utilisateur, à partir des fonctionnalités développées."
+  - code: MANUEL-ADMIN
+    titre: "Manuel d'administration"
+    phase: deploiement
+    producteur: agent
+    livrable: true
+    modele: manuel-administration.md
+    emplacement: 08-livrables/manuel-administration.md
+    description: "Gestion des comptes, rôles, paramètres et référentiels de l'application."
+  - code: DEX
+    titre: "Dossier d'exploitation"
+    phase: deploiement
+    producteur: agent
+    livrable: true
+    modele: dossier-exploitation.md
+    emplacement: 08-livrables/dossier-exploitation.md
+    description: "Supervision, sauvegardes et restauration, journaux, procédures d'incident, plan de reprise."
+  - code: FORMATION
+    titre: "Supports de formation"
+    phase: deploiement
+    producteur: mixte
+    livrable: true
+    modele: support-formation.md
+    emplacement: 08-livrables/support-formation.md
+    description: "Programme, déroulé et exercices de formation par profil."
+  - code: PV-FORMATION
+    titre: "PV / attestation de formation"
+    phase: deploiement
+    producteur: mixte
+    livrable: true
+    signature: true
+    modele: pv.md
+    emplacement: 08-livrables/pv-formation.md
+    description: "Sessions réalisées, participants (feuille de présence en annexe), évaluation."
+  - code: BORDEREAU-LIVRAISON
+    titre: "Bordereau de livraison"
+    phase: deploiement
+    producteur: agent
+    livrable: true
+    modele: bordereau-livraison.md
+    emplacement: 08-livrables/bordereau-livraison.md
+    description: "Liste de ce qui est remis : version, code source, accès, documentation, licences."
+  - code: PV-RECEPTION-PROVISOIRE
+    titre: "PV de réception provisoire"
+    phase: deploiement
+    producteur: mixte
+    livrable: true
+    signature: true
+    modele: pv.md
+    emplacement: 08-livrables/pv-reception-provisoire.md
+    description: "Mise en service ; démarre la période de garantie."
+
+  # ---------------------------------------------------------------- Clôture
+  - code: PV-RECEPTION-DEFINITIVE
+    titre: "PV de réception définitive"
+    phase: cloture
+    producteur: mixte
+    livrable: true
+    signature: true
+    modele: pv.md
+    emplacement: 08-livrables/pv-reception-definitive.md
+    description: "Fin de la période de garantie, solde des obligations."
+  - code: TRANSFERT
+    titre: "Dossier de transfert de compétences / réversibilité"
+    phase: cloture
+    producteur: mixte
+    livrable: true
+    modele: transfert.md
+    emplacement: 08-livrables/transfert-competences.md
+    description: "Ce que l'équipe du client doit savoir pour maintenir et faire évoluer le système."
+  - code: RAPPORT-FIN
+    titre: "Rapport de fin de projet"
+    phase: cloture
+    producteur: agent
+    livrable: true
+    modele: rapport-fin.md
+    emplacement: 08-livrables/rapport-fin-projet.md
+    description: "Bilan : périmètre livré vs TDR, délais, recette, changements, retours, recommandations."
+  - code: RETEX
+    titre: "Retour d'expérience (interne)"
+    phase: cloture
+    producteur: mixte
+    livrable: false
+    modele: retex.md
+    emplacement: 08-livrables/retex.md
+    description: "Ce qui a bien fonctionné, ce qui est à améliorer, leçons pour les prochains projets."
+  - code: MAINTENANCE
+    titre: "Plan de maintenance et garantie"
+    phase: cloture
+    producteur: mixte
+    livrable: true
+    modele: plan-maintenance.md
+    emplacement: 08-livrables/plan-maintenance.md
+    description: "Périmètre de la garantie, niveaux de service, canal de support, délais de correction."
+
+  # ---------------------------------------------------------------- Pilotage (récurrent)
+  - code: CR-REUNIONS
+    titre: "Comptes rendus de réunion et de COPIL"
+    phase: pilotage
+    producteur: mixte
+    livrable: true
+    recurrent: true
+    modele: compte-rendu.md
+    emplacement: 07-gestion/reunions/
+    description: "Un CR par réunion : décisions, actions, risques. Généré par /compte-rendu."
+  - code: RAPPORTS
+    titre: "Rapports d'avancement"
+    phase: pilotage
+    producteur: agent
+    livrable: true
+    recurrent: true
+    emplacement: 06-rapports/
+    description: "Rapports périodiques au client. Générés par /avancement rapport."
+  - code: REG-RISQUES
+    titre: "Registre des risques"
+    phase: pilotage
+    producteur: mixte
+    livrable: false
+    recurrent: true
+    emplacement: 07-gestion/risques.yaml
+    description: "Risques, probabilité × impact, parade, responsable."
+  - code: REG-CHANGEMENTS
+    titre: "Registre des demandes de changement"
+    phase: pilotage
+    producteur: mixte
+    livrable: false
+    recurrent: true
+    emplacement: 07-gestion/changements.yaml
+    description: "Demandes hors périmètre, impact délai/coût, décision (avenant)."
+  - code: REG-ACTIONS
+    titre: "Plan d'actions"
+    phase: pilotage
+    producteur: mixte
+    livrable: false
+    recurrent: true
+    emplacement: 07-gestion/actions.yaml
+    description: "Actions issues des réunions : responsable, échéance, statut."
+  - code: REG-PARTIES-PRENANTES
+    titre: "Registre des parties prenantes"
+    phase: pilotage
+    producteur: mixte
+    livrable: false
+    recurrent: true
+    emplacement: 07-gestion/parties-prenantes.yaml
+    description: "Interlocuteurs côté client et prestataire, rôle, influence, attentes."

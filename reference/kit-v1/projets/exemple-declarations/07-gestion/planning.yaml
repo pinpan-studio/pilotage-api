@@ -1,0 +1,28 @@
+- id: J1
+  nom: "Lancement du projet"
+  date_prevue: 2026-09-18
+  date_reelle: 2026-09-18
+  livrables: [PV-LANCEMENT, NOTE-CADRAGE]
+- id: J2
+  nom: "Validation des spécifications"
+  date_prevue: 2026-11-10
+  date_reelle: ""
+  livrables: [SFD, PV-VALID-SPEC]
+  facturation: "20 %"
+- id: J3
+  nom: "Recette du Lot 1"
+  date_prevue: 2026-12-04
+  lot: "Lot 1"
+  livrables: [PV-RECETTE]
+  facturation: "30 %"
+- id: J4
+  nom: "Mise en production et réception provisoire"
+  date_prevue: 2027-01-15
+  lot: "Lot 2"
+  livrables: [PLAN-DEPLOIEMENT, MANUEL-UTILISATEUR, MANUEL-ADMIN, DEX, PV-FORMATION, BORDEREAU-LIVRAISON, PV-RECEPTION-PROVISOIRE]
+  facturation: "40 %"
+- id: J5
+  nom: "Réception définitive (fin de garantie)"
+  date_prevue: 2027-07-15
+  livrables: [PV-RECEPTION-DEFINITIVE, RAPPORT-FIN, TRANSFERT]
+  facturation: "10 %"

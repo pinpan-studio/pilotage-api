@@ -1,0 +1,13 @@
+# Registre des risques. criticité = probabilité × impact (calculée).
+# probabilite / impact : 1 faible · 2 moyen · 3 fort · 4 très fort
+# statut : ouvert | surveille | survenu | clos
+# - id: R-001
+#   titre: "Retard de mise à disposition des serveurs par le client"
+#   categorie: planning       # planning | technique | organisationnel | financier | securite | client
+#   probabilite: 3
+#   impact: 3
+#   parade: "Préparer un environnement de recette provisoire chez le prestataire"
+#   responsable: "Chef de projet"
+#   date: 2026-10-01
+#   statut: ouvert
+[]

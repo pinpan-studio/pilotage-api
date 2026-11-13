@@ -1,0 +1,9 @@
+# Jalons du projet. "lot" relie le jalon aux fonctionnalités (champ jalon de 01-fonctionnalites.yaml).
+# - id: J1
+#   nom: "Validation des spécifications"
+#   date_prevue: 2026-10-15
+#   date_reelle: ""          # renseignée quand le jalon est atteint
+#   lot: ""                  # ex. "Lot 1" : le jalon est atteint quand ce lot est validé
+#   livrables: [SFD, PV-VALID-SPEC]   # codes de documents.yaml attendus à ce jalon
+#   facturation: ""          # ex. "30 %" si un paiement est lié au jalon
+[]

@@ -1,0 +1,7 @@
+# Dépôts de code qui composent le projet.
+# Le "nom" est celui utilisé dans 01-fonctionnalites.yaml (champ depots) et dans le journal.
+# - nom: backend
+#   url: https://github.com/organisation/projet-backend
+#   stack: "Laravel 11 / PostgreSQL"
+#   role: "API et logique métier"
+[]

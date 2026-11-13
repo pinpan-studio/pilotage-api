@@ -1,0 +1,9 @@
+# Parties prenantes. Évitez d'y stocker des données personnelles inutiles (téléphones privés…).
+# role : sponsor | point_focal | utilisateur_cle | equipe_projet | prestataire_tiers | autre
+# - nom: "Nom Prénom"
+#   fonction: "Directeur des systèmes d'information"
+#   organisme: "Client"
+#   role: sponsor
+#   influence: haute          # haute | moyenne | basse
+#   attentes: ""
+[]

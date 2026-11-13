@@ -1,0 +1,31 @@
+- id: RT-001
+  fonctionnalite: F-001
+  titre: "Inscription d'une entreprise"
+  preconditions: "Aucun compte existant pour l'adresse utilisée"
+  etapes: ["Ouvrir la page d'inscription", "Renseigner le formulaire", "Valider le lien reçu par mail"]
+  attendu: "Le compte est actif et l'entreprise peut se connecter"
+- id: RT-002
+  fonctionnalite: F-001
+  titre: "Connexion avec mot de passe erroné"
+  etapes: ["Saisir un identifiant valide et un mauvais mot de passe 5 fois"]
+  attendu: "Message d'erreur, puis blocage temporaire du compte"
+- id: RT-003
+  fonctionnalite: F-002
+  titre: "Création d'un agent par un superviseur"
+  etapes: ["Se connecter en superviseur", "Créer un agent", "Se connecter avec le nouvel agent"]
+  attendu: "L'agent n'accède qu'aux écrans de contrôle"
+- id: RT-004
+  fonctionnalite: F-003
+  titre: "Saisie complète d'une déclaration"
+  etapes: ["Ouvrir une nouvelle déclaration", "Remplir toutes les rubriques", "Soumettre"]
+  attendu: "La déclaration passe au statut « Soumise »"
+- id: RT-005
+  fonctionnalite: F-003
+  titre: "Contrôle des champs obligatoires"
+  etapes: ["Soumettre une déclaration incomplète"]
+  attendu: "Les champs manquants sont signalés, la soumission est refusée"
+- id: RT-006
+  fonctionnalite: F-009
+  titre: "Reprise d'un brouillon"
+  etapes: ["Commencer une déclaration", "Fermer le navigateur", "Revenir sur le portail"]
+  attendu: "La saisie est restaurée"

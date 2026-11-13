@@ -1,0 +1,12 @@
+- nom: backend
+  url: https://github.com/exemple/declarations-backend
+  stack: "Laravel 11 / PostgreSQL"
+  role: "API REST, logique métier, génération PDF"
+- nom: web
+  url: https://github.com/exemple/declarations-web
+  stack: "Vue 3 / Vite"
+  role: "Portail entreprises et back-office administration"
+- nom: mobile
+  url: https://github.com/exemple/declarations-mobile
+  stack: "Flutter"
+  role: "Application de consultation et notifications"

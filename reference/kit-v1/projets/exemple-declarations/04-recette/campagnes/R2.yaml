@@ -1,0 +1,13 @@
+id: R2
+titre: "Recette client — Lot 1 (itération 2)"
+date: 2026-11-10
+type: client
+environnement: staging
+testeurs: ["Point focal client", "Équipe digitale"]
+resultats:
+  - { test: RT-001, resultat: ok }
+  - { test: RT-002, resultat: ok }
+  - { test: RT-003, resultat: ok }
+  - { test: RT-004, resultat: reserve, commentaire: "Libellé de la rubrique 4 à revoir" }
+  - { test: RT-005, resultat: ok }
+  - { test: RT-006, resultat: non_teste }

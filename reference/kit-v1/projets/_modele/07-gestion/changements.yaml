@@ -1,0 +1,15 @@
+# Demandes de changement (hors périmètre du TDR).
+# decision : en_analyse | accepte | refuse | reporte
+# - id: DC-001
+#   titre: "Export PDF des statistiques"
+#   demandeur: "Point focal client"
+#   date: 2026-11-11
+#   description: ""
+#   origine: RC-004             # retour client ou CR de réunion
+#   impact_delai_jours: 3
+#   impact_cout: "sur devis"
+#   decision: en_analyse
+#   date_decision: ""
+#   avenant: ""                 # référence de l'avenant si accepté
+#   fonctionnalites: []         # fonctionnalités créées si accepté
+[]

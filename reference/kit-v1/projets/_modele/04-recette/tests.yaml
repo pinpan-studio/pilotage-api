@@ -1,0 +1,11 @@
+# Cahier de recette : cas de test. Généré par /recette à partir des fonctionnalités.
+#
+# - id: RT-001
+#   fonctionnalite: F-001
+#   titre: "Connexion avec identifiants valides"
+#   preconditions: "Compte opérateur actif"
+#   etapes:
+#     - "Ouvrir la page de connexion"
+#     - "Saisir identifiant et mot de passe valides"
+#   attendu: "L'opérateur arrive sur son tableau de bord"
+[]

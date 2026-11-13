@@ -1,0 +1,5 @@
+- { id: A-001, action: "Transmettre les accès au service de notifications", responsable: "Point focal client", echeance: 2026-11-06, statut: a_faire, origine: "07-gestion/reunions/2026-10-30-copil.md" }
+- { id: A-002, action: "Fournir le logo et les mentions de l'accusé de réception", responsable: "Point focal client", echeance: 2026-11-20, statut: en_cours, origine: "07-gestion/reunions/2026-11-12-comite-suivi.md" }
+- { id: A-003, action: "Corriger la limite de taille des pièces jointes (RC-003)", responsable: "Développeur web", echeance: 2026-11-15, statut: en_cours, origine: "05-retours-client/RC-003.md" }
+- { id: A-004, action: "Envoyer la SFD Lot 2 pour relecture", responsable: "Chef de projet", echeance: 2026-11-18, statut: a_faire, origine: "07-gestion/reunions/2026-11-12-comite-suivi.md" }
+- { id: A-005, action: "Valider les caractéristiques du serveur de production", responsable: "Point focal client", echeance: 2026-10-31, statut: fait, origine: "07-gestion/reunions/2026-10-30-copil.md" }

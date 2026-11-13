@@ -1,0 +1,28 @@
+- id: EX-01
+  titre: "Création de compte et authentification sécurisée des entreprises"
+  section_tdr: "§3.1"
+  priorite: must
+- id: EX-02
+  titre: "Gestion des rôles côté administration"
+  section_tdr: "§3.1"
+  priorite: must
+- id: EX-03
+  titre: "Saisie de la déclaration mensuelle et pièces jointes"
+  section_tdr: "§3.2"
+  priorite: must
+- id: EX-04
+  titre: "Accusé de réception PDF"
+  section_tdr: "§3.2"
+  priorite: must
+- id: EX-05
+  titre: "Validation / rejet motivé par les agents"
+  section_tdr: "§3.3"
+  priorite: must
+- id: EX-06
+  titre: "Tableau de bord statistique exportable"
+  section_tdr: "§3.4"
+  priorite: should
+- id: EX-07
+  titre: "Application mobile de consultation et notifications"
+  section_tdr: "§3.5"
+  priorite: could

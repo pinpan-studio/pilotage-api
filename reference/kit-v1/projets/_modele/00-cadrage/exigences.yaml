@@ -1,0 +1,10 @@
+# Exigences extraites du TDR / cahier des charges (00-cadrage/tdr.md).
+# Généré par /init-projet, puis validé par le chef de projet. L'agent ne modifie
+# ce fichier QUE sur demande explicite (avenant, changement de périmètre).
+#
+# - id: EX-01
+#   titre: "Les opérateurs déclarent leur production mensuelle en ligne"
+#   section_tdr: "§3.2"
+#   priorite: must        # must | should | could
+#   description: ""
+[]

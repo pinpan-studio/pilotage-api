@@ -1,0 +1,89 @@
+{"ts":"2026-10-14T02:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"04292218","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-14T02:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"04292218","outil":"Bash","evt":"commande","commande":"npm run test"}
+{"ts":"2026-10-14T02:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"04292218","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-14T03:12:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"04292218","outil":"Bash","evt":"commande","commande":"npm run test"}
+{"ts":"2026-10-14T03:36:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"04292218","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-14T04:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"04292218","outil":"Bash","evt":"commande","commande":"npm run test"}
+{"ts":"2026-10-14T04:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"04292218","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-14T04:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"04292218","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-14T05:12:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"04292218","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-15T02:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03f5d377","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-15T02:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03f5d377","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-15T02:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03f5d377","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-15T03:12:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03f5d377","outil":"Bash","evt":"commit","hash":"5db215","message":"[F-008] avancement","fonctionnalites":["F-008"]}
+{"ts":"2026-10-16T02:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01a4428d","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-16T02:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01a4428d","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-16T02:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01a4428d","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-16T03:12:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01a4428d","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-16T03:36:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01a4428d","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-16T04:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01a4428d","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-16T04:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01a4428d","outil":"Bash","evt":"commande","commande":"npm run test"}
+{"ts":"2026-10-16T04:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01a4428d","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-16T05:12:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01a4428d","outil":"Bash","evt":"commande","commande":"npm run test"}
+{"ts":"2026-10-16T05:36:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01a4428d","outil":"Bash","evt":"commit","hash":"895650","message":"[F-008] avancement","fonctionnalites":["F-008"]}
+{"ts":"2026-10-19T02:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"0358d0ae","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-19T02:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"0358d0ae","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-19T02:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"0358d0ae","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-19T03:12:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"0358d0ae","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-19T03:36:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"0358d0ae","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-19T04:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"0358d0ae","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-19T04:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"0358d0ae","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-20T02:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"008b619d","outil":"Bash","evt":"commande","commande":"npm run test"}
+{"ts":"2026-10-20T02:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"008b619d","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-20T02:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"008b619d","outil":"Bash","evt":"commande","commande":"npm run test"}
+{"ts":"2026-10-20T03:12:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"008b619d","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-20T03:36:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"008b619d","outil":"Bash","evt":"commit","hash":"3e1a8c","message":"[F-008] correction","fonctionnalites":["F-008"]}
+{"ts":"2026-10-21T02:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"055b85cc","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-21T02:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"055b85cc","outil":"Bash","evt":"commande","commande":"npm run test"}
+{"ts":"2026-10-21T02:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"055b85cc","outil":"Bash","evt":"commit","hash":"3370","message":"[F-008] avancement","fonctionnalites":["F-008"]}
+{"ts":"2026-10-22T02:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03c085ef","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-22T02:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03c085ef","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-22T02:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03c085ef","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-22T03:12:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03c085ef","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-22T03:36:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03c085ef","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-22T04:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03c085ef","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-22T04:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03c085ef","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-22T04:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03c085ef","outil":"Bash","evt":"commit","hash":"8a8603","message":"[F-008] refactorisation","fonctionnalites":["F-008"]}
+{"ts":"2026-10-23T02:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03dad130","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-23T02:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03dad130","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-23T02:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03dad130","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-23T03:12:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03dad130","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-23T03:36:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03dad130","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-23T04:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03dad130","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-23T04:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03dad130","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-23T04:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03dad130","outil":"Bash","evt":"commande","commande":"npm run test"}
+{"ts":"2026-10-23T05:12:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03dad130","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-23T05:36:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03dad130","outil":"Bash","evt":"commit","hash":"799320","message":"[F-008] avancement","fonctionnalites":["F-008"]}
+{"ts":"2026-10-26T02:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"017579e2","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-26T02:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"017579e2","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-26T02:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"017579e2","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-26T03:12:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"017579e2","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-26T03:36:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"017579e2","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-26T04:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"017579e2","outil":"Bash","evt":"commit","hash":"18a44f","message":"[F-008] avancement","fonctionnalites":["F-008"]}
+{"ts":"2026-10-27T02:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"029b6724","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-27T02:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"029b6724","outil":"Bash","evt":"commit","hash":"4b2048","message":"[F-008] refactorisation","fonctionnalites":["F-008"]}
+{"ts":"2026-10-28T02:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01d59fe8","outil":"Bash","evt":"commande","commande":"npm run test"}
+{"ts":"2026-10-28T02:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01d59fe8","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-28T02:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01d59fe8","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-28T03:12:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01d59fe8","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-28T03:36:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01d59fe8","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-28T04:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01d59fe8","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-28T04:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01d59fe8","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-28T04:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01d59fe8","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-28T05:12:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01d59fe8","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-28T05:36:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01d59fe8","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-28T06:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01d59fe8","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-28T06:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01d59fe8","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-28T06:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"01d59fe8","outil":"Bash","evt":"commit","hash":"903b01","message":"[F-008] correction","fonctionnalites":["F-008"]}
+{"ts":"2026-10-29T02:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03f04dd9","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-29T02:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03f04dd9","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-29T02:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03f04dd9","outil":"Bash","evt":"commande","commande":"npm run test"}
+{"ts":"2026-10-29T03:12:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03f04dd9","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-29T03:36:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03f04dd9","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-29T04:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03f04dd9","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-29T04:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03f04dd9","outil":"Bash","evt":"commit","hash":"a3388","message":"[F-008] tests","fonctionnalites":["F-008"]}
+{"ts":"2026-10-30T02:00:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03e69a48","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-30T02:24:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03e69a48","outil":"Edit","evt":"modification","fichier":"lib/services/notifications.dart"}
+{"ts":"2026-10-30T02:48:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03e69a48","outil":"Bash","evt":"commande","commande":"npm run test"}
+{"ts":"2026-10-30T03:12:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03e69a48","outil":"Edit","evt":"modification","fichier":"lib/screens/declarations_screen.dart"}
+{"ts":"2026-10-30T03:36:00.000Z","depot":"mobile","auteur":"Développeur mobile","session":"03e69a48","outil":"Bash","evt":"commit","hash":"3e1160","message":"[F-008] tests","fonctionnalites":["F-008"]}
