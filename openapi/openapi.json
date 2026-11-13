@@ -1550,6 +1550,222 @@
           "journal"
         ]
       }
+    },
+    "/api/v1/projets/{code}/fichiers": {
+      "post": {
+        "operationId": "Fichiers_deposer",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/DeposerFichierDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fichier"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fichiers"
+        ]
+      },
+      "get": {
+        "operationId": "Fichiers_lister",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Fichier"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fichiers"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/fichiers/{id}/contenu": {
+      "get": {
+        "operationId": "Fichiers_contenu",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Téléchargement : le stockage est privé, le contenu transite par l'API après contrôle des droits.",
+        "tags": [
+          "fichiers"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/fichiers/{id}": {
+      "delete": {
+        "operationId": "Fichiers_supprimer",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fichiers"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/documents/{doc}/statut": {
+      "patch": {
+        "operationId": "Fichiers_statut",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "doc",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatutDocumentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatutDocumentResultatDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Circuit de validation d'un document : valider et signer réservés au chef de projet ; signer exige un scan.",
+        "tags": [
+          "fichiers"
+        ]
+      }
     }
   },
   "info": {
@@ -4618,6 +4834,142 @@
           "texte",
           "seuil_rappel_doc",
           "genere_le"
+        ]
+      },
+      "DeposerFichierDto": {
+        "type": "object",
+        "properties": {
+          "fichier": {
+            "type": "string",
+            "format": "binary"
+          },
+          "categorie": {
+            "type": "string",
+            "enum": [
+              "tdr",
+              "scan_signe",
+              "annexe",
+              "export"
+            ]
+          },
+          "document": {
+            "type": "string",
+            "description": "Code du document rattaché (obligatoire pour un scan signé)"
+          }
+        },
+        "required": [
+          "fichier",
+          "categorie"
+        ]
+      },
+      "Fichier": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "nom": {
+            "type": "string"
+          },
+          "type_mime": {
+            "type": "string"
+          },
+          "taille": {
+            "type": "string"
+          },
+          "cle_stockage": {
+            "type": "string"
+          },
+          "categorie": {
+            "enum": [
+              "tdr",
+              "scan_signe",
+              "annexe",
+              "export"
+            ],
+            "type": "string"
+          },
+          "projet_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "modifie_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cree_par": {
+            "type": "string",
+            "nullable": true
+          },
+          "supprime_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "document_id",
+          "nom",
+          "type_mime",
+          "taille",
+          "cle_stockage",
+          "categorie",
+          "projet_id",
+          "id",
+          "organisation_id",
+          "cree_le",
+          "modifie_le",
+          "cree_par",
+          "supprime_le"
+        ]
+      },
+      "StatutDocumentDto": {
+        "type": "object",
+        "properties": {
+          "statut": {
+            "type": "string",
+            "enum": [
+              "a_produire",
+              "en_cours",
+              "en_revue",
+              "valide",
+              "signe",
+              "sans_objet"
+            ]
+          }
+        },
+        "required": [
+          "statut"
+        ]
+      },
+      "StatutDocumentResultatDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string",
+            "nullable": true
+          },
+          "statut": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "titre",
+          "statut"
         ]
       }
     }

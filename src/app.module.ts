@@ -11,6 +11,7 @@ import { LectureModule } from './lecture/lecture.module';
 import { EcritureModule } from './ecriture/ecriture.module';
 import { McpModule } from './mcp/mcp.module';
 import { JournalModule } from './journal/journal.module';
+import { StockageModule } from './stockage/stockage.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { JournalModule } from './journal/journal.module';
     EcritureModule,
     McpModule,
     JournalModule,
+    StockageModule,
   ],
   controllers: [SanteController],
 })
