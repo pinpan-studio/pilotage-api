@@ -1,3 +1,4 @@
+import { HORS_PREFIXE } from '../src/main';
 import 'reflect-metadata';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -15,7 +16,7 @@ export async function creerApp(remplacements: { provide: any; useValue: any }[] 
   for (const r of remplacements) b = b.overrideProvider(r.provide).useValue(r.useValue);
   const mod = await b.compile();
   const app = mod.createNestApplication({ logger: false });
-  app.setGlobalPrefix('api/v1', { exclude: ['mcp'] });
+  app.setGlobalPrefix('api/v1', { exclude: HORS_PREFIXE });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   await app.init();
   const db = app.get(DataSource);

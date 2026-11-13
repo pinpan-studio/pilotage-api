@@ -74,3 +74,39 @@ export class Historique {
   @Column('uuid', { nullable: true }) session_id: string | null;
   @CreateDateColumn({ type: 'timestamptz' }) ts: Date;
 }
+
+/** Client OAuth enregistré dynamiquement (RFC 7591) — ex. connecteur ChatGPT ou claude.ai. */
+@Entity('oauth_client')
+export class OAuthClient {
+  @PrimaryGeneratedColumn('uuid') id: string;
+  @Column() nom: string;
+  @Column('text', { array: true, default: '{}' }) redirect_uris: string[];
+  @CreateDateColumn({ type: 'timestamptz' }) cree_le: Date;
+}
+
+/** Code d'autorisation (usage unique, 10 min, PKCE S256 obligatoire). */
+@Entity('oauth_code')
+export class OAuthCode {
+  @PrimaryGeneratedColumn('uuid') id: string;
+  @Index({ unique: true }) @Column() hache: string;
+  @Column('uuid') client_id: string;
+  @Column('uuid') utilisateur_id: string;
+  @Column() redirect_uri: string;
+  @Column() code_challenge: string;
+  @Column({ type: 'varchar', default: 'agent' }) role: string;
+  @Column('uuid', { array: true, default: '{}' }) projets: string[];
+  @Column({ type: 'timestamptz' }) expire_le: Date;
+  @Column({ type: 'timestamptz', nullable: true }) utilise_le: Date | null;
+}
+
+/** Jeton de rafraîchissement OAuth : renouvelle le jeton d'API associé (rotation). */
+@Entity('oauth_rafraichissement')
+export class OAuthRafraichissement {
+  @PrimaryGeneratedColumn('uuid') id: string;
+  @Index({ unique: true }) @Column() hache: string;
+  @Column('uuid') client_id: string;
+  @Column('uuid') jeton_id: string;
+  @Column({ type: 'timestamptz' }) expire_le: Date;
+  @Column({ type: 'timestamptz', nullable: true }) revoque_le: Date | null;
+  @CreateDateColumn({ type: 'timestamptz' }) cree_le: Date;
+}

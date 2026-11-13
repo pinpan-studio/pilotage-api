@@ -14,6 +14,7 @@ import { JournalModule } from './journal/journal.module';
 import { StockageModule } from './stockage/stockage.module';
 import { EquipesModule } from './equipes/equipes.module';
 import { ExportModule } from './export/export.module';
+import { OAuthModule } from './oauth/oauth.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ExportModule } from './export/export.module';
     TypeOrmModule.forRootAsync({ useFactory: () => ({ ...optionsBase(), migrationsRun: process.env.MIGRATIONS_AU_DEMARRAGE === '1', manualInitialization: process.env.OPENAPI_SEULEMENT === '1' }) }),
     AuthModule,
     ExportModule,
+    OAuthModule,
     CommonModule,
     IndicateursModule,
     ImportModule,

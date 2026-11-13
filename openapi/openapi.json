@@ -2382,6 +2382,113 @@
         ]
       }
     },
+    "/api/v1/oauth/clients/{id}": {
+      "get": {
+        "operationId": "OAuthConsentement_client",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientOAuthDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "oauth"
+        ]
+      }
+    },
+    "/api/v1/oauth/approuver": {
+      "post": {
+        "operationId": "OAuthConsentement_approuver",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprobationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedirectionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "oauth"
+        ]
+      }
+    },
+    "/api/v1/oauth/refuser": {
+      "post": {
+        "operationId": "OAuthConsentement_refuser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprobationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedirectionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "oauth"
+        ]
+      }
+    },
     "/api/v1/projets/{code}/actions/{ref}": {
       "patch": {
         "operationId": "Ecriture_modifierTache",
@@ -7147,6 +7254,79 @@
           "projet",
           "bilan",
           "erreurs_lecture"
+        ]
+      },
+      "ClientOAuthDto": {
+        "type": "object",
+        "properties": {
+          "client_id": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "redirect_uris": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "client_id",
+          "nom",
+          "redirect_uris"
+        ]
+      },
+      "ApprobationDto": {
+        "type": "object",
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "redirect_uri": {
+            "type": "string"
+          },
+          "code_challenge": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "client_lecteur",
+              "developpeur",
+              "chef_projet",
+              "admin"
+            ]
+          },
+          "projets": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "client_id",
+          "redirect_uri",
+          "code_challenge"
+        ]
+      },
+      "RedirectionDto": {
+        "type": "object",
+        "properties": {
+          "redirection": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "redirection"
         ]
       },
       "CreerTacheDto": {

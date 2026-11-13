@@ -33,7 +33,7 @@ les références `ref`, `session_id`…).
    de changer un statut, `lister_cas_test` avant d'en créer (pas de doublons).
 7. **Résume ce que tu as écrit** à l'utilisateur avec les références créées (F-008, RT-004, A-003…).
 
-Le rôle effectif dépend du **jeton** : « agent » (restreint, défaut) ou un rôle humain plafonné par
+Connexion : jeton d'API (`Authorization: Bearer plt_…`) pour Claude Code, Cursor, etc. ; **OAuth** pour claude.ai et ChatGPT (connecteur avec l'URL `…/mcp`, consentement dans Pilotage). Le rôle effectif dépend du **jeton** : « agent » (restreint, défaut) ou un rôle humain plafonné par
 son titulaire (lecteur = lecture seule ; `creer_projet` exige administrateur ou chef de projet).
 Les écritures sont toujours marquées « Agent » dans l'historique.
 

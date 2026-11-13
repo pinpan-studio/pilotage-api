@@ -1,3 +1,4 @@
+import { baseApi } from '../oauth/oauth.controller';
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthService } from './auth.service';
@@ -13,8 +14,11 @@ export class AuthGuard implements CanActivate {
     if (this.reflector.getAllAndOverride<boolean>(PUBLIC, cibles)) return true;
     const req = ctx.switchToHttp().getRequest();
     const h: string = req.headers.authorization ?? '';
-    if (!h.startsWith('Bearer ')) throw new UnauthorizedException('Authentification requise.');
-    const acteur: Acteur = await this.auth.resoudre(h.slice(7).trim());
+    const mcp = String(req.path ?? req.url).startsWith('/mcp');
+    const signaler = () => { if (mcp) ctx.switchToHttp().getResponse().setHeader('WWW-Authenticate', `Bearer resource_metadata="${baseApi(req)}/.well-known/oauth-protected-resource"`); };
+    if (!h.startsWith('Bearer ')) { signaler(); throw new UnauthorizedException('Authentification requise.'); }
+    let acteur: Acteur;
+    try { acteur = await this.auth.resoudre(h.slice(7).trim()); } catch (e) { signaler(); throw e; }
     req.acteur = acteur;
     const roles = this.reflector.getAllAndOverride<Acteur['role'][]>(ROLES, cibles);
     if (roles && !roles.includes(acteur.role)) throw refuse('droits insuffisants pour cette opération.');
