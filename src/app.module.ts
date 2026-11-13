@@ -8,6 +8,8 @@ import { CommonModule } from './common/common.module';
 import { IndicateursModule } from './indicateurs/indicateurs.module';
 import { ImportModule } from './import/import.module';
 import { LectureModule } from './lecture/lecture.module';
+import { EcritureModule } from './ecriture/ecriture.module';
+import { McpModule } from './mcp/mcp.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { LectureModule } from './lecture/lecture.module';
     IndicateursModule,
     ImportModule,
     LectureModule,
+    EcritureModule,
+    McpModule,
   ],
   controllers: [SanteController],
 })

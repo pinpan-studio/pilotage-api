@@ -13,7 +13,7 @@ process.env.MIGRATIONS_AU_DEMARRAGE = '1';
 export async function creerApp(): Promise<{ app: INestApplication; db: DataSource }> {
   const mod = await Test.createTestingModule({ imports: [AppModule] }).compile();
   const app = mod.createNestApplication({ logger: false });
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api/v1', { exclude: ['mcp'] });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   await app.init();
   const db = app.get(DataSource);

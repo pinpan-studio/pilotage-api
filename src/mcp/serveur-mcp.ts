@@ -1,0 +1,267 @@
+import { HttpException } from '@nestjs/common';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
+import { Acteur } from '../common/acteur';
+import { LectureService } from '../lecture/lecture.service';
+import { EcritureService } from '../ecriture/ecriture.service';
+import { IndicateursService } from '../indicateurs/indicateurs.service';
+import { AccesService } from '../common/acces.service';
+import { LIBELLES } from '../indicateurs/referentiels';
+import { statutEffectif } from '../indicateurs/calcul';
+import { rechercher } from './recherche';
+import * as E from '../db/entities';
+
+const pct = (x: number | null | undefined) => (x == null ? '—' : `${Math.round(x * 100)} %`);
+const L = (c: string) => LIBELLES[c] ?? c;
+const PAR_PAGE = 50;
+
+export interface Services { lecture: LectureService; ecriture: EcritureService; ind: IndicateursService; acces: AccesService }
+
+type Resultat = { content: { type: 'text'; text: string }[]; structuredContent?: Record<string, unknown>; isError?: boolean };
+
+/** Réponse lisible par un LLM : Markdown court + données structurées. */
+const rep = (texte: string, donnees?: unknown): Resultat => ({
+  content: [{ type: 'text', text: texte }],
+  ...(donnees !== undefined ? { structuredContent: { donnees: JSON.parse(JSON.stringify(donnees)) } } : {}),
+});
+
+/** Les erreurs métier (Refusé, Introuvable, Invalide…) sont renvoyées telles quelles, en français. */
+async function sur(fn: () => Promise<Resultat>): Promise<Resultat> {
+  try { return await fn(); } catch (e: any) {
+    if (!(e instanceof HttpException)) console.error('[mcp]', e?.message);
+    const msg = e instanceof HttpException ? (e.getResponse() as any)?.message ?? e.message : 'Erreur interne du serveur Pilotage.';
+    return { content: [{ type: 'text', text: Array.isArray(msg) ? msg.join(' ; ') : String(msg) }], isError: true };
+  }
+}
+
+function paginer<T>(liste: T[], page = 1) {
+  const total = liste.length;
+  const debut = (Math.max(page, 1) - 1) * PAR_PAGE;
+  const elements = liste.slice(debut, debut + PAR_PAGE);
+  const suite = debut + PAR_PAGE < total ? `\n\n_${total} éléments ; page ${page}. Demander page ${page + 1} pour la suite._` : '';
+  return { elements, total, suite };
+}
+
+const projet = z.string().describe('Code du projet (ex. « exemple-declarations »)');
+const page = z.number().int().min(1).optional().describe('Page (50 éléments par page)');
+
+export function creerServeurMcp(a: Acteur, s: Services): McpServer {
+  const srv = new McpServer(
+    { name: 'pilotage', version: '1.0.0' },
+    { instructions: "Serveur de pilotage des projets. Appelle `etat_projet` en début de session, `demarrer_session` puis `ajouter_note_session` au fil de l'eau et `cloturer_session` à la fin. Tu ne peux jamais valider ni signer : ces étapes reviennent au chef de projet." },
+  );
+  const outil = (nom: string, description: string, schema: z.ZodRawShape, fn: (x: any) => Promise<Resultat>, lecture = true) =>
+    srv.registerTool(nom, { description, inputSchema: schema, annotations: { readOnlyHint: lecture, destructiveHint: false } }, (x: any) => sur(() => fn(x)));
+
+  // =================================================================== lecture
+
+  outil('lister_projets', 'Projets accessibles avec leur avancement.', {}, async () => {
+    const l = await s.lecture.portefeuille(a);
+    if (!l.length) return rep('Aucun projet accessible avec ce jeton.', []);
+    return rep(['| Projet | Client | Avancement | Recette OK | Retours ouverts | Alertes hautes |', '|---|---|---|---|---|---|',
+      ...l.map((p) => `| ${p.code} — ${p.nom} | ${p.client} | ${pct(p.avancement)} | ${pct(p.taux_recette)} | ${p.nb_retours_ouverts} | ${p.nb_alertes.haute} |`)].join('\n'), l);
+  });
+
+  outil('etat_projet', "État du projet : indicateurs, fonctionnalités en cours, prochain jalon, documents en cours, actions et retours ouverts, alertes. À appeler en début de session.",
+    { projet, depot: z.string().optional().describe('Filtrer les fonctionnalités sur un dépôt') }, async ({ projet: code, depot }) => {
+      const p = await s.acces.projet(a, code);
+      const { modele, indicateurs: m } = await s.ind.calculer(p);
+      const T: string[] = [];
+      T.push(`# État du projet ${p.nom || code} (${code})`);
+      T.push(`Client : ${p.client || '—'} · Livraison prévue : ${p.date_livraison_prevue || '—'}`);
+      T.push(`Avancement global : ${pct(m.avancement)} · Couverture TDR : ${pct(m.couverture)} · Recette OK : ${pct(m.tauxRecette)} · Retours ouverts : ${m.retoursOuverts.length}`);
+      T.push(`Livrables documentaires : ${pct(m.avancementDocuments)} · Risques actifs : ${m.risquesActifs.length} · Actions ouvertes : ${m.actionsOuvertes.length} (dont ${m.actionsEnRetard.length} en retard) · Changements en analyse : ${m.changementsEnAnalyse.length}`);
+      if (m.prochainJalon) T.push(`Prochain jalon : ${m.prochainJalon.nom} le ${m.prochainJalon.date_prevue || '?'}${m.prochainJalon.livrables.length ? ` (documents attendus : ${m.prochainJalon.livrables.join(', ')})` : ''}`);
+      T.push('');
+      const filtre = (f: any) => !depot || !f.depots || depot in f.depots;
+      const enCours = modele.fonctionnalites.filter((f: any) => ['en_cours', 'bloque'].includes(statutEffectif(f)));
+      const aFaire = modele.fonctionnalites.filter((f: any) => statutEffectif(f) === 'a_faire');
+      T.push(`## Fonctionnalités en cours${depot ? ` (dépôt ${depot})` : ''}`);
+      for (const f of enCours.filter(filtre)) {
+        const d = f.depots ? ' — ' + Object.entries(f.depots).map(([k, v]) => `${k}: ${L(String(v))}`).join(', ') : '';
+        T.push(`- ${f.id} ${f.titre} [${L(statutEffectif(f))}]${d}`);
+      }
+      if (!enCours.length) T.push('- (aucune)');
+      T.push('## Prochaines fonctionnalités à faire');
+      for (const f of aFaire.filter(filtre).slice(0, 8)) T.push(`- ${f.id} ${f.titre}${f.jalon ? ` (${f.jalon})` : ''}`);
+      if (!aFaire.length) T.push('- (aucune)');
+      if (m.retoursOuverts.length) {
+        T.push('## Retours clients ouverts');
+        for (const r of m.retoursOuverts.slice(0, 8))
+          T.push(`- ${r.id} [${L(r.type)}, ${L(r.priorite)}] ${(r.corps.match(/## Retour[^\n]*\n+([^\n]+)/) || [])[1] || ''} → ${r.fonctionnalites.join(', ') || 'non rattaché'}`);
+      }
+      const docs = modele.suiviDocuments.filter((d: any) => ['en_cours', 'en_revue'].includes(d.statut));
+      if (docs.length) { T.push('## Documents en cours'); for (const d of docs) T.push(`- ${d.code} ${d.titre} [${L(d.statut)}]${d.version ? ` v${d.version}` : ''}${d.echeance ? ` — échéance ${d.echeance}` : ''}`); }
+      if (m.actionsOuvertes.length) { T.push('## Actions ouvertes'); for (const x of m.actionsOuvertes.slice(0, 8)) T.push(`- ${x.id} ${x.action} — ${x.responsable || '?'}${x.echeance ? `, ${x.echeance}` : ''}${m.actionsEnRetard.includes(x) ? ' (EN RETARD)' : ''}`); }
+      if (m.alertes.length) { T.push('## Alertes'); for (const x of m.alertes.slice(0, 10)) T.push(`- (${x.niveau}) ${x.texte}`); }
+      return rep(T.join('\n'), { avancement: m.avancement, couverture: m.couverture, taux_recette: m.tauxRecette, recette: m.recette, retours_ouverts: m.retoursOuverts.length, alertes: m.alertes });
+    });
+
+  outil('lire_tdr', 'TDR / cahier des charges du projet (Markdown, référence contractuelle).', { projet }, async ({ projet: c }) => {
+    const t = (await s.lecture.tdr(a, c)).contenu;
+    return rep(t || '_TDR non renseigné._');
+  });
+
+  outil('lister_exigences', 'Exigences extraites du TDR.', { projet }, async ({ projet: c }) => {
+    const l = await s.lecture.registre(a, c, E.Exigence, { ordre: 'ASC', ref: 'ASC' });
+    return rep(l.map((e) => `- ${e.ref} [${e.priorite}] ${e.titre}${e.section_tdr ? ` (${e.section_tdr})` : ''}`).join('\n') || '(aucune)', l.map((e) => ({ ref: e.ref, titre: e.titre, priorite: e.priorite, section_tdr: e.section_tdr })));
+  });
+
+  outil('lister_fonctionnalites', 'Fonctionnalités, filtrables par statut, dépôt ou lot.',
+    { projet, statut: z.string().optional(), depot: z.string().optional(), lot: z.string().optional(), page }, async ({ projet: c, statut, depot, lot, page: pg }) => {
+      const { elements, total, suite } = paginer(await s.lecture.fonctionnalites(a, c, { statut, depot, lot }), pg);
+      return rep((elements.map((f) => `- ${f.ref} ${f.titre} [${L(f.statut_effectif)} · ${pct(f.avancement)}] ${f.jalon} · poids ${f.poids}${f.depots.length ? ' — ' + f.depots.map((d) => `${d.depot}: ${L(d.statut)}`).join(', ') : ''}`).join('\n') || '(aucune)') + suite, { total, elements });
+    });
+
+  outil('lire_fonctionnalite', 'Fiche d’une fonctionnalité : exigences, tests, retours, dernière activité, commits.', { projet, ref: z.string() }, async ({ projet: c, ref }) => {
+    const f = await s.lecture.fonctionnalite(a, c, ref);
+    const T = [`# ${f.ref} — ${f.titre}`, `Statut : ${L(f.statut_effectif)} (global : ${L(f.statut)}) · Avancement ${pct(f.avancement)} · ${f.jalon} · poids ${f.poids} · origine ${f.origine}`,
+      `Dépôts : ${f.depots.map((d) => `${d.depot}: ${L(d.statut)}`).join(', ') || '—'}`, `Exigences : ${f.exigences.join(', ') || '—'} · Retours : ${f.retours.join(', ') || '—'}`,
+      f.notes ? `Notes : ${f.notes}` : '', '## Tests', ...(f.tests.map((t) => `- ${t.ref} ${t.titre} : ${L(t.resultat)}${t.campagne ? ` (${t.campagne})` : ''}`)), f.tests.length ? '' : '- (aucun cas de test)',
+      `Dernière activité : ${f.derniere_activite ?? '—'}`, '## Derniers commits', ...f.commits.slice(0, 10).map((e) => `- ${e.ts.slice(0, 10)} ${e.hash} ${e.message}`)];
+    return rep(T.filter((x) => x !== '').join('\n'), f);
+  });
+
+  outil('lister_documents', 'Suivi documentaire (documents de gestion de projet), filtrable par phase et statut.',
+    { projet, phase: z.string().optional(), statut: z.string().optional(), page }, async ({ projet: c, phase, statut, page: pg }) => {
+      const { elements, total, suite } = paginer(await s.lecture.documents(a, c, { phase, statut }), pg);
+      return rep((elements.map((d) => `- ${d.code} ${d.titre} [${L(d.statut)}]${d.version ? ` v${d.version}` : ''} · ${d.phase} · producteur ${d.producteur}${d.echeance_effective ? ` · échéance ${d.echeance_effective}` : ''}`).join('\n') || '(aucun)') + suite, { total, elements });
+    });
+
+  outil('lire_document', 'Contenu Markdown d’un document (dernière version ou version donnée) et son historique.',
+    { projet, code: z.string().describe('Code du document (ex. SFD, DAT, PV-RECETTE)'), version: z.string().optional() }, async ({ projet: c, code, version }) => {
+      const d = await s.lecture.document(a, c, code, version);
+      const tete = `# ${d.code} — ${d.titre}\nStatut : ${L(d.statut)} · version ${d.version || '—'} · producteur ${d.producteur}${d.modele ? ` · modèle ${d.modele}` : ''}\nVersions : ${d.versions.map((v) => `${v.numero}${v.auteur_type === 'agent' ? ' (agent)' : ''}`).join(', ') || 'aucune'}\n\n`;
+      return rep(tete + (d.version_courante?.contenu ?? '_Aucun contenu : utiliser lire_modele_document puis ecrire_document._'), { ...d, version_courante: d.version_courante ? { numero: d.version_courante.numero } : null });
+    });
+
+  outil('lire_modele_document', 'Modèle Markdown d’un document (ex. sfd, dat, pv-recette, session, retour-client, adr).', { code: z.string() }, async ({ code }) => rep((await s.lecture.modele(a, code)).contenu));
+
+  outil('lister_cas_test', 'Cahier de recette, éventuellement pour une fonctionnalité.', { projet, fonctionnalite: z.string().optional() }, async ({ projet: c, fonctionnalite }) => {
+    const p = await s.acces.projet(a, c);
+    const { modele, indicateurs: m } = await s.ind.calculer(p);
+    const l = modele.tests.filter((t: any) => !fonctionnalite || t.fonctionnalite === fonctionnalite)
+      .map((t: any) => ({ ref: t.id, fonctionnalite: t.fonctionnalite, titre: t.titre, etapes: t.etapes, attendu: t.attendu, resultat: m.resultatTest[t.id]?.resultat ?? 'non_teste' }));
+    return rep(l.map((t: any) => `- ${t.ref} (${t.fonctionnalite}) ${t.titre} → ${L(t.resultat)}`).join('\n') || '(aucun)', l);
+  });
+
+  outil('lire_campagne', 'Résultats d’une campagne de recette.', { projet, ref: z.string() }, async ({ projet: c, ref }) => {
+    const x = await s.lecture.campagne(a, c, ref);
+    return rep([`# ${x.ref} — ${x.titre}`, `${x.date} · ${x.type} · ${x.environnement} · testeurs : ${x.testeurs.join(', ')}`, ...x.resultats.map((r: any) => `- ${r.test} : ${L(r.resultat)}${r.commentaire ? ` — ${r.commentaire}` : ''}`)].join('\n'), x);
+  });
+
+  outil('lister_retours', 'Retours clients, filtrables par statut.', { projet, statut: z.string().optional(), page }, async ({ projet: c, statut, page: pg }) => {
+    const l = (await s.lecture.registre(a, c, E.RetourClient, { date: 'DESC', ref: 'ASC' })).filter((r) => !statut || r.statut === statut);
+    const { elements, total, suite } = paginer(l, pg);
+    return rep((elements.map((r) => `- ${r.ref} ${r.date} [${L(r.type)}, ${L(r.priorite)}, ${L(r.statut)}] ${r.retour.split('\n')[0]}`).join('\n') || '(aucun)') + suite,
+      { total, elements: elements.map((r) => ({ ref: r.ref, date: r.date, type: r.type, priorite: r.priorite, statut: r.statut, retour: r.retour, action: r.action })) });
+  });
+
+  outil('lister_risques', 'Registre des risques (criticité = probabilité × impact).', { projet }, async ({ projet: c }) => {
+    const l = await s.lecture.registre(a, c, E.Risque, { ref: 'ASC' });
+    return rep(l.map((r) => `- ${r.ref} [${L(r.statut)}, criticité ${r.probabilite * r.impact}/16] ${r.titre} — parade : ${r.parade || '—'}`).join('\n') || '(aucun)', l);
+  });
+  outil('lister_actions', 'Plan d’actions.', { projet }, async ({ projet: c }) => {
+    const l = await s.lecture.registre(a, c, E.Action, { ref: 'ASC' });
+    return rep(l.map((x) => `- ${x.ref} [${L(x.statut)}] ${x.action} — ${x.responsable || '?'}${x.echeance ? `, ${x.echeance}` : ''}`).join('\n') || '(aucune)', l);
+  });
+  outil('lister_changements', 'Demandes de changement.', { projet }, async ({ projet: c }) => {
+    const l = await s.lecture.registre(a, c, E.Changement, { ref: 'ASC' });
+    return rep(l.map((x) => `- ${x.ref} [${L(x.decision)}] ${x.titre} (${x.date ?? '?'}, ${x.demandeur})`).join('\n') || '(aucune)', l);
+  });
+  outil('lister_jalons', 'Planning : jalons et statut.', { projet }, async ({ projet: c }) => {
+    const j = (await s.lecture.indicateurs(a, c)).jalons;
+    return rep(j.map((x) => `- ${x.ref} ${x.nom} : prévu ${x.date_prevue || '?'} [${L(x.statut)}]${x.ecart ? ` (écart ${x.ecart} j)` : ''}${x.livrables.length ? ` — documents : ${x.livrables.join(', ')}` : ''}`).join('\n') || '(aucun)', j);
+  });
+  outil('lire_reunion', 'Comptes rendus de réunion : liste, ou contenu d’une réunion par date (AAAA-MM-JJ).', { projet, date: z.string().optional() }, async ({ projet: c, date }) => {
+    const l = await s.lecture.registre(a, c, E.Reunion, { date: 'DESC' });
+    if (!date) return rep(l.map((r) => `- ${r.date} [${r.type}] ${r.titre}`).join('\n') || '(aucune)', l.map((r) => ({ date: r.date, type: r.type, titre: r.titre })));
+    const r = l.filter((x) => x.date === date);
+    return rep(r.map((x) => x.contenu).join('\n\n---\n\n') || `Aucune réunion le ${date}.`);
+  });
+
+  outil('lire_doc_technique', 'Documentation technique : liste des pages, ou contenu d’une page (dépôt + chemin).',
+    { projet, depot: z.string().optional(), chemin: z.string().optional() }, async ({ projet: c, depot, chemin }) => {
+      const l = await s.lecture.docTechnique(a, c, { depot, chemin });
+      if (chemin && l.length) return rep(l[0].contenu);
+      return rep(l.map((d) => `- ${d.chemin} — ${d.titre}`).join('\n') || '(aucune page)', l.map((d) => ({ chemin: d.chemin, depot: d.depot, titre: d.titre })));
+    });
+
+  outil('rechercher', 'Recherche plein texte (français) dans fonctionnalités, exigences, documents, retours, doc technique, ADR, réunions et sessions.',
+    { projet, texte: z.string().min(2) }, async ({ projet: c, texte }) => {
+      const p = await s.acces.projet(a, c);
+      const r = await rechercher(s.lecture, p, texte);
+      return rep(r.map((x) => `- [${x.type}] ${x.ref} — ${x.titre} : …${x.extrait}…`).join('\n') || 'Aucun résultat.', r);
+    });
+
+  // =================================================================== écriture
+
+  outil('demarrer_session', 'Démarre une session de développement (appelé par le hook de début de session). Retourne session_id.',
+    { projet, depot: z.string().optional(), session_externe: z.string().optional().describe('Identifiant de session Claude Code') }, async ({ projet: c, depot, session_externe }) => {
+      const { session } = await s.ecriture.demarrerSession(a, c, depot, session_externe);
+      return rep(`Session démarrée : ${session.id}`, { session_id: session.id });
+    }, false);
+
+  outil('ajouter_note_session', 'Ajoute une note au fil de l’eau à la session en cours.',
+    { session_id: z.string().uuid(), texte: z.string().min(1), fonctionnalites: z.array(z.string()).optional() }, async ({ session_id, texte, fonctionnalites }) => {
+      const n = await s.ecriture.ajouterNoteSession(a, session_id, texte, fonctionnalites);
+      return rep(`Note ajoutée (${n.nb_notes} note(s) dans la session).`, n);
+    }, false);
+
+  outil('cloturer_session', 'Clôture la session avec un résumé Markdown (modèle « session.md »).',
+    { session_id: z.string().uuid(), resume_md: z.string().min(1) }, async ({ session_id, resume_md }) => {
+      const x = await s.ecriture.cloturerSession(a, session_id, resume_md);
+      return rep(`Session clôturée le ${x.fin?.toISOString()}.`, { session_id: x.id });
+    }, false);
+
+  outil('maj_statut_fonctionnalite', "Met à jour le statut d'une fonctionnalité (global, ou d'un dépôt si `depot`). Interdit : « valide ». « recette » seulement si tous ses tests sont OK.",
+    { projet, ref: z.string(), statut: z.string().describe('a_faire | en_cours | bloque | developpe | recette (dépôt : a_faire | en_cours | bloque | developpe)'), depot: z.string().optional(), notes: z.string().optional(), session_id: z.string().uuid().optional() },
+    async ({ projet: c, ref, statut, depot, notes, session_id }) => {
+      const r = await s.ecriture.majStatutFonctionnalite(a, c, ref, statut, { depot, notes, session_id });
+      return rep(`${ref}${depot ? ` (dépôt ${depot})` : ''} → ${L(statut)}.`, r);
+    }, false);
+
+  outil('ecrire_document', "Écrit une NOUVELLE VERSION d'un document de gestion de projet. Statut résultant : en_cours (défaut) ou en_revue, jamais au-delà. Refusé si le document est produit par un humain.",
+    { projet, code: z.string(), contenu_md: z.string().min(1), resume_modif: z.string().min(1), statut: z.enum(['en_cours', 'en_revue']).optional(), session_id: z.string().uuid().optional() },
+    async ({ projet: c, code, contenu_md, resume_modif, statut, session_id }) => {
+      const r = await s.ecriture.ecrireDocument(a, c, code, contenu_md, resume_modif, { statut, session_id });
+      return rep(`${code} : version ${r.version} enregistrée, statut « ${L(r.statut)} »${r.repasse_en_revue ? ' (la version validée reste figée ; la nouvelle repasse en revue)' : ''}.`, r);
+    }, false);
+
+  outil('maj_statut_document', "Change le statut d'un document. L'agent ne peut aller que jusqu'à « en_revue » : valider et signer sont réservés au chef de projet.",
+    { projet, code: z.string(), statut: z.string(), session_id: z.string().uuid().optional() }, async ({ projet: c, code, statut, session_id }) => {
+      const r = await s.ecriture.majStatutDocument(a, c, code, statut, session_id);
+      return rep(`${code} → ${L(r.statut)}.`, r);
+    }, false);
+
+  outil('ecrire_doc_technique', 'Crée ou met à jour une page de documentation technique (historisée).',
+    { projet, depot: z.string().optional(), chemin: z.string().describe('ex. api.md, installation.md'), contenu_md: z.string().min(1), session_id: z.string().uuid().optional() },
+    async ({ projet: c, depot, chemin, contenu_md, session_id }) => {
+      const r = await s.ecriture.ecrireDocTechnique(a, c, depot, chemin, contenu_md, session_id);
+      return rep(`Doc technique ${r.chemin} ${r.cree ? 'créée' : 'mise à jour'}.`, r);
+    }, false);
+
+  outil('creer_retour', 'Enregistre un retour client (référence RC-xxx attribuée par le serveur).',
+    { projet, retour_md: z.string().min(1), type: z.enum(['bug', 'evolution', 'question', 'remarque']).optional(), priorite: z.enum(['haute', 'moyenne', 'basse']).optional(),
+      source: z.string().optional(), contact_client: z.string().optional(), date: z.string().optional(), fonctionnalites: z.array(z.string()).optional(), session_id: z.string().uuid().optional() },
+    async ({ projet: c, session_id, ...x }) => {
+      const r = await s.ecriture.creerRetour(a, c, x, session_id);
+      return rep(`Retour ${r.ref} créé.`, { ref: r.ref });
+    }, false);
+
+  outil('ajouter_risque', 'Ajoute un risque (référence R-xxx).',
+    { projet, titre: z.string().min(1), probabilite: z.number().int().min(1).max(4), impact: z.number().int().min(1).max(4), categorie: z.string().optional(), parade: z.string().optional(), responsable: z.string().optional(), session_id: z.string().uuid().optional() },
+    async ({ projet: c, session_id, ...x }) => {
+      const r = await s.ecriture.ajouterRisque(a, c, x, session_id);
+      return rep(`Risque ${r.ref} ajouté (criticité ${r.probabilite * r.impact}/16).`, { ref: r.ref });
+    }, false);
+
+  outil('ajouter_action', 'Ajoute une action au plan d’actions (référence A-xxx).',
+    { projet, action: z.string().min(1), responsable: z.string().optional(), echeance: z.string().optional().describe('AAAA-MM-JJ'), session_id: z.string().uuid().optional() },
+    async ({ projet: c, session_id, ...x }) => {
+      const r = await s.ecriture.ajouterAction(a, c, x, session_id);
+      return rep(`Action ${r.ref} ajoutée.`, { ref: r.ref });
+    }, false);
+
+  return srv;
+}

@@ -22,7 +22,7 @@ export function documentOpenApi(app: INestApplication): OpenAPIObject {
 async function generer() {
   const { AppModule } = await import('./app.module');
   const app = await NestFactory.create(AppModule, { logger: ['error'], abortOnError: false });
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api/v1', { exclude: ['mcp'] });
   const doc = documentOpenApi(app);
   const dir = join(__dirname, '..', 'openapi');
   mkdirSync(dir, { recursive: true });
