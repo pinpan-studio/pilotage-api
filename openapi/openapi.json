@@ -7,11 +7,18 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SanteDto"
+                }
+              }
+            }
           }
         },
         "tags": [
-          "Sante"
+          "santé"
         ]
       }
     },
@@ -31,7 +38,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionAuthDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -55,7 +69,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionAuthDto"
+                }
+              }
+            }
           }
         },
         "summary": "Pas de domaine commun entre l'API et l'interface : le jeton de rafraîchissement circule dans le corps.",
@@ -98,7 +119,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ActeurDto"
                 }
               }
             }
@@ -120,7 +141,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JetonApiDto"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -147,7 +178,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JetonApiCreeDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1785,6 +1823,10 @@
       }
     },
     "schemas": {
+      "SanteDto": {
+        "type": "object",
+        "properties": {}
+      },
       "ConnexionDto": {
         "type": "object",
         "properties": {
@@ -1802,6 +1844,53 @@
           "mot_de_passe"
         ]
       },
+      "UtilisateurSessionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "nom",
+          "role"
+        ]
+      },
+      "SessionAuthDto": {
+        "type": "object",
+        "properties": {
+          "jeton_acces": {
+            "type": "string"
+          },
+          "expire_dans": {
+            "type": "number",
+            "description": "Durée de validité du jeton d'accès, en secondes."
+          },
+          "jeton_rafraichissement": {
+            "type": "string"
+          },
+          "utilisateur": {
+            "$ref": "#/components/schemas/UtilisateurSessionDto"
+          }
+        },
+        "required": [
+          "jeton_acces",
+          "expire_dans",
+          "jeton_rafraichissement",
+          "utilisateur"
+        ]
+      },
       "RafraichirDto": {
         "type": "object",
         "properties": {
@@ -1811,6 +1900,103 @@
         },
         "required": [
           "jeton_rafraichissement"
+        ]
+      },
+      "ActeurDto": {
+        "type": "object",
+        "properties": {
+          "utilisateur_id": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "chef_projet",
+              "developpeur",
+              "client_lecteur",
+              "agent"
+            ]
+          },
+          "auteur_type": {
+            "type": "string",
+            "enum": [
+              "humain",
+              "agent"
+            ]
+          },
+          "projets_jeton": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "utilisateur_id",
+          "organisation_id",
+          "nom",
+          "role",
+          "auteur_type"
+        ]
+      },
+      "JetonApiDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "prefixe": {
+            "type": "string"
+          },
+          "utilisateur_id": {
+            "type": "string"
+          },
+          "projets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expire_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "revoque_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "utilise_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "nom",
+          "prefixe",
+          "utilisateur_id",
+          "projets",
+          "expire_le",
+          "revoque_le",
+          "utilise_le",
+          "cree_le"
         ]
       },
       "CreerJetonDto": {
@@ -1840,6 +2026,67 @@
           "utilisateur_id",
           "nom",
           "projets"
+        ]
+      },
+      "JetonApiCreeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "prefixe": {
+            "type": "string"
+          },
+          "utilisateur_id": {
+            "type": "string"
+          },
+          "projets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expire_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "revoque_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "utilise_le": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "cree_le": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "jeton": {
+            "type": "string"
+          },
+          "avertissement": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "nom",
+          "prefixe",
+          "utilisateur_id",
+          "projets",
+          "expire_le",
+          "revoque_le",
+          "utilise_le",
+          "cree_le",
+          "jeton",
+          "avertissement"
         ]
       },
       "EntreeReferentielDto": {
