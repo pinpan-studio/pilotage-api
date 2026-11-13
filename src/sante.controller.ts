@@ -2,8 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { Public } from './common/acteur';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-
-export class SanteDto { statut: string; version_api: string; heure: string; }
+import { SanteDto } from './sante.dto';
 
 export const VERSION_API = 'v1';
 

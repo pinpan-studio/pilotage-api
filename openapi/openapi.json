@@ -1825,7 +1825,22 @@
     "schemas": {
       "SanteDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "statut": {
+            "type": "string"
+          },
+          "version_api": {
+            "type": "string"
+          },
+          "heure": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "statut",
+          "version_api",
+          "heure"
+        ]
       },
       "ConnexionDto": {
         "type": "object",
