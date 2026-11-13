@@ -36,6 +36,7 @@
 | `maj_fonctionnalite` | ref*, titre, lot, poids, description (critères d'acceptation), depots[] |
 | `creer_jalon` / `maj_jalon` | nom*, date_prevue, lot, facturation, documents[] / ref*, date_prevue, date_reelle, nom, lot |
 | `maj_risque` | ref*, statut (ouvert\|surveille\|survenu\|clos), probabilite, impact, parade, responsable |
+| `generer_document` | code* (DAT, SFD, PLANNING, CAHIER-RECETTE, PV-RECETTE, RAPPORTS, registres…), statut — génère depuis les données du projet |
 | `ecrire_document` | code*, contenu_md*, resume_modif*, statut (en_cours \| en_revue) |
 | `maj_statut_document` | code*, statut* (a_produire, en_cours, en_revue — pas valide/signe) |
 | `ecrire_doc_technique` | depot, chemin*, contenu_md* |

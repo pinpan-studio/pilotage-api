@@ -64,7 +64,7 @@ de test sont OK dans la dernière campagne.
    (la campagne est créée si la référence est nouvelle ; `lire_campagne` pour relire).
 4. KO → `creer_retour(type: bug, fonctionnalites)` ; tout OK → `maj_statut_fonctionnalite(statut: recette)`.
 
-**Livrables documentaires** : `lister_documents(phase?, statut?)` → `lire_modele_document(code)` →
+**Livrables documentaires** : commence par `generer_document(code)` quand le document est générable (SFD, DAT avec schéma d'architecture Mermaid, PLANNING, CAHIER-RECETTE, PV-RECETTE, RAPPORTS, registres) puis complète ; les schémas s'écrivent en blocs ```mermaid (flowchart LR). Sinon `lister_documents(phase?, statut?)` → `lire_modele_document(code)` →
 `lire_document(code)` → rassembler (TDR, fonctionnalités, registres) → `ecrire_document(code, contenu_md,
 resume_modif, statut: en_cours|en_revue)`. Chaque écriture crée une nouvelle version ; un document
 validé ou signé repasse en revue. Refusé si le document est produit par un humain (scan signé, TDR).
