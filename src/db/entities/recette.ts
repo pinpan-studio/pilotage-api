@@ -10,6 +10,7 @@ export class CasTest extends BaseProjet {
   @Column(md) preconditions: string;
   @Column('jsonb', { default: [] }) etapes: string[];
   @Column(md) attendu: string;
+  @Column({ default: 0 }) ordre: number;
 }
 
 @Entity('campagne')

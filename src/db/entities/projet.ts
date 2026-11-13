@@ -36,6 +36,7 @@ export class Depot extends BaseProjet {
   @Column({ default: '' }) url: string;
   @Column({ default: '' }) stack: string;
   @Column({ default: '' }) role: string;
+  @Column({ default: 0 }) ordre: number;
 }
 
 @Entity('exigence')
@@ -46,6 +47,7 @@ export class Exigence extends BaseProjet {
   @Column({ default: '' }) section_tdr: string;
   @Column({ type: 'varchar', default: 'should' }) priorite: 'must' | 'should' | 'could';
   @Column(md) description: string;
+  @Column({ default: 0 }) ordre: number;
 }
 
 @Entity('fonctionnalite')
@@ -58,6 +60,7 @@ export class Fonctionnalite extends BaseProjet {
   @Column({ type: 'varchar', default: 'a_faire' }) statut: string;
   @Column({ default: 'interne' }) origine: string;
   @Column(md) notes: string;
+  @Column({ default: 0 }) ordre: number;
 }
 
 @Entity('fonctionnalite_exigence')

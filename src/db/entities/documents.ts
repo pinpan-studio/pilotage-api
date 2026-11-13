@@ -52,6 +52,7 @@ export class Document extends BaseProjet {
   /** Emplacement d'origine dans le kit v1. */
   @Column({ default: '' }) fichier: string;
   @Column(md) notes: string;
+  @Column({ default: 0 }) ordre: number;
 }
 
 @Entity('version_document')

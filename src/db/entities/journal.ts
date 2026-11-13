@@ -1,4 +1,4 @@
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity, Generated, Index } from 'typeorm';
 import { BaseProjet, md } from './base';
 
 @Entity('session_dev')
@@ -32,4 +32,6 @@ export class EvenementJournal extends BaseProjet {
   @Column(md) message: string;
   @Column('text', { array: true, default: '{}' }) fonctionnalites: string[];
   @Index({ unique: true }) @Column('uuid') cle_idempotence: string;
+  /** Ordre d'arrivée (départage les événements de même horodatage). */
+  @Column('bigint') @Generated('increment') seq: string;
 }
