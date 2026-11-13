@@ -47,7 +47,11 @@ describe('Import du kit v1 et IndicateursService (portage à l’identique de pi
   it.each(['2026-09-01', '2026-11-13', '2026-12-20', '2027-02-01'])('mêmes indicateurs et alertes que le kit v1 au %s', async (date) => {
     const ref = kit(date);
     const { modele, indicateurs } = await app.get(IndicateursService).calculer(projet, date);
-    expect(projection(indicateurs)).toEqual(projection(ref.indicateurs));
+    // Le journal étant agrégé par PostgreSQL, la liste des commits n'est plus matérialisée : on compare leur nombre.
+    const { commits: _c, nbCommits, ...reste } = indicateurs as any;
+    const { commits: commitsKit, ...resteKit } = ref.indicateurs;
+    expect(nbCommits).toBe(commitsKit.length);
+    expect(projection(reste)).toEqual(projection(resteKit));
     expect(verifier(modele).erreurs).toEqual(ref.verification.erreurs);
   });
 });

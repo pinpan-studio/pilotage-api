@@ -1,4 +1,5 @@
-import { Body, Controller, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, Param, Patch, Post, Put, Req } from '@nestjs/common';
+import type { Request } from 'express';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import * as E from '../db/entities';
 import { Acteur, ActeurCourant } from '../common/acteur';
@@ -54,4 +55,34 @@ export class GestionController {
   ecrireDocument(@ActeurCourant() a: Acteur, @Param('code') c: string, @Param('doc') doc: string, @Body() d: D.ContenuDocumentDto) {
     return this.e.ecrireDocument(a, c, doc, d.contenu_md, d.resume_modif, { statut: d.statut });
   }
+
+  @Put('tdr') @ApiOkResponse({ type: D.TdrDto })
+  ecrireTdr(@ActeurCourant() a: Acteur, @Param('code') c: string, @Body() d: D.TdrDto) { return this.g.ecrireTdr(a, c, d.contenu); }
+  @Patch('revision-perimetre') @ApiOkResponse({ type: D.RevisionResultatDto })
+  revision(@ActeurCourant() a: Acteur, @Param('code') c: string, @Body() d: D.RevisionPerimetreDto) { return this.g.revisionPerimetre(a, c, d.ouverte); }
+
+  @Post('parties-prenantes') @ApiCreatedResponse({ type: E.PartiePrenante })
+  creerPp(@ActeurCourant() a: Acteur, @Param('code') c: string, @Body() d: D.PartiePrenanteDto) { return this.g.creerPartiePrenante(a, c, d); }
+  @Patch('parties-prenantes/:id') @ApiOkResponse({ type: E.PartiePrenante })
+  majPp(@ActeurCourant() a: Acteur, @Param('code') c: string, @Param('id') id: string, @Body() d: D.ModifierPartiePrenanteDto) { return this.g.majPartiePrenante(a, c, id, d); }
+
+  @Patch('adr/:ref/statut') @ApiOkResponse({ type: E.Adr })
+  statutAdr(@ActeurCourant() a: Acteur, @Param('code') c: string, @Param('ref') r: string, @Body() d: D.StatutAdrDto) { return this.g.statutAdr(a, c, r, d.statut); }
+
+  /** Suppression logique (historisée), réservée aux humains ; fonctionnalités, exigences, jalons, changements, ADR : chef de projet. */
+  @Delete(GestionService.TYPES_SUPPRIMABLES.map((t) => `${t}/:cle`)) @HttpCode(204)
+  async supprimer(@ActeurCourant() a: Acteur, @Param('code') c: string, @Param('cle') k: string, @Req() req: Request) {
+    const segs = req.path.split('/'); await this.g.supprimer(a, c, decodeURIComponent(segs[segs.length - 2]), k);
+  }
+}
+
+/** Catalogue documentaire de l'équipe (administrateur). */
+@ApiTags('saisie') @ApiBearerAuth()
+@Controller()
+export class CatalogueAdminController {
+  constructor(private readonly g: GestionService) {}
+  @Patch('catalogue/:code') @ApiOkResponse({ type: E.TypeDocument })
+  majType(@ActeurCourant() a: Acteur, @Param('code') c: string, @Body() d: D.TypeDocumentMajDto) { return this.g.majTypeDocument(a, c, d); }
+  @Put('modeles/:code') @ApiOkResponse({ type: E.ModeleDocument })
+  modele(@ActeurCourant() a: Acteur, @Param('code') c: string, @Body() d: D.ModeleDto) { return this.g.ecrireModele(a, c, d.contenu); }
 }

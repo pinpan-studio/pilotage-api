@@ -63,9 +63,80 @@ export class GestionService {
   }
 
   // ---------------------------------------------------------------- exigences (cadrage : humains, chef de projet)
+  /** Cadrage (TDR, exigences) : chef de projet ; l'agent seulement pendant une révision de périmètre ouverte par un humain. */
   private async exigerCadrage(a: Acteur, p: E.Projet) {
-    if (a.role === 'agent') throw refuse("l'agent ne peut pas modifier le TDR ni les exigences.");
-    await this.acces.exigerChefProjet(a, p, 'modifier les exigences');
+    if (a.role === 'agent') { ReglesAgent.perimetre(a, p.revision_perimetre); await this.acces.exigerEcriture(a, p); return; }
+    await this.acces.exigerChefProjet(a, p, 'modifier le cadrage (TDR, exigences)');
+  }
+
+  async ecrireTdr(a: Acteur, code: string, contenu: string, session_id?: string) {
+    const p = await this.projet(a, code); await this.exigerCadrage(a, p);
+    return this.tx(p, async (em) => { const x = await em.findOneByOrFail(E.Projet, { id: p.id }); await this.modifier(em, a, 'projet', x, { tdr: contenu }, session_id); return { contenu }; });
+  }
+  async revisionPerimetre(a: Acteur, code: string, ouverte: boolean) {
+    if (a.role === 'agent') throw refuse("l'agent ne peut pas ouvrir ni fermer une révision de périmètre.");
+    const p = await this.projet(a, code); await this.acces.exigerChefProjet(a, p, 'ouvrir ou fermer une révision de périmètre');
+    return this.tx(p, async (em) => { const x = await em.findOneByOrFail(E.Projet, { id: p.id }); await this.modifier(em, a, 'projet', x, { revision_perimetre: ouverte }); return { revision_perimetre: ouverte }; });
+  }
+
+  // ---------------------------------------------------------------- suppression (humains), logique et historisée
+  private static readonly SUPPRIMABLES: Record<string, { entite: any; table: string; cle: 'ref' | 'id'; chef: boolean; libelle: string }> = {
+    fonctionnalites: { entite: E.Fonctionnalite, table: 'fonctionnalite', cle: 'ref', chef: true, libelle: 'fonctionnalité' },
+    exigences: { entite: E.Exigence, table: 'exigence', cle: 'ref', chef: true, libelle: 'exigence' },
+    changements: { entite: E.Changement, table: 'changement', cle: 'ref', chef: true, libelle: 'demande de changement' },
+    jalons: { entite: E.Jalon, table: 'jalon', cle: 'ref', chef: true, libelle: 'jalon' },
+    adr: { entite: E.Adr, table: 'adr', cle: 'ref', chef: true, libelle: 'décision d’architecture' },
+    risques: { entite: E.Risque, table: 'risque', cle: 'ref', chef: false, libelle: 'risque' },
+    retours: { entite: E.RetourClient, table: 'retour_client', cle: 'ref', chef: false, libelle: 'retour' },
+    actions: { entite: E.Action, table: 'action', cle: 'ref', chef: false, libelle: 'tâche' },
+    'cas-test': { entite: E.CasTest, table: 'cas_test', cle: 'ref', chef: false, libelle: 'cas de test' },
+    reunions: { entite: E.Reunion, table: 'reunion', cle: 'id', chef: false, libelle: 'compte rendu' },
+    'parties-prenantes': { entite: E.PartiePrenante, table: 'partie_prenante', cle: 'id', chef: false, libelle: 'partie prenante' },
+  };
+  static readonly TYPES_SUPPRIMABLES = Object.keys(GestionService.SUPPRIMABLES);
+  async supprimer(a: Acteur, code: string, type: string, cle: string) {
+    const t = GestionService.SUPPRIMABLES[type];
+    if (!t) throw introuvable(`type « ${type} »`);
+    ReglesAgent.suppression(a);
+    const p = await this.projet(a, code);
+    if (t.chef) await this.acces.exigerChefProjet(a, p, `supprimer une ${t.libelle}`);
+    return this.tx(p, async (em) => {
+      if (t.cle === 'id' && !/^[0-9a-f-]{36}$/i.test(cle)) throw introuvable(t.libelle);
+      const x = await em.findOneBy(t.entite, { projet_id: p.id, [t.cle]: cle });
+      if (!x) throw introuvable(`${t.libelle} ${cle}`);
+      await em.softDelete(t.entite, { id: (x as any).id });
+      await this.hist.tracer(em, a, t.table, plain(x), { id: (x as any).id, supprime_le: new Date().toISOString() }, { projet_id: p.id });
+    });
+  }
+
+  // ---------------------------------------------------------------- parties prenantes, ADR
+  async creerPartiePrenante(a: Acteur, code: string, x: { nom: string; fonction?: string; organisme?: string; role?: string; influence?: string; attentes?: string }) {
+    const p = await this.projet(a, code);
+    return this.tx(p, async (em) => {
+      const pp = await em.save(E.PartiePrenante, em.create(E.PartiePrenante, { organisation_id: p.organisation_id, projet_id: p.id, cree_par: a.utilisateur_id, nom: x.nom.trim(),
+        fonction: x.fonction ?? '', organisme: x.organisme ?? '', role: x.role ?? '', influence: x.influence ?? '', attentes: x.attentes ?? '' }));
+      await this.hist.tracer(em, a, 'partie_prenante', null, plain(pp), {});
+      return pp;
+    });
+  }
+  async majPartiePrenante(a: Acteur, code: string, id: string, x: Partial<{ nom: string; fonction: string; organisme: string; role: string; influence: string; attentes: string }>) {
+    const p = await this.projet(a, code);
+    return this.tx(p, async (em) => {
+      const pp = /^[0-9a-f-]{36}$/i.test(id) ? await em.findOneBy(E.PartiePrenante, { projet_id: p.id, id }) : null;
+      if (!pp) throw introuvable('partie prenante');
+      return this.modifier(em, a, 'partie_prenante', pp, x);
+    });
+  }
+  /** Statut d'une décision d'architecture : l'agent propose, un chef de projet tranche. */
+  async statutAdr(a: Acteur, code: string, ref: string, statut: string) {
+    if (!['proposee', 'acceptee', 'remplacee', 'rejetee'].includes(statut)) throw invalide('statut : proposee, acceptee, remplacee ou rejetee.');
+    if (a.role === 'agent' && statut !== 'proposee') throw refuse("l'agent ne peut pas accepter ni rejeter une décision d'architecture.");
+    const p = await this.projet(a, code);
+    if (statut !== 'proposee') await this.acces.exigerChefProjet(a, p, 'trancher une décision d’architecture');
+    return this.tx(p, async (em) => {
+      const d = await em.findOneBy(E.Adr, { projet_id: p.id, ref }); if (!d) throw introuvable(`décision ${ref}`);
+      return this.modifier(em, a, 'adr', d, { statut });
+    });
   }
   async creerExigence(a: Acteur, code: string, x: { titre: string; priorite?: string; section_tdr?: string; description?: string }) {
     if (x.priorite && !['must', 'should', 'could'].includes(x.priorite)) throw invalide('priorité : must, should ou could.');
@@ -139,6 +210,31 @@ export class GestionService {
     return this.tx(p, async (em) => {
       const c = await em.findOneBy(E.Changement, { projet_id: p.id, ref }); if (!c) throw introuvable(`changement ${ref}`);
       return this.modifier(em, a, 'changement', c, { ...x, date_decision: x.decision === 'en_analyse' ? null : new Date().toISOString().slice(0, 10) } as any);
+    });
+  }
+
+  // ---------------------------------------------------------------- catalogue documentaire de l'équipe (administrateur)
+  private async exigerAdmin(a: Acteur) {
+    if ((await this.acces.roleEquipe(a)) !== 'admin' || a.role === 'agent') throw refuse('seul un administrateur de l’équipe peut modifier le catalogue documentaire.');
+  }
+  async majTypeDocument(a: Acteur, code: string, x: Partial<{ titre: string; description: string; phase: string; producteur: 'agent' | 'mixte' | 'humain'; livrable: boolean; signature: boolean }>) {
+    await this.exigerAdmin(a);
+    return this.db.transaction(async (em) => {
+      const t = await em.findOneBy(E.TypeDocument, { organisation_id: a.organisation_id, code });
+      if (!t) throw introuvable(`type de document ${code}`);
+      if (x.phase && !(await em.findOneBy(E.PhaseDocument, { organisation_id: a.organisation_id, code: x.phase }))) throw invalide(`phase « ${x.phase} » inconnue.`);
+      return this.modifier(em, a, 'type_document', t, x);
+    });
+  }
+  async ecrireModele(a: Acteur, code: string, contenu: string) {
+    await this.exigerAdmin(a);
+    const nom = code.endsWith('.md') || code.endsWith('.yaml') ? code : `${code}.md`;
+    return this.db.transaction(async (em) => {
+      const m = await em.findOneBy(E.ModeleDocument, { organisation_id: a.organisation_id, code: nom });
+      if (m) return this.modifier(em, a, 'modele_document', m, { contenu });
+      const n = await em.save(E.ModeleDocument, em.create(E.ModeleDocument, { organisation_id: a.organisation_id, cree_par: a.utilisateur_id, code: nom, contenu }));
+      await this.hist.tracer(em, a, 'modele_document', null, plain(n), {});
+      return n;
     });
   }
 }

@@ -10,5 +10,16 @@
       "includeFiles": "{dist/**,reference/kit-v1/modeles/**,reference/kit-v1/projets/exemple-declarations/**}"
     }
   },
-  "rewrites": [{ "source": "/(.*)", "destination": "/api" }]
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api"
+    }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "master": false,
+      "claude/*": false
+    }
+  }
 }

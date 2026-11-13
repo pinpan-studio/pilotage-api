@@ -319,6 +319,18 @@ export function creerServeurMcp(a: Acteur, s: Services): McpServer {
       return rep(`Risque ${r.ref} mis à jour (criticité ${r.probabilite * r.impact}/16, ${r.statut}).`, { ref: r.ref });
     }, false);
 
+  outil('ecrire_tdr', "Remplace le texte du TDR (Markdown). Réservé au chef de projet ; l'agent seulement pendant une révision de périmètre ouverte par un humain.",
+    { projet, contenu_md: z.string().min(1), session_id: z.string().uuid().optional() },
+    async ({ projet: c, contenu_md, session_id }) => { await s.gestion.ecrireTdr(a, c, contenu_md, session_id); return rep('TDR mis à jour.'); }, false);
+
+  outil('creer_exigence', "Ajoute une exigence au cadrage (référence EX-xx). Mêmes droits que ecrire_tdr.",
+    { projet, titre: z.string().min(2), priorite: z.enum(['must', 'should', 'could']).optional(), section_tdr: z.string().optional(), description: z.string().optional() },
+    async ({ projet: c, ...x }) => { const e = await s.gestion.creerExigence(a, c, x); return rep(`Exigence ${e.ref} ajoutée.`, { ref: e.ref }); }, false);
+
+  outil('ajouter_partie_prenante', 'Ajoute une partie prenante au registre (nom, fonction, organisme, rôle, influence, attentes).',
+    { projet, nom: z.string().min(2), fonction: z.string().optional(), organisme: z.string().optional(), role: z.string().optional(), influence: z.string().optional().describe('forte, moyenne, faible'), attentes: z.string().optional() },
+    async ({ projet: c, ...x }) => { const pp = await s.gestion.creerPartiePrenante(a, c, x); return rep(`Partie prenante « ${pp.nom} » ajoutée.`, { id: pp.id }); }, false);
+
   outil('creer_cas_test', 'Crée un cas de test de recette (référence RT-xxx), rattaché à une fonctionnalité.',
     { projet, titre: z.string().min(1), fonctionnalite: z.string().optional().describe('F-xxx'), preconditions: z.string().optional(), etapes: z.array(z.string()).optional(), attendu: z.string().optional(), session_id: z.string().uuid().optional() },
     async ({ projet: c, session_id, ...x }) => {

@@ -41,9 +41,18 @@ export async function chargerModele(em: EntityManager, projet: E.Projet): Promis
     jalons.length ? em.find(E.JalonDocument, { where: { jalon_id: In(jalons.map((j) => j.id)) }, order: { ordre: 'ASC' } }) : [],
     em.find(E.TypeDocument, { where: { organisation_id: projet.organisation_id }, order: { ordre: 'ASC' } }),
     em.find(E.Fichier, { where: { projet_id: projet.id, categorie: 'scan_signe' } }),
-    em.query(`SELECT ts, evt, fonctionnalites, depot_id, auteur, fichier, hash, message FROM evenement_journal
-              WHERE projet_id = $1 AND supprime_le IS NULL ORDER BY ts, seq`, [projet.id]),
+    em.query(`SELECT to_char(ts AT TIME ZONE 'UTC', 'YYYY-MM-DD') jour, count(*)::int nb, max(ts) derniere, count(*) FILTER (WHERE evt = 'commit')::int commits
+              FROM evenement_journal WHERE projet_id = $1 AND supprime_le IS NULL GROUP BY 1`, [projet.id]),
   ]);
+  const parFonc: { f: string; ts: Date }[] = await em.query(`SELECT f, max(ts) ts FROM evenement_journal, unnest(fonctionnalites) f
+    WHERE projet_id = $1 AND supprime_le IS NULL GROUP BY f`, [projet.id]);
+  const iso = (d: Date) => new Date(d).toISOString();
+  const journalAgrege = {
+    parJour: Object.fromEntries(journal.map((r: any) => [r.jour, r.nb])),
+    derniere: journal.length ? iso(journal.reduce((m: any, r: any) => (new Date(r.derniere) > new Date(m) ? r.derniere : m), journal[0].derniere)) : null,
+    parFonctionnalite: Object.fromEntries(parFonc.map((r) => [r.f, iso(r.ts)])),
+    nbCommits: journal.reduce((n: number, r: any) => n + r.commits, 0),
+  };
   const phases = await em.find(E.PhaseDocument, { where: { organisation_id: projet.organisation_id }, order: { ordre: 'ASC' } });
 
   const grp = <T, K>(l: T[], k: (x: T) => K) => { const m = new Map<K, T[]>(); for (const x of l) m.set(k(x), [...(m.get(k(x)) ?? []), x]); return m; };
@@ -80,7 +89,7 @@ export async function chargerModele(em: EntityManager, projet: E.Projet): Promis
       statut: r.statut, date_resolution: s(r.date_resolution), corps: r.contenu || `## Retour du client\n\n${r.retour}\n`, retour: r.retour,
       fonctionnalites: (rfP.get(r.id) ?? []).map((x) => refF.get(x.fonctionnalite_id)).filter(Boolean).sort(), _id: r.id,
     })),
-    journal: journal.map((e: any) => ({ ts: new Date(e.ts).toISOString(), evt: e.evt, fonctionnalites: e.fonctionnalites, depot: nomD.get(e.depot_id), auteur: e.auteur, fichier: e.fichier, hash: e.hash, message: e.message })),
+    journal: [], journalAgrege,
     sessions: sessions.map((x) => ({ date: x.debut.toISOString().slice(0, 10), depot: x.depot_id ? nomD.get(x.depot_id) : '', auteur: x.auteur, fonctionnalites: x.fonctionnalites, corps: x.resume, _id: x.id })),
     catalogue: { phases: phases.map((p) => ({ code: p.code, titre: p.titre })), documents: types.map(catalogueDoc) },
     suiviDocuments: docs.map((d) => {

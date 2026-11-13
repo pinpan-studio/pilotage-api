@@ -49,6 +49,8 @@
 | `ajouter_action` / `maj_action` | action*, responsable, echeance / ref*, statut* |
 | `proposer_changement` | titre*, description, demandeur, impact_delai_jours, impact_cout, fonctionnalites[] |
 | `creer_compte_rendu` | date*, contenu_md*, type, titre, lieu, participants[], decisions[], actions[], risques[], changements[] |
+| `ecrire_tdr` / `creer_exigence` | contenu_md* / titre*, priorite, section_tdr, description — chef de projet ; agent seulement pendant une révision de périmètre |
+| `ajouter_partie_prenante` | nom*, fonction, organisme, role, influence, attentes |
 | `creer_projet` | code*, nom*, client, description, date_debut, date_livraison_prevue, depots[{nom, url, stack}] |
 
 ## Erreurs courantes

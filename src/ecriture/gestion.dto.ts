@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { ArrayMinSize, IsArray, IsDateString, IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength, ValidateIf, ValidateNested } from 'class-validator';
+import { ArrayMinSize, IsArray, IsBoolean, IsDateString, IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength, ValidateIf, ValidateNested } from 'class-validator';
 
 const PRIO = ['haute', 'moyenne', 'basse']; const TYPES_RETOUR = ['bug', 'evolution', 'question', 'remarque'];
 const opt = () => ApiPropertyOptional();
@@ -135,3 +135,33 @@ export class ContenuDocumentDto {
 export class RefDto { ref: string; }
 export class BilanCampagneDto { campagne: string; bilan: Record<string, number>; }
 export class CompteRenduCreeDto { reunion_id: string; date: string; actions: string[]; risques: string[]; changements: string[]; }
+
+export class TdrDto { @ApiProperty() @IsString() contenu: string; }
+export class RevisionPerimetreDto { @ApiProperty() @IsBoolean() ouverte: boolean; }
+export class PartiePrenanteDto {
+  @ApiProperty() @IsString() @MinLength(2) nom: string;
+  @opt() @IsOptional() @IsString() fonction?: string;
+  @opt() @IsOptional() @IsString() organisme?: string;
+  @opt() @IsOptional() @IsString() role?: string;
+  @ApiPropertyOptional({ description: 'forte, moyenne, faible' }) @IsOptional() @IsString() influence?: string;
+  @opt() @IsOptional() @IsString() attentes?: string;
+}
+export class ModifierPartiePrenanteDto {
+  @opt() @IsOptional() @IsString() @MinLength(2) nom?: string;
+  @opt() @IsOptional() @IsString() fonction?: string;
+  @opt() @IsOptional() @IsString() organisme?: string;
+  @opt() @IsOptional() @IsString() role?: string;
+  @opt() @IsOptional() @IsString() influence?: string;
+  @opt() @IsOptional() @IsString() attentes?: string;
+}
+export class StatutAdrDto { @ApiProperty({ enum: ['proposee', 'acceptee', 'remplacee', 'rejetee'] }) @IsIn(['proposee', 'acceptee', 'remplacee', 'rejetee']) statut: string; }
+export class TypeDocumentMajDto {
+  @opt() @IsOptional() @IsString() @MinLength(2) titre?: string;
+  @opt() @IsOptional() @IsString() description?: string;
+  @opt() @IsOptional() @IsString() phase?: string;
+  @ApiPropertyOptional({ enum: ['agent', 'mixte', 'humain'] }) @IsOptional() @IsIn(['agent', 'mixte', 'humain']) producteur?: 'agent' | 'mixte' | 'humain';
+  @opt() @IsOptional() @IsBoolean() livrable?: boolean;
+  @opt() @IsOptional() @IsBoolean() signature?: boolean;
+}
+export class ModeleDto { @ApiProperty() @IsString() contenu: string; }
+export class RevisionResultatDto { revision_perimetre: boolean; }

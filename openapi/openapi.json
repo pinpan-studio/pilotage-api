@@ -664,6 +664,49 @@
         "tags": [
           "référentiels"
         ]
+      },
+      "put": {
+        "operationId": "CatalogueAdmin_modele",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModeleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModeleDocument"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "saisie"
+        ]
       }
     },
     "/api/v1/projets": {
@@ -796,6 +839,49 @@
         ],
         "tags": [
           "projets"
+        ]
+      },
+      "put": {
+        "operationId": "Gestion_ecrireTdr",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TdrDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TdrDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "saisie"
         ]
       }
     },
@@ -2079,6 +2165,49 @@
         "tags": [
           "projets"
         ]
+      },
+      "post": {
+        "operationId": "Gestion_creerPp",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartiePrenanteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartiePrenante"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "saisie"
+        ]
       }
     },
     "/api/v1/projets/{code}/adr": {
@@ -2898,6 +3027,609 @@
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "saisie"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/revision-perimetre": {
+      "patch": {
+        "operationId": "Gestion_revision",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevisionPerimetreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionResultatDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "saisie"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/parties-prenantes/{id}": {
+      "patch": {
+        "operationId": "Gestion_majPp",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifierPartiePrenanteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartiePrenante"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "saisie"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/adr/{ref}/statut": {
+      "patch": {
+        "operationId": "Gestion_statutAdr",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatutAdrDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Adr"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "saisie"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/fonctionnalites/{cle}": {
+      "delete": {
+        "operationId": "Gestion_supprimer[0]",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cle",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Suppression logique (historisée), réservée aux humains ; fonctionnalités, exigences, jalons, changements, ADR : chef de projet.",
+        "tags": [
+          "saisie"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/exigences/{cle}": {
+      "delete": {
+        "operationId": "Gestion_supprimer[1]",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cle",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Suppression logique (historisée), réservée aux humains ; fonctionnalités, exigences, jalons, changements, ADR : chef de projet.",
+        "tags": [
+          "saisie"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/changements/{cle}": {
+      "delete": {
+        "operationId": "Gestion_supprimer[2]",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cle",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Suppression logique (historisée), réservée aux humains ; fonctionnalités, exigences, jalons, changements, ADR : chef de projet.",
+        "tags": [
+          "saisie"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/jalons/{cle}": {
+      "delete": {
+        "operationId": "Gestion_supprimer[3]",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cle",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Suppression logique (historisée), réservée aux humains ; fonctionnalités, exigences, jalons, changements, ADR : chef de projet.",
+        "tags": [
+          "saisie"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/adr/{cle}": {
+      "delete": {
+        "operationId": "Gestion_supprimer[4]",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cle",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Suppression logique (historisée), réservée aux humains ; fonctionnalités, exigences, jalons, changements, ADR : chef de projet.",
+        "tags": [
+          "saisie"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/risques/{cle}": {
+      "delete": {
+        "operationId": "Gestion_supprimer[5]",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cle",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Suppression logique (historisée), réservée aux humains ; fonctionnalités, exigences, jalons, changements, ADR : chef de projet.",
+        "tags": [
+          "saisie"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/retours/{cle}": {
+      "delete": {
+        "operationId": "Gestion_supprimer[6]",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cle",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Suppression logique (historisée), réservée aux humains ; fonctionnalités, exigences, jalons, changements, ADR : chef de projet.",
+        "tags": [
+          "saisie"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/actions/{cle}": {
+      "delete": {
+        "operationId": "Gestion_supprimer[7]",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cle",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Suppression logique (historisée), réservée aux humains ; fonctionnalités, exigences, jalons, changements, ADR : chef de projet.",
+        "tags": [
+          "saisie"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/cas-test/{cle}": {
+      "delete": {
+        "operationId": "Gestion_supprimer[8]",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cle",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Suppression logique (historisée), réservée aux humains ; fonctionnalités, exigences, jalons, changements, ADR : chef de projet.",
+        "tags": [
+          "saisie"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/reunions/{cle}": {
+      "delete": {
+        "operationId": "Gestion_supprimer[9]",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cle",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Suppression logique (historisée), réservée aux humains ; fonctionnalités, exigences, jalons, changements, ADR : chef de projet.",
+        "tags": [
+          "saisie"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/parties-prenantes/{cle}": {
+      "delete": {
+        "operationId": "Gestion_supprimer[10]",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cle",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Suppression logique (historisée), réservée aux humains ; fonctionnalités, exigences, jalons, changements, ADR : chef de projet.",
+        "tags": [
+          "saisie"
+        ]
+      }
+    },
+    "/api/v1/catalogue/{code}": {
+      "patch": {
+        "operationId": "CatalogueAdmin_majType",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TypeDocumentMajDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TypeDocument"
                 }
               }
             }
@@ -4502,12 +5234,12 @@
             "type": "string"
           },
           "producteur": {
-            "type": "string",
             "enum": [
               "agent",
               "humain",
               "mixte"
-            ]
+            ],
+            "type": "string"
           },
           "livrable": {
             "type": "boolean"
@@ -8168,6 +8900,148 @@
         "required": [
           "contenu_md",
           "resume_modif"
+        ]
+      },
+      "TdrDto": {
+        "type": "object",
+        "properties": {
+          "contenu": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "contenu"
+        ]
+      },
+      "RevisionPerimetreDto": {
+        "type": "object",
+        "properties": {
+          "ouverte": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ouverte"
+        ]
+      },
+      "RevisionResultatDto": {
+        "type": "object",
+        "properties": {
+          "revision_perimetre": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "revision_perimetre"
+        ]
+      },
+      "PartiePrenanteDto": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string",
+            "minLength": 2
+          },
+          "fonction": {
+            "type": "string"
+          },
+          "organisme": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "influence": {
+            "type": "string",
+            "description": "forte, moyenne, faible"
+          },
+          "attentes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "nom"
+        ]
+      },
+      "ModifierPartiePrenanteDto": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string",
+            "minLength": 2
+          },
+          "fonction": {
+            "type": "string"
+          },
+          "organisme": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "influence": {
+            "type": "string"
+          },
+          "attentes": {
+            "type": "string"
+          }
+        }
+      },
+      "StatutAdrDto": {
+        "type": "object",
+        "properties": {
+          "statut": {
+            "type": "string",
+            "enum": [
+              "proposee",
+              "acceptee",
+              "remplacee",
+              "rejetee"
+            ]
+          }
+        },
+        "required": [
+          "statut"
+        ]
+      },
+      "TypeDocumentMajDto": {
+        "type": "object",
+        "properties": {
+          "titre": {
+            "type": "string",
+            "minLength": 2
+          },
+          "description": {
+            "type": "string"
+          },
+          "phase": {
+            "type": "string"
+          },
+          "producteur": {
+            "enum": [
+              "agent",
+              "mixte",
+              "humain"
+            ],
+            "type": "string"
+          },
+          "livrable": {
+            "type": "boolean"
+          },
+          "signature": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ModeleDto": {
+        "type": "object",
+        "properties": {
+          "contenu": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "contenu"
         ]
       },
       "EvenementJournalDto": {

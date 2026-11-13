@@ -11,7 +11,9 @@ import {
 /** Projet dans la forme du kit v1 (ids = références métier, depots = { nom: statut }). */
 export interface ModeleProjet {
   projet: any; depots: any[]; exigences: any[]; fonctionnalites: any[]; tests: any[]; campagnes: any[];
-  retours: any[]; journal: any[]; sessions: any[]; catalogue: { phases: any[]; documents: any[] };
+  retours: any[]; journal: any[];
+  /** Journal pré-agrégé (chargement depuis la base) ; à défaut, `journal` est parcouru (kit v1). */
+  journalAgrege?: { parJour: Record<string, number>; derniere: string | null; parFonctionnalite: Record<string, string>; nbCommits: number }; sessions: any[]; catalogue: { phases: any[]; documents: any[] };
   suiviDocuments: any[]; planning: any[]; risques: any[]; actions: any[]; changements: any[];
   partiesPrenantes: any[]; reunions: any[]; erreurs: string[];
 }
@@ -111,15 +113,18 @@ export function calculer(p: ModeleProjet, { maintenant = aujourdhui() }: { maint
   const delaiMoyenResolution = delais.length ? delais.reduce((a, b) => a + b, 0) / delais.length : null;
 
   // Activité (journal)
-  const activiteParJour = {};
-  for (const e of p.journal) {
+  // Ajout Pilotage : depuis la base, le journal arrive déjà agrégé par PostgreSQL (mêmes résultats, sans charger chaque événement).
+  const ag = p.journalAgrege;
+  const activiteParJour = ag ? { ...ag.parJour } : {};
+  if (!ag) for (const e of p.journal) {
     const j = (e.ts || '').slice(0, 10);
     if (j) activiteParJour[j] = (activiteParJour[j] || 0) + 1;
   }
-  const derniereActivite = p.journal.length ? p.journal[p.journal.length - 1].ts : null;
-  const derniereActiviteFonc = {};
-  for (const e of p.journal) for (const id of tableau(e.fonctionnalites)) derniereActiviteFonc[id] = e.ts;
-  const commits = p.journal.filter((e) => e.evt === 'commit');
+  const derniereActivite = ag ? ag.derniere : p.journal.length ? p.journal[p.journal.length - 1].ts : null;
+  const derniereActiviteFonc = ag ? { ...ag.parFonctionnalite } : {};
+  if (!ag) for (const e of p.journal) for (const id of tableau(e.fonctionnalites)) derniereActiviteFonc[id] = e.ts;
+  const commits = ag ? [] : p.journal.filter((e) => e.evt === 'commit');
+  const nbCommits = ag ? ag.nbCommits : commits.length;
 
   // Alertes
   const alertes = [];
@@ -222,6 +227,7 @@ export function calculer(p: ModeleProjet, { maintenant = aujourdhui() }: { maint
     derniereActivite,
     derniereActiviteFonc,
     commits,
+    nbCommits,
     testsParFonc,
     avancementDocuments,
     parPhase,

@@ -40,7 +40,7 @@ export class LectureService {
       recette: m.recette, taux_recette: m.tauxRecette, resultats_tests: m.resultatTest,
       retours_ouverts: m.retoursOuverts.map((r: any) => r.id), delai_moyen_resolution: m.delaiMoyenResolution,
       activite_par_jour: Object.entries(m.activiteParJour as Record<string, number>).sort().map(([jour, nb]) => ({ jour, nb })),
-      derniere_activite: m.derniereActivite, derniere_activite_fonctionnalite: m.derniereActiviteFonc, nb_commits: m.commits.length,
+      derniere_activite: m.derniereActivite, derniere_activite_fonctionnalite: m.derniereActiviteFonc, nb_commits: m.nbCommits,
       avancement_documents: m.avancementDocuments, documents_par_phase: m.parPhase,
       jalons: m.jalons.map(jalon), prochain_jalon: m.prochainJalon ? jalon(m.prochainJalon) : null,
       risques: m.risques.map((r: any) => ({ ref: r.id, titre: r.titre, statut: r.statut, criticite: r.criticite })),
@@ -87,8 +87,8 @@ export class LectureService {
   async fonctionnalites(a: Acteur, code: string, f: { statut?: string; depot?: string; lot?: string } = {}): Promise<V.FonctionnaliteDto[]> {
     const p = await this.projet(a, code);
     const modele = await this.ind.modele(p);
-    const derniere: Record<string, string> = {};
-    for (const e of modele.journal) for (const id of e.fonctionnalites ?? []) derniere[id] = e.ts;
+    const derniere: Record<string, string> = modele.journalAgrege?.parFonctionnalite ?? {};
+    if (!modele.journalAgrege) for (const e of modele.journal) for (const id of e.fonctionnalites ?? []) derniere[id] = e.ts;
     const testsPar: Record<string, string[]> = {};
     for (const t of modele.tests) (testsPar[t.fonctionnalite] ??= []).push(t.id);
     const retoursPar: Record<string, string[]> = {};
