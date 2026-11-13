@@ -289,12 +289,24 @@ export class EcritureService {
   }
 
   async majAction(a: Acteur, code: string, ref: string, statut: string, session_id?: string) {
-    if (!STATUTS_ACTION.includes(statut)) throw invalide(`statut « ${statut} »`);
+    return this.modifierAction(a, code, ref, { statut }, session_id);
+  }
+
+  /** Modifie une tâche du plan d'actions (statut, libellé, responsable, échéance). */
+  async modifierAction(a: Acteur, code: string, ref: string, x: { statut?: string; action?: string; responsable?: string; echeance?: string | null }, session_id?: string) {
+    if (x.statut != null && !STATUTS_ACTION.includes(x.statut)) throw invalide(`statut « ${x.statut} »`);
+    if (x.echeance && !/^\d{4}-\d{2}-\d{2}$/.test(x.echeance)) throw invalide('échéance au format AAAA-MM-JJ.');
+    if (x.action != null && !x.action.trim()) throw invalide('le libellé de la tâche est vide.');
     const p = await this.ecrireProjet(a, code);
     return this.tx(p, async (em) => {
       const r = await em.findOneBy(E.Action, { projet_id: p.id, ref });
       if (!r) throw introuvable(`action ${ref}`);
-      const avant = plain(r); r.statut = statut as any; await em.save(r);
+      const avant = plain(r);
+      if (x.statut != null) r.statut = x.statut as any;
+      if (x.action != null) r.action = x.action.trim();
+      if (x.responsable != null) r.responsable = x.responsable.trim();
+      if (x.echeance !== undefined) r.echeance = x.echeance || null;
+      await em.save(r);
       await this.hist.tracer(em, a, 'action', avant, plain(r), { session_id });
       return r;
     });

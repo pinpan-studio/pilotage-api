@@ -1249,6 +1249,49 @@
         "tags": [
           "projets"
         ]
+      },
+      "post": {
+        "operationId": "Ecriture_creerTache",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreerTacheDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Action"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
       }
     },
     "/api/v1/projets/{code}/changements": {
@@ -1663,6 +1706,112 @@
         "summary": "Importe une archive .zip d'un dossier projets/<code> du kit v1.",
         "tags": [
           "administration"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/actions/{ref}": {
+      "patch": {
+        "operationId": "Ecriture_modifierTache",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifierTacheDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Action"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/fonctionnalites/{ref}/statut": {
+      "patch": {
+        "operationId": "Ecriture_statutFonctionnalite",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatutFonctionnaliteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatutFonctionnaliteResultatDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
         ]
       }
     },
@@ -4629,13 +4778,13 @@
             "nullable": true
           },
           "statut": {
-            "type": "string",
             "enum": [
               "en_cours",
               "a_faire",
               "fait",
               "annule"
-            ]
+            ],
+            "type": "string"
           },
           "origine_type": {
             "type": "string"
@@ -5285,6 +5434,92 @@
           "projet",
           "bilan",
           "erreurs_lecture"
+        ]
+      },
+      "CreerTacheDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 500
+          },
+          "responsable": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "echeance": {
+            "type": "string",
+            "description": "AAAA-MM-JJ"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "ModifierTacheDto": {
+        "type": "object",
+        "properties": {
+          "statut": {
+            "type": "string",
+            "enum": [
+              "a_faire",
+              "en_cours",
+              "fait",
+              "annule"
+            ]
+          },
+          "action": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "responsable": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "echeance": {
+            "type": "string",
+            "nullable": true,
+            "description": "AAAA-MM-JJ ou null pour retirer l’échéance"
+          }
+        }
+      },
+      "StatutFonctionnaliteDto": {
+        "type": "object",
+        "properties": {
+          "statut": {
+            "type": "string",
+            "description": "Global : a_faire, en_cours, bloque, developpe, recette, valide, abandonne ; par dépôt : a_faire, en_cours, bloque, developpe"
+          },
+          "depot": {
+            "type": "string",
+            "description": "Nom du dépôt (statut par dépôt)"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "statut"
+        ]
+      },
+      "StatutFonctionnaliteResultatDto": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "statut": {
+            "type": "string"
+          },
+          "depot": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ref",
+          "statut"
         ]
       },
       "EvenementJournalDto": {
