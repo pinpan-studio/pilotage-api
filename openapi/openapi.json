@@ -2711,8 +2711,8 @@
           "auteur_type": {
             "type": "string",
             "enum": [
-              "humain",
-              "agent"
+              "agent",
+              "humain"
             ]
           },
           "projets_jeton": {
@@ -2751,6 +2751,16 @@
               "type": "string"
             }
           },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "chef_projet",
+              "developpeur",
+              "client_lecteur",
+              "agent"
+            ]
+          },
           "expire_le": {
             "format": "date-time",
             "type": "string",
@@ -2777,6 +2787,7 @@
           "prefixe",
           "utilisateur_id",
           "projets",
+          "role",
           "expire_le",
           "revoque_le",
           "utilise_le",
@@ -2794,13 +2805,23 @@
             "type": "string"
           },
           "projets": {
-            "minItems": 1,
-            "description": "Identifiants des projets autorisés",
+            "description": "Projets autorisés (vide = tous ceux du titulaire)",
             "type": "array",
             "items": {
               "type": "string",
               "format": "uuid"
             }
+          },
+          "role": {
+            "enum": [
+              "agent",
+              "admin",
+              "chef_projet",
+              "developpeur",
+              "client_lecteur"
+            ],
+            "type": "string",
+            "default": "agent"
           },
           "expire_le": {
             "type": "string"
@@ -2808,8 +2829,7 @@
         },
         "required": [
           "utilisateur_id",
-          "nom",
-          "projets"
+          "nom"
         ]
       },
       "JetonApiCreeDto": {
@@ -2832,6 +2852,16 @@
             "items": {
               "type": "string"
             }
+          },
+          "role": {
+            "enum": [
+              "admin",
+              "chef_projet",
+              "developpeur",
+              "client_lecteur",
+              "agent"
+            ],
+            "type": "string"
           },
           "expire_le": {
             "format": "date-time",
@@ -2865,6 +2895,7 @@
           "prefixe",
           "utilisateur_id",
           "projets",
+          "role",
           "expire_le",
           "revoque_le",
           "utilise_le",
@@ -3255,8 +3286,8 @@
           "producteur": {
             "type": "string",
             "enum": [
-              "humain",
               "agent",
+              "humain",
               "mixte"
             ]
           },
@@ -4852,8 +4883,8 @@
           "auteur_type": {
             "type": "string",
             "enum": [
-              "humain",
-              "agent"
+              "agent",
+              "humain"
             ]
           },
           "auteur": {
@@ -4891,8 +4922,8 @@
           },
           "auteur_type": {
             "enum": [
-              "humain",
-              "agent"
+              "agent",
+              "humain"
             ],
             "type": "string"
           },

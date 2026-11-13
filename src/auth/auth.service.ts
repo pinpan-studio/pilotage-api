@@ -30,6 +30,10 @@ export class VerificateurGoogleOfficiel implements VerificateurGoogle {
   }
 }
 
+const RANG: Record<string, number> = { client_lecteur: 0, developpeur: 1, chef_projet: 2, admin: 3 };
+/** Le rôle d'un jeton ne dépasse jamais celui de son titulaire (même si ce dernier a été rétrogradé). */
+function plafonner(r: string, titulaire: string): any { return RANG[r] <= RANG[titulaire] ? r : titulaire; }
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -157,7 +161,7 @@ export class AuthService {
       const u = await this.utilisateurs.findOneBy({ id: j.utilisateur_id, actif: true });
       if (!u) throw new UnauthorizedException("Le développeur lié à ce jeton est désactivé.");
       this.jetonsApi.update(j.id, { utilise_le: new Date() }).catch(() => undefined);
-      return { utilisateur_id: u.id, organisation_id: u.organisation_id, nom: u.nom, role: 'agent', auteur_type: 'agent', projets_jeton: j.projets, jeton_id: j.id };
+      return { utilisateur_id: u.id, organisation_id: u.organisation_id, nom: u.nom, role: j.role === 'agent' ? 'agent' : plafonner(j.role, u.role), auteur_type: 'agent', projets_jeton: j.projets, jeton_id: j.id };
     }
     try {
       const p = await this.jwt.verifyAsync(bearer);
@@ -169,14 +173,16 @@ export class AuthService {
 
   // ------------------------------------------------------------ jetons d'API
 
-  async creerJetonApi(admin: Acteur, dto: { utilisateur_id: string; nom: string; projets: string[]; expire_le?: string }) {
+  async creerJetonApi(admin: Acteur, dto: { utilisateur_id: string; nom: string; projets?: string[]; role?: JetonApi['role']; expire_le?: string }) {
     const u = await this.utilisateurs.findOneBy({ id: dto.utilisateur_id, organisation_id: admin.organisation_id });
     if (!u) throw introuvable('utilisateur');
-    if (u.role === 'client_lecteur') throw invalide("un jeton d'agent doit être lié à un développeur ou un chef de projet.");
+    const role = dto.role ?? 'agent';
+    if (role === 'agent' && u.role === 'client_lecteur') throw invalide("un jeton d'agent doit être lié à un développeur ou un chef de projet.");
+    if (role !== 'agent' && RANG[role] > RANG[u.role]) throw invalide(`le rôle « ${role} » dépasse celui du titulaire (« ${u.role} »).`);
     const g = genererJetonApi();
     const j = await this.jetonsApi.save(this.jetonsApi.create({
       organisation_id: admin.organisation_id, cree_par: admin.utilisateur_id, utilisateur_id: u.id,
-      nom: dto.nom, prefixe: g.prefixe, hache: g.hache, projets: dto.projets,
+      nom: dto.nom, prefixe: g.prefixe, hache: g.hache, projets: dto.projets ?? [], role,
       expire_le: dto.expire_le ? new Date(dto.expire_le) : null,
     }));
     return { ...this.vueJeton(j), jeton: g.jeton, avertissement: "Ce jeton ne sera plus jamais affiché : copiez-le maintenant." };
@@ -192,6 +198,6 @@ export class AuthService {
   }
 
   private vueJeton(j: JetonApi) {
-    return { id: j.id, nom: j.nom, prefixe: j.prefixe, utilisateur_id: j.utilisateur_id, projets: j.projets, expire_le: j.expire_le, revoque_le: j.revoque_le, utilise_le: j.utilise_le, cree_le: j.cree_le };
+    return { id: j.id, nom: j.nom, prefixe: j.prefixe, utilisateur_id: j.utilisateur_id, projets: j.projets, role: j.role, expire_le: j.expire_le, revoque_le: j.revoque_le, utilise_le: j.utilise_le, cree_le: j.cree_le };
   }
 }

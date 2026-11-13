@@ -22,7 +22,7 @@ export class EquipesService {
     return u;
   }
   /** Rôle réel dans l'équipe (pour un jeton d'API : celui du développeur lié). */
-  async roleEquipe(a: Acteur) { return (await this.moi(a)).role; }
+  async roleEquipe(a: Acteur) { return a.jeton_id && a.role !== 'agent' ? (a.role as any) : (await this.moi(a)).role; }
   private async exigerAdmin(a: Acteur) { if ((await this.roleEquipe(a)) !== 'admin') throw refuse("seul un administrateur d'équipe peut faire cette opération."); }
 
   // ------------------------------------------------------------- équipes

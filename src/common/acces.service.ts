@@ -23,8 +23,8 @@ export class AccesService {
     const estAdmin = a.role === 'admin' || (a.role === 'agent' && (await this.estAdmin(a)));
     if (estAdmin) ids = 'tous';
     else ids = (await this.membres.find({ where: { utilisateur_id: a.utilisateur_id, organisation_id: a.organisation_id } })).map((m) => m.projet_id);
-    if (a.role === 'agent') {
-      const jeton = a.projets_jeton ?? [];
+    if (a.jeton_id && a.projets_jeton?.length) {
+      const jeton = a.projets_jeton;
       ids = ids === 'tous' ? jeton : ids.filter((id) => jeton.includes(id));
     }
     return ids;

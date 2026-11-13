@@ -70,4 +70,23 @@ describe('Authentification, jetons d’API et cloisonnement', () => {
     await request(http).post('/api/v1/jetons').set('Authorization', `Bearer ${admin.jeton_acces}`)
       .send({ utilisateur_id: ctx.adminB.id, nom: 'x', projets: [ctx.pb.id] }).expect(404);
   });
+
+  it('jeton d’API à rôle : admin, développeur, plafonné par le titulaire', async () => {
+    const admin = await connexion('admin@a.ci');
+    const auth = { Authorization: `Bearer ${admin.jeton_acces}` };
+    const ja = await request(http).post('/api/v1/jetons').set(auth).send({ utilisateur_id: ctx.admin.id, nom: 'ci admin', role: 'admin' }).expect(201);
+    expect(ja.body.role).toBe('admin');
+    const moi = await request(http).get('/api/v1/auth/moi').set('Authorization', `Bearer ${ja.body.jeton}`).expect(200);
+    expect(moi.body).toMatchObject({ role: 'admin', auteur_type: 'agent' });
+    await request(http).get('/api/v1/jetons').set('Authorization', `Bearer ${ja.body.jeton}`).expect(200);
+    const acces = app.get(AccesService);
+    expect((await acces.lister(moi.body)).map((p) => p.code)).toEqual(['p1', 'p2']);
+    // Un développeur ne peut pas recevoir un jeton administrateur.
+    await request(http).post('/api/v1/jetons').set(auth).send({ utilisateur_id: ctx.dev.id, nom: 'x', role: 'admin' }).expect(400);
+    const jd = await request(http).post('/api/v1/jetons').set(auth).send({ utilisateur_id: ctx.dev.id, nom: 'dev', role: 'developpeur' }).expect(201);
+    const md = await request(http).get('/api/v1/auth/moi').set('Authorization', `Bearer ${jd.body.jeton}`).expect(200);
+    expect(md.body.role).toBe('developpeur');
+    await request(http).get('/api/v1/jetons').set('Authorization', `Bearer ${jd.body.jeton}`).expect(403);
+    expect((await acces.lister(md.body)).map((p) => p.code)).toEqual(['p1']);
+  });
 });

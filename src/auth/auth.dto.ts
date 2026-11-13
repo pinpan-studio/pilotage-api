@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ArrayNotEmpty, IsArray, IsDateString, IsEmail, IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
+import { IsArray, IsDateString, IsEmail, IsIn, IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
 
 export class ConnexionDto {
   @ApiProperty() @IsEmail() email: string;
@@ -11,7 +11,8 @@ export class RafraichirDto {
 export class CreerJetonDto {
   @ApiProperty() @IsUUID() utilisateur_id: string;
   @ApiProperty() @IsString() nom: string;
-  @ApiProperty({ type: [String], description: 'Identifiants des projets autorisés' }) @IsArray() @ArrayNotEmpty() @IsUUID('all', { each: true }) projets: string[];
+  @ApiPropertyOptional({ type: [String], description: 'Projets autorisés (vide = tous ceux du titulaire)' }) @IsOptional() @IsArray() @IsUUID('all', { each: true }) projets?: string[];
+  @ApiPropertyOptional({ enum: ['agent', 'admin', 'chef_projet', 'developpeur', 'client_lecteur'], default: 'agent' }) @IsOptional() @IsIn(['agent', 'admin', 'chef_projet', 'developpeur', 'client_lecteur']) role?: 'agent' | 'admin' | 'chef_projet' | 'developpeur' | 'client_lecteur';
   @ApiPropertyOptional() @IsOptional() @IsDateString() expire_le?: string;
 }
 
@@ -31,6 +32,7 @@ export class ActeurDto {
 }
 export class JetonApiDto {
   id: string; nom: string; prefixe: string; utilisateur_id: string; projets: string[];
+  role: 'agent' | 'admin' | 'chef_projet' | 'developpeur' | 'client_lecteur';
   expire_le: Date | null; revoque_le: Date | null; utilise_le: Date | null; cree_le: Date;
 }
 export class JetonApiCreeDto extends JetonApiDto { jeton: string; avertissement: string; }

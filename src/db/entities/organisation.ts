@@ -35,6 +35,8 @@ export class JetonApi extends Base {
   @Column() hache: string;
   /** Projets autorisés (ids). */
   @Column('uuid', { array: true, default: '{}' }) projets: string[];
+  /** Rôle porté par le jeton (« agent » = restreint ; sinon plafonné par celui du titulaire). */
+  @Column({ type: 'varchar', default: 'agent' }) role: 'agent' | 'admin' | 'chef_projet' | 'developpeur' | 'client_lecteur';
   @Column({ type: 'timestamptz', nullable: true }) expire_le: Date | null;
   @Column({ type: 'timestamptz', nullable: true }) revoque_le: Date | null;
   @Column({ type: 'timestamptz', nullable: true }) utilise_le: Date | null;
