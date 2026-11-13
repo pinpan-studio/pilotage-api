@@ -27,7 +27,7 @@ const repo = resolve(repoArg);
 if (!existsSync(repo)) { console.error(`Dépôt introuvable : ${repo}`); process.exit(1); }
 
 const dClaude = join(repo, '.claude');
-for (const d of ['hooks', 'agents', 'commands']) mkdirSync(join(dClaude, d), { recursive: true });
+for (const d of ['hooks', 'agents', 'commands', 'skills/pilotage']) mkdirSync(join(dClaude, d), { recursive: true });
 const lireJson = (c, d = {}) => { try { return JSON.parse(readFileSync(c, 'utf8')); } catch { return d; } };
 const ecrireJson = (c, v) => writeFileSync(c, JSON.stringify(v, null, 2) + '\n');
 
@@ -42,7 +42,7 @@ ecrireJson(fPartage, { api, projet, depot });
 
 // 2. Hook, sous-agent, commandes
 copyFileSync(join(KIT, 'hooks', 'pilotage.mjs'), join(dClaude, 'hooks', 'pilotage.mjs'));
-for (const d of ['agents', 'commands']) for (const f of readdirSync(join(KIT, d))) copyFileSync(join(KIT, d, f), join(dClaude, d, f));
+for (const d of ['agents', 'commands', 'skills/pilotage']) for (const f of readdirSync(join(KIT, d))) copyFileSync(join(KIT, d, f), join(dClaude, d, f));
 
 // 3. Hooks dans .claude/settings.json (fusion sans doublon, anciens hooks v1 retirés)
 const fSettings = join(dClaude, 'settings.json');
@@ -110,7 +110,7 @@ writeFileSync(fIgnore, ignore);
 console.log(`Kit Pilotage v2 installé dans ${repo}
   API : ${api} · projet : ${projet} · dépôt : ${depot}
   À versionner : .claude/pilotage.json, .claude/settings.json, .claude/hooks/pilotage.mjs,
-    .claude/agents/, .claude/commands/, .mcp.json, CLAUDE.md
+    .claude/agents/, .claude/commands/, .claude/skills/pilotage/, .mcp.json, CLAUDE.md
   Autres assistants configurés : ${clients.length ? clients.join(', ') : 'aucun'} (.cursor/, .vscode/mcp.json, .gemini/, .windsurf/, AGENTS.md)
   Sur chaque poste : définir PILOTAGE_TOKEN (jeton d'API personnel, jamais versionné), par ex. dans ~/.bashrc :
     export PILOTAGE_TOKEN=plt_…

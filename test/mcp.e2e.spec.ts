@@ -112,4 +112,27 @@ describe('Serveur MCP (client MCP officiel)', () => {
     expect(r.erreur).toBe(false);
     expect(r.donnees.length).toBeGreaterThan(0);
   });
+
+  it('recette, changement, compte rendu transactionnel et prompts', async () => {
+    const P = 'exemple-declarations';
+    const ct = await appel('creer_cas_test', { projet: P, fonctionnalite: 'F-005', titre: 'Accusé PDF généré', etapes: ['Déposer', 'Ouvrir l’accusé'], attendu: 'PDF lisible' });
+    expect(ct.erreur).toBe(false); const ref = ct.donnees.ref; expect(ref).toMatch(/^RT-\d{3}$/);
+    const r = await appel('enregistrer_resultats', { projet: P, campagne: 'R9', titre: 'Recette interne', resultats: [{ cas_test: ref, resultat: 'ok' }] });
+    expect(r.texte).toContain('Campagne R9 : 1 OK');
+    expect((await appel('lister_cas_test', { projet: P, fonctionnalite: 'F-005' })).texte).toContain(ref);
+    const dc = await appel('proposer_changement', { projet: P, titre: 'Export Excel', fonctionnalites: ['F-005'] });
+    expect(dc.texte).toMatch(/DC-\d{3} enregistrée \(en analyse\)/);
+    const cr = await appel('creer_compte_rendu', { projet: P, date: '2026-11-10', type: 'comite', contenu_md: '# Comité', decisions: ['Lot 1 maintenu'],
+      actions: [{ action: 'Envoyer le planning', echeance: '2026-11-20' }], risques: [{ titre: 'Retard client', probabilite: 2, impact: 3 }], changements: [{ titre: 'Signature électronique' }] });
+    expect(cr.erreur).toBe(false); expect(cr.donnees.actions).toHaveLength(1); expect(cr.donnees.risques).toHaveLength(1); expect(cr.donnees.changements).toHaveLength(1);
+    // Transaction : un risque invalide n'écrit rien.
+    const avant = (await appel('lister_actions', { projet: P })).texte;
+    expect((await appel('creer_compte_rendu', { projet: P, date: '2026-11-11', contenu_md: 'x', actions: [{ action: 'Fantôme' }], risques: [{ titre: 'x', probabilite: 9, impact: 1 }] })).erreur).toBe(true);
+    expect((await appel('lister_actions', { projet: P })).texte).toBe(avant);
+    expect((await appel('enregistrer_resultats', { projet: P, campagne: 'R10', resultats: [{ cas_test: 'RT-999', resultat: 'ok' }] })).erreur).toBe(true);
+    const prompts = (await client.listPrompts()).prompts.map((x) => x.name);
+    expect(prompts).toEqual(expect.arrayContaining(['init-projet', 'document', 'compte-rendu', 'recette', 'retour-client', 'avancement', 'fin-session']));
+    const pr: any = await client.getPrompt({ name: 'recette', arguments: { projet: P, demande: 'cas F-005' } });
+    expect(pr.messages[0].content.text).toContain('creer_cas_test');
+  });
 });

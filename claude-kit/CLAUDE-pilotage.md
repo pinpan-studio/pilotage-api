@@ -14,6 +14,7 @@ authentifié par la variable d'environnement `PILOTAGE_TOKEN`.
 - **Au fil de l'eau** : `ajouter_note_session` pour les décisions et points ouverts.
 - **Documentation** : après un lot de modifications ou un commit, lance le sous-agent
   `documentaliste`. Un hook te le rappellera si tu l'oublies.
+- **Skill** : `pilotage` (`.claude/skills/pilotage/`) décrit tous les outils et les cycles de travail.
 - **Commandes** : `/init-projet`, `/maj-doc`, `/document`, `/compte-rendu`, `/registre`,
   `/recette`, `/retour-client`, `/avancement`, `/fin-session`.
 - **Limites fixées par l'API** (inutile d'essayer de les contourner) : tu ne peux jamais

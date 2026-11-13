@@ -374,4 +374,95 @@ export class EcritureService {
       return r;
     });
   }
+
+  // ------------------------------------------------------------- recette, changements, comptes rendus
+
+  async creerCasTest(a: Acteur, code: string, x: { fonctionnalite?: string; titre: string; preconditions?: string; etapes?: string[]; attendu?: string }, session_id?: string) {
+    const p = await this.ecrireProjet(a, code);
+    return this.tx(p, async (em) => {
+      let fid: string | null = null;
+      if (x.fonctionnalite) { const f = await em.findOneBy(E.Fonctionnalite, { projet_id: p.id, ref: x.fonctionnalite }); if (!f) throw introuvable(`fonctionnalité ${x.fonctionnalite}`); fid = f.id; }
+      const ref = await this.prochaineRef(em, 'cas_test', p.id, 'RT');
+      const ordre = Number((await em.query('SELECT coalesce(max(ordre), -1) + 1 n FROM cas_test WHERE projet_id = $1', [p.id]))[0].n);
+      const c = await em.save(E.CasTest, em.create(E.CasTest, { organisation_id: p.organisation_id, projet_id: p.id, cree_par: a.utilisateur_id, ref, fonctionnalite_id: fid,
+        titre: x.titre, preconditions: x.preconditions ?? '', etapes: x.etapes ?? [], attendu: x.attendu ?? '', ordre }));
+      await this.hist.tracer(em, a, 'cas_test', null, plain(c), { session_id });
+      return c;
+    });
+  }
+
+  /** Enregistre des résultats dans une campagne (créée si la référence est inconnue). */
+  async enregistrerResultats(a: Acteur, code: string, x: { campagne: string; titre?: string; type?: 'interne' | 'client'; date?: string; environnement?: string; resultats: { cas_test: string; resultat: 'ok' | 'ko' | 'reserve' | 'non_teste'; commentaire?: string }[] }, session_id?: string) {
+    const p = await this.ecrireProjet(a, code);
+    if (x.date && !/^\d{4}-\d{2}-\d{2}$/.test(x.date)) throw invalide('date au format AAAA-MM-JJ.');
+    if (a.role === 'agent' && x.type === 'client') throw refuse("l'agent ne peut pas saisir une campagne de recette client (réservée aux humains).");
+    return this.tx(p, async (em) => {
+      let camp = await em.findOneBy(E.Campagne, { projet_id: p.id, ref: x.campagne });
+      if (camp && a.role === 'agent' && camp.type === 'client') throw refuse("l'agent ne peut pas saisir de résultats dans une campagne de recette client.");
+      if (!camp) {
+        camp = await em.save(E.Campagne, em.create(E.Campagne, { organisation_id: p.organisation_id, projet_id: p.id, cree_par: a.utilisateur_id, ref: x.campagne,
+          titre: x.titre ?? x.campagne, type: x.type ?? 'interne', date: x.date ?? new Date().toISOString().slice(0, 10), environnement: x.environnement ?? '', testeurs: [a.nom] }));
+        await this.hist.tracer(em, a, 'campagne', null, plain(camp), { session_id });
+      }
+      const bilan = { ok: 0, ko: 0, reserve: 0, non_teste: 0 } as Record<string, number>;
+      for (const r of x.resultats) {
+        const ct = await em.findOneBy(E.CasTest, { projet_id: p.id, ref: r.cas_test });
+        if (!ct) throw introuvable(`cas de test ${r.cas_test}`);
+        const avant = await em.findOneBy(E.ResultatTest, { campagne_id: camp.id, cas_test_id: ct.id });
+        const v = { organisation_id: p.organisation_id, campagne_id: camp.id, cas_test_id: ct.id, resultat: r.resultat, commentaire: r.commentaire ?? '' };
+        const apres = avant ? await em.save(E.ResultatTest, { ...avant, ...v }) : await em.save(E.ResultatTest, em.create(E.ResultatTest, v));
+        await this.hist.tracer(em, a, 'resultat_test', avant ? plain(avant) : null, plain(apres), { session_id });
+        bilan[r.resultat]++;
+      }
+      return { campagne: camp.ref, bilan };
+    });
+  }
+
+  async proposerChangement(a: Acteur, code: string, x: { titre: string; description?: string; demandeur?: string; origine?: string; impact_delai_jours?: number; impact_cout?: string; fonctionnalites?: string[] }, session_id?: string, em0?: EntityManager) {
+    const p = await this.ecrireProjet(a, code);
+    const faire = async (em: EntityManager) => {
+      const ref = await this.prochaineRef(em, 'changement', p.id, 'DC');
+      const c = await em.save(E.Changement, em.create(E.Changement, { organisation_id: p.organisation_id, projet_id: p.id, cree_par: a.utilisateur_id, ref, titre: x.titre,
+        description: x.description ?? '', demandeur: x.demandeur ?? '', origine: x.origine ?? '', impact_delai_jours: x.impact_delai_jours ?? 0, impact_cout: x.impact_cout ?? '',
+        date: new Date().toISOString().slice(0, 10), decision: 'en_analyse' }));
+      for (const fr of x.fonctionnalites ?? []) {
+        const f = await em.findOneBy(E.Fonctionnalite, { projet_id: p.id, ref: fr }); if (!f) throw introuvable(`fonctionnalité ${fr}`);
+        await em.insert(E.ChangementFonctionnalite, { changement_id: c.id, fonctionnalite_id: f.id });
+      }
+      await this.hist.tracer(em, a, 'changement', null, plain(c), { session_id });
+      return c;
+    };
+    return em0 ? faire(em0) : this.tx(p, faire);
+  }
+
+  /** Crée un compte rendu et alimente, dans la même transaction, actions, risques et demandes de changement. */
+  async creerCompteRendu(a: Acteur, code: string, x: { type?: string; date: string; titre?: string; lieu?: string; participants?: string[]; contenu_md: string;
+    actions?: { action: string; responsable?: string; echeance?: string }[]; risques?: { titre: string; probabilite: number; impact: number; categorie?: string; parade?: string; responsable?: string }[];
+    decisions?: string[]; changements?: { titre: string; description?: string; demandeur?: string; fonctionnalites?: string[] }[] }, session_id?: string) {
+    const p = await this.ecrireProjet(a, code);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(x.date)) throw invalide('date au format AAAA-MM-JJ.');
+    for (const r of x.risques ?? []) for (const k of ['probabilite', 'impact'] as const) if (!(r[k] >= 1 && r[k] <= 4)) throw invalide(`${k} doit être entre 1 et 4.`);
+    for (const t of x.actions ?? []) if (t.echeance && !/^\d{4}-\d{2}-\d{2}$/.test(t.echeance)) throw invalide('échéance au format AAAA-MM-JJ.');
+    return this.tx(p, async (em) => {
+      const contenu = x.contenu_md + (x.decisions?.length ? `\n\n## Décisions\n${x.decisions.map((d) => `- ${d}`).join('\n')}` : '');
+      const reu = await em.save(E.Reunion, em.create(E.Reunion, { organisation_id: p.organisation_id, projet_id: p.id, cree_par: a.utilisateur_id, date: x.date, type: x.type ?? 'autre',
+        titre: x.titre ?? '', lieu: x.lieu ?? '', participants: x.participants ?? [], redacteur: a.nom, contenu }));
+      await this.hist.tracer(em, a, 'reunion', null, plain(reu), { session_id });
+      const refs = { actions: [] as string[], risques: [] as string[], changements: [] as string[] };
+      for (const t of x.actions ?? []) {
+        const ref = await this.prochaineRef(em, 'action', p.id, 'A');
+        const r = await em.save(E.Action, em.create(E.Action, { organisation_id: p.organisation_id, projet_id: p.id, cree_par: a.utilisateur_id, ref, action: t.action,
+          responsable: t.responsable ?? '', echeance: t.echeance ?? null, statut: 'a_faire', origine_type: 'reunion', origine_id: reu.id }));
+        await this.hist.tracer(em, a, 'action', null, plain(r), { session_id }); refs.actions.push(ref);
+      }
+      for (const t of x.risques ?? []) {
+        const ref = await this.prochaineRef(em, 'risque', p.id, 'R');
+        const r = await em.save(E.Risque, em.create(E.Risque, { organisation_id: p.organisation_id, projet_id: p.id, cree_par: a.utilisateur_id, ref, titre: t.titre, categorie: t.categorie ?? '',
+          probabilite: t.probabilite, impact: t.impact, parade: t.parade ?? '', responsable: t.responsable ?? '', date: x.date, statut: 'ouvert' }));
+        await this.hist.tracer(em, a, 'risque', null, plain(r), { session_id }); refs.risques.push(ref);
+      }
+      for (const c of x.changements ?? []) refs.changements.push((await this.proposerChangement(a, code, { ...c, origine: `réunion du ${x.date}` }, session_id, em)).ref);
+      return { reunion_id: reu.id, date: x.date, ...refs };
+    });
+  }
 }

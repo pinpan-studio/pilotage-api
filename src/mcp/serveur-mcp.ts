@@ -278,6 +278,41 @@ export function creerServeurMcp(a: Acteur, s: Services): McpServer {
     return rep(l.map((m) => `- ${m.nom} <${m.email}> — ${L(m.role)}${m.actif ? '' : ' (désactivé)'}`).join('\n') || '(aucun membre)', l.map((m) => ({ nom: m.nom, email: m.email, role: m.role })));
   });
 
+  outil('creer_cas_test', 'Crée un cas de test de recette (référence RT-xxx), rattaché à une fonctionnalité.',
+    { projet, titre: z.string().min(1), fonctionnalite: z.string().optional().describe('F-xxx'), preconditions: z.string().optional(), etapes: z.array(z.string()).optional(), attendu: z.string().optional(), session_id: z.string().uuid().optional() },
+    async ({ projet: c, session_id, ...x }) => {
+      const r = await s.ecriture.creerCasTest(a, c, x, session_id);
+      return rep(`Cas de test ${r.ref} créé${x.fonctionnalite ? ` pour ${x.fonctionnalite}` : ''}.`, { ref: r.ref });
+    }, false);
+
+  outil('enregistrer_resultats', "Enregistre les résultats d'une campagne de recette interne (créée si la référence est nouvelle, ex. « R2 »). Les campagnes client sont réservées aux humains.",
+    { projet, campagne: z.string().min(1), titre: z.string().optional(), date: z.string().optional().describe('AAAA-MM-JJ'), environnement: z.string().optional(),
+      resultats: z.array(z.object({ cas_test: z.string().describe('RT-xxx'), resultat: z.enum(['ok', 'ko', 'reserve', 'non_teste']), commentaire: z.string().optional() })).min(1), session_id: z.string().uuid().optional() },
+    async ({ projet: c, session_id, ...x }) => {
+      const r = await s.ecriture.enregistrerResultats(a, c, { ...x, type: 'interne' }, session_id);
+      return rep(`Campagne ${r.campagne} : ${r.bilan.ok} OK, ${r.bilan.ko} KO, ${r.bilan.reserve} réserve(s), ${r.bilan.non_teste} non testé(s).`, r);
+    }, false);
+
+  outil('proposer_changement', 'Propose une demande de changement (référence DC-xxx). La décision reste « en analyse » : seul un humain décide.',
+    { projet, titre: z.string().min(1), description: z.string().optional(), demandeur: z.string().optional(), impact_delai_jours: z.number().int().optional(), impact_cout: z.string().optional(),
+      fonctionnalites: z.array(z.string()).optional(), session_id: z.string().uuid().optional() },
+    async ({ projet: c, session_id, ...x }) => {
+      const r = await s.ecriture.proposerChangement(a, c, x, session_id);
+      return rep(`Demande de changement ${r.ref} enregistrée (en analyse).`, { ref: r.ref });
+    }, false);
+
+  outil('creer_compte_rendu', 'Crée le compte rendu d’une réunion et alimente, dans la même transaction, les actions, risques et demandes de changement qui en découlent.',
+    { projet, date: z.string().describe('AAAA-MM-JJ'), type: z.string().optional().describe('comite | atelier | point | recette | autre'), titre: z.string().optional(), lieu: z.string().optional(),
+      participants: z.array(z.string()).optional(), contenu_md: z.string().min(1), decisions: z.array(z.string()).optional(),
+      actions: z.array(z.object({ action: z.string().min(1), responsable: z.string().optional(), echeance: z.string().optional() })).optional(),
+      risques: z.array(z.object({ titre: z.string().min(1), probabilite: z.number().int().min(1).max(4), impact: z.number().int().min(1).max(4), categorie: z.string().optional(), parade: z.string().optional(), responsable: z.string().optional() })).optional(),
+      changements: z.array(z.object({ titre: z.string().min(1), description: z.string().optional(), demandeur: z.string().optional(), fonctionnalites: z.array(z.string()).optional() })).optional(),
+      session_id: z.string().uuid().optional() },
+    async ({ projet: c, session_id, ...x }) => {
+      const r = await s.ecriture.creerCompteRendu(a, c, x, session_id);
+      return rep(`Compte rendu du ${r.date} créé. Actions : ${r.actions.join(', ') || '—'} · Risques : ${r.risques.join(', ') || '—'} · Changements : ${r.changements.join(', ') || '—'}.`, r);
+    }, false);
+
   outil('creer_projet', "Crée un projet dans l'équipe (documents du catalogue instanciés « à produire », vous devenez chef de projet). Réservé si le développeur lié au jeton est administrateur ou chef de projet.",
     { code: z.string().regex(/^[a-z0-9][a-z0-9-]{1,60}$/).describe('Identifiant court : minuscules, chiffres, tirets'), nom: z.string().min(2), client: z.string().optional(), description: z.string().optional(),
       date_debut: z.string().optional().describe('AAAA-MM-JJ'), date_livraison_prevue: z.string().optional().describe('AAAA-MM-JJ'),
@@ -287,6 +322,20 @@ export function creerServeurMcp(a: Acteur, s: Services): McpServer {
       const limite = a.projets_jeton?.length ? " Ce jeton est limité à certains projets : demandez à l'administrateur de l'autoriser sur celui-ci pour y écrire." : '';
       return rep(`Projet ${r.code} créé (${r.nb_documents} documents à produire).${limite}`, r);
     }, false);
+
+  // =================================================================== prompts (commandes du kit)
+  const PROMPTS: Record<string, [string, string]> = {
+    'init-projet': ['Prend connaissance d’un projet avant de coder', "Projet « {projet} ». Appelle etat_projet, lire_tdr, lister_exigences et lister_fonctionnalites. Résume le périmètre, les lots, l'avancement et les points d'attention, puis propose les prochaines fonctionnalités à traiter. {demande}"],
+    document: ['Rédige ou met à jour un livrable documentaire', "Projet « {projet} ». Livrable demandé : {demande}. Appelle lister_documents pour trouver le code, lire_modele_document pour le modèle, lire_document pour la version courante, rassemble les informations (lire_tdr, lister_fonctionnalites, registres), puis ecrire_document avec un resume_modif précis. Ne dépasse jamais le statut « en_revue »."],
+    'compte-rendu': ['Saisit le compte rendu d’une réunion', "Projet « {projet} ». Notes de réunion : {demande}. Structure-les (participants, points abordés, décisions) et appelle creer_compte_rendu en une fois avec les actions (responsable, échéance AAAA-MM-JJ), les risques (probabilité et impact de 1 à 4) et les demandes de changement qui en découlent."],
+    recette: ['Prépare les cas de test ou enregistre une campagne', "Projet « {projet} ». Demande : {demande}. Mode cas : lister_fonctionnalites (statut developpe) et lister_cas_test, puis creer_cas_test pour chaque fonctionnalité insuffisamment couverte (nominal, erreurs, droits, cas limites). Mode campagne : enregistrer_resultats, puis maj_statut_fonctionnalite à « recette » uniquement pour les fonctionnalités dont tous les tests sont OK."],
+    'retour-client': ['Enregistre un retour client', "Projet « {projet} ». Retour : {demande}. Qualifie-le (bug, évolution, question, remarque ; priorité), rattache-le aux fonctionnalités concernées (rechercher, lister_fonctionnalites) et appelle creer_retour. Si c'est une évolution hors périmètre, propose aussi proposer_changement."],
+    avancement: ['Fait le point d’avancement', "Projet « {projet} ». Appelle etat_projet, lister_fonctionnalites, lister_actions, lister_risques et lister_jalons. Rédige un point d'avancement court : réalisé, en cours, bloquants, risques, prochaines échéances. {demande}"],
+    'fin-session': ['Clôture la session de développement', "Projet « {projet} ». Mets à jour les statuts des fonctionnalités touchées (maj_statut_fonctionnalite par dépôt), ajoute les entrées de changelog, puis cloturer_session avec un résumé : fait, décisions, points ouverts, prochaine étape. {demande}"],
+  };
+  for (const [nom, [description, gabarit]] of Object.entries(PROMPTS))
+    srv.registerPrompt(nom, { description, argsSchema: { projet: z.string().describe('Code du projet'), demande: z.string().optional() } },
+      ({ projet: pj, demande }: any) => ({ messages: [{ role: 'user', content: { type: 'text', text: gabarit.replace('{projet}', pj).replace('{demande}', demande ?? '') } }] }));
 
   return srv;
 }
