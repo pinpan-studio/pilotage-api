@@ -284,7 +284,8 @@ export function creerServeurMcp(a: Acteur, s: Services): McpServer {
       depots: z.array(z.object({ nom: z.string().regex(/^[a-z0-9][a-z0-9-]{0,40}$/), url: z.string().optional(), stack: z.string().optional() })).optional() },
     async (x) => {
       const r = await s.equipes.creerProjet(a, x);
-      return rep(`Projet ${r.code} créé (${r.nb_documents} documents à produire). Le jeton d'API doit être autorisé sur ce projet pour y écrire : demandez-le à l'administrateur.`, r);
+      const limite = a.projets_jeton?.length ? " Ce jeton est limité à certains projets : demandez à l'administrateur de l'autoriser sur celui-ci pour y écrire." : '';
+      return rep(`Projet ${r.code} créé (${r.nb_documents} documents à produire).${limite}`, r);
     }, false);
 
   return srv;
