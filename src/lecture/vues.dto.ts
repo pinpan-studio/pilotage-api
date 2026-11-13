@@ -136,6 +136,8 @@ export class ProjetDetailDto {
   seuil_rappel_doc: number;
   revision_perimetre: boolean;
   depots: DepotDto[];
+  /** Rôle de l'utilisateur courant sur ce projet (l'administrateur vaut chef de projet). */
+  mon_role: 'chef_projet' | 'developpeur' | 'client_lecteur' | 'agent';
 }
 
 export class DepotDto {

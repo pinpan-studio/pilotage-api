@@ -4415,6 +4415,16 @@
             "items": {
               "$ref": "#/components/schemas/DepotDto"
             }
+          },
+          "mon_role": {
+            "type": "string",
+            "description": "Rôle de l'utilisateur courant sur ce projet (l'administrateur vaut chef de projet).",
+            "enum": [
+              "chef_projet",
+              "developpeur",
+              "client_lecteur",
+              "agent"
+            ]
           }
         },
         "required": [
@@ -4430,7 +4440,8 @@
           "statut",
           "seuil_rappel_doc",
           "revision_perimetre",
-          "depots"
+          "depots",
+          "mon_role"
         ]
       },
       "TexteDto": {

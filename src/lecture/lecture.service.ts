@@ -75,6 +75,7 @@ export class LectureService {
       id: p.id, code: p.code, nom: p.nom, client: p.client, chef_projet: p.chef_projet, equipe: p.equipe, description: p.description,
       date_debut: p.date_debut, date_livraison_prevue: p.date_livraison_prevue, statut: p.statut, seuil_rappel_doc: p.seuil_rappel_doc,
       revision_perimetre: p.revision_perimetre, depots: depots.map((d) => ({ id: d.id, nom: d.nom, url: d.url, stack: d.stack, role: d.role })),
+      mon_role: await this.acces.roleSurProjet(a, p),
     };
   }
 
