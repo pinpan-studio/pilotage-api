@@ -14,7 +14,7 @@ export async function creerApplication() {
   app.use(json({ limit: '5mb' }));
   app.set('trust proxy', 1);
   app.setGlobalPrefix('api/v1', { exclude: ['mcp'] });
-  app.enableCors({ origin: (process.env.WEB_ORIGIN ?? 'http://localhost:4200').split(','), credentials: true });
+  app.enableCors({ origin: (process.env.WEB_ORIGIN ?? 'http://localhost:4200').split(','), credentials: true, exposedHeaders: ['Content-Disposition'] });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   const doc = documentOpenApi(app);
   app.getHttpAdapter().get('/api/v1/openapi.json', (_req: any, res: any) => res.json(doc));
