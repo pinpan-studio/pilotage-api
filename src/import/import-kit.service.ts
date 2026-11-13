@@ -130,7 +130,7 @@ export class ImportKitService {
         ...P, ref: j.id || `J${ordre + 1}`, nom: j.nom || '', date_prevue: ou(j.date_prevue), date_reelle: ou(j.date_reelle),
         lot: j.lot || '', facturation: j.facturation || '', ordre,
       }));
-      for (const c of j.livrables) await em.insert(E.JalonDocument, { jalon_id: r.id, code_document: c });
+      for (const [i, c] of (j.livrables as string[]).entries()) await em.insert(E.JalonDocument, { jalon_id: r.id, code_document: c, ordre: i });
     }
     for (const r of k.risques) await em.save(E.Risque, em.create(E.Risque, {
       ...P, ref: r.id, titre: r.titre || r.id, categorie: r.categorie || '', probabilite: Number(r.probabilite) || 1,

@@ -93,6 +93,14 @@ describe('Serveur MCP (client MCP officiel)', () => {
     expect(h.length).toBeGreaterThan(5);
   });
 
+  it('fonctionnalité interne, ADR, changelog ; origine TDR refusée à l’agent', async () => {
+    expect((await appel('creer_fonctionnalite', { projet: 'exemple-declarations', titre: 'Journal d’audit', origine: 'TDR' })).texte).toMatch(/^Refusé/);
+    expect((await appel('creer_fonctionnalite', { projet: 'exemple-declarations', titre: 'Journal d’audit', poids: 3, depots: ['backend'], exigences: ['EX-02'] })).donnees.ref).toBe('F-010');
+    expect((await appel('ajouter_adr', { projet: 'exemple-declarations', titre: 'File locale', contexte: 'Réseau instable', decision: 'File JSONL' })).donnees.ref).toBe('ADR-002');
+    expect((await appel('ajouter_entree_changelog', { projet: 'exemple-declarations', type: 'ajoute', texte: 'Journal d’audit', fonctionnalite: 'F-010' })).erreur).toBe(false);
+    expect((await appel('maj_retour', { projet: 'exemple-declarations', ref: 'RC-003', statut: 'resolu', action_md: 'Limite portée à 10 Mo' })).erreur).toBe(false);
+  });
+
   it('recherche plein texte', async () => {
     const r = await appel('rechercher', { projet: 'exemple-declarations', texte: 'accusé de réception' });
     expect(r.erreur).toBe(false);

@@ -7,8 +7,8 @@ import { EcritureService } from '../ecriture/ecriture.service';
 import { IndicateursService } from '../indicateurs/indicateurs.service';
 import { AccesService } from '../common/acces.service';
 import { LIBELLES } from '../indicateurs/referentiels';
-import { statutEffectif } from '../indicateurs/calcul';
 import { rechercher } from './recherche';
+import { etatProjet } from './etat';
 import * as E from '../db/entities';
 
 const pct = (x: number | null | undefined) => (x == null ? '—' : `${Math.round(x * 100)} %`);
@@ -64,37 +64,8 @@ export function creerServeurMcp(a: Acteur, s: Services): McpServer {
 
   outil('etat_projet', "État du projet : indicateurs, fonctionnalités en cours, prochain jalon, documents en cours, actions et retours ouverts, alertes. À appeler en début de session.",
     { projet, depot: z.string().optional().describe('Filtrer les fonctionnalités sur un dépôt') }, async ({ projet: code, depot }) => {
-      const p = await s.acces.projet(a, code);
-      const { modele, indicateurs: m } = await s.ind.calculer(p);
-      const T: string[] = [];
-      T.push(`# État du projet ${p.nom || code} (${code})`);
-      T.push(`Client : ${p.client || '—'} · Livraison prévue : ${p.date_livraison_prevue || '—'}`);
-      T.push(`Avancement global : ${pct(m.avancement)} · Couverture TDR : ${pct(m.couverture)} · Recette OK : ${pct(m.tauxRecette)} · Retours ouverts : ${m.retoursOuverts.length}`);
-      T.push(`Livrables documentaires : ${pct(m.avancementDocuments)} · Risques actifs : ${m.risquesActifs.length} · Actions ouvertes : ${m.actionsOuvertes.length} (dont ${m.actionsEnRetard.length} en retard) · Changements en analyse : ${m.changementsEnAnalyse.length}`);
-      if (m.prochainJalon) T.push(`Prochain jalon : ${m.prochainJalon.nom} le ${m.prochainJalon.date_prevue || '?'}${m.prochainJalon.livrables.length ? ` (documents attendus : ${m.prochainJalon.livrables.join(', ')})` : ''}`);
-      T.push('');
-      const filtre = (f: any) => !depot || !f.depots || depot in f.depots;
-      const enCours = modele.fonctionnalites.filter((f: any) => ['en_cours', 'bloque'].includes(statutEffectif(f)));
-      const aFaire = modele.fonctionnalites.filter((f: any) => statutEffectif(f) === 'a_faire');
-      T.push(`## Fonctionnalités en cours${depot ? ` (dépôt ${depot})` : ''}`);
-      for (const f of enCours.filter(filtre)) {
-        const d = f.depots ? ' — ' + Object.entries(f.depots).map(([k, v]) => `${k}: ${L(String(v))}`).join(', ') : '';
-        T.push(`- ${f.id} ${f.titre} [${L(statutEffectif(f))}]${d}`);
-      }
-      if (!enCours.length) T.push('- (aucune)');
-      T.push('## Prochaines fonctionnalités à faire');
-      for (const f of aFaire.filter(filtre).slice(0, 8)) T.push(`- ${f.id} ${f.titre}${f.jalon ? ` (${f.jalon})` : ''}`);
-      if (!aFaire.length) T.push('- (aucune)');
-      if (m.retoursOuverts.length) {
-        T.push('## Retours clients ouverts');
-        for (const r of m.retoursOuverts.slice(0, 8))
-          T.push(`- ${r.id} [${L(r.type)}, ${L(r.priorite)}] ${(r.corps.match(/## Retour[^\n]*\n+([^\n]+)/) || [])[1] || ''} → ${r.fonctionnalites.join(', ') || 'non rattaché'}`);
-      }
-      const docs = modele.suiviDocuments.filter((d: any) => ['en_cours', 'en_revue'].includes(d.statut));
-      if (docs.length) { T.push('## Documents en cours'); for (const d of docs) T.push(`- ${d.code} ${d.titre} [${L(d.statut)}]${d.version ? ` v${d.version}` : ''}${d.echeance ? ` — échéance ${d.echeance}` : ''}`); }
-      if (m.actionsOuvertes.length) { T.push('## Actions ouvertes'); for (const x of m.actionsOuvertes.slice(0, 8)) T.push(`- ${x.id} ${x.action} — ${x.responsable || '?'}${x.echeance ? `, ${x.echeance}` : ''}${m.actionsEnRetard.includes(x) ? ' (EN RETARD)' : ''}`); }
-      if (m.alertes.length) { T.push('## Alertes'); for (const x of m.alertes.slice(0, 10)) T.push(`- (${x.niveau}) ${x.texte}`); }
-      return rep(T.join('\n'), { avancement: m.avancement, couverture: m.couverture, taux_recette: m.tauxRecette, recette: m.recette, retours_ouverts: m.retoursOuverts.length, alertes: m.alertes });
+      const { texte, donnees } = await etatProjet(a, s, code, depot);
+      return rep(texte, donnees);
     });
 
   outil('lire_tdr', 'TDR / cahier des charges du projet (Markdown, référence contractuelle).', { projet }, async ({ projet: c }) => {
@@ -261,6 +232,42 @@ export function creerServeurMcp(a: Acteur, s: Services): McpServer {
     async ({ projet: c, session_id, ...x }) => {
       const r = await s.ecriture.ajouterAction(a, c, x, session_id);
       return rep(`Action ${r.ref} ajoutée.`, { ref: r.ref });
+    }, false);
+
+  outil('creer_fonctionnalite', "Crée une fonctionnalité (référence F-xxx attribuée par le serveur). Origine « interne » ou « DC-xxx » (demande de changement acceptée).",
+    { projet, titre: z.string().min(1), exigences: z.array(z.string()).optional(), lot: z.string().optional(), poids: z.number().int().optional().describe('1, 2, 3, 5 ou 8'),
+      origine: z.string().optional(), depots: z.array(z.string()).optional(), session_id: z.string().uuid().optional() },
+    async ({ projet: c, session_id, ...x }) => {
+      const f = await s.ecriture.creerFonctionnalite(a, c, x, session_id);
+      return rep(`Fonctionnalité ${f.ref} créée (${f.origine}, poids ${f.poids}).`, { ref: f.ref });
+    }, false);
+
+  outil('ajouter_adr', 'Enregistre une décision d’architecture (référence ADR-xxx, statut « proposee »).',
+    { projet, titre: z.string().min(1), contexte: z.string().min(1), decision: z.string().min(1), consequences: z.string().optional(), alternatives: z.string().optional(),
+      depots: z.array(z.string()).optional(), fonctionnalites: z.array(z.string()).optional(), session_id: z.string().uuid().optional() },
+    async ({ projet: c, session_id, ...x }) => {
+      const r = await s.ecriture.ajouterAdr(a, c, x, session_id);
+      return rep(`${r.ref} enregistrée.`, { ref: r.ref });
+    }, false);
+
+  outil('ajouter_entree_changelog', 'Ajoute une entrée au changelog (section « Non publié » par défaut).',
+    { projet, type: z.enum(['ajoute', 'modifie', 'corrige', 'retire']), texte: z.string().min(1), fonctionnalite: z.string().optional(), version: z.string().optional(), session_id: z.string().uuid().optional() },
+    async ({ projet: c, session_id, ...x }) => {
+      await s.ecriture.ajouterEntreeChangelog(a, c, x, session_id);
+      return rep(`Changelog : ${x.fonctionnalite ? `[${x.fonctionnalite}] ` : ''}${x.texte}`);
+    }, false);
+
+  outil('maj_retour', 'Met à jour le statut d’un retour client et l’action / réponse apportée.',
+    { projet, ref: z.string(), statut: z.enum(['nouveau', 'en_cours', 'resolu', 'rejete']), action_md: z.string().optional(), session_id: z.string().uuid().optional() },
+    async ({ projet: c, ref, statut, action_md, session_id }) => {
+      const r = await s.ecriture.majRetour(a, c, ref, statut, action_md, session_id);
+      return rep(`${r.ref} → ${L(r.statut)}.`, { ref: r.ref, statut: r.statut });
+    }, false);
+
+  outil('maj_action', 'Met à jour le statut d’une action.', { projet, ref: z.string(), statut: z.enum(['a_faire', 'en_cours', 'fait', 'annule']), session_id: z.string().uuid().optional() },
+    async ({ projet: c, ref, statut, session_id }) => {
+      const r = await s.ecriture.majAction(a, c, ref, statut, session_id);
+      return rep(`${r.ref} → ${L(r.statut)}.`, { ref: r.ref, statut: r.statut });
     }, false);
 
   return srv;

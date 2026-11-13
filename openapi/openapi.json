@@ -1432,6 +1432,124 @@
           "administration"
         ]
       }
+    },
+    "/api/v1/journal": {
+      "post": {
+        "operationId": "Journal_enregistrer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotJournalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BilanJournalDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lot d'événements envoyé par les hooks Claude Code (idempotent).",
+        "tags": [
+          "journal"
+        ]
+      }
+    },
+    "/api/v1/sessions": {
+      "post": {
+        "operationId": "Journal_demarrer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DemarrerSessionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDemarreeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Équivalent REST de l'outil MCP demarrer_session (utilisé par le hook SessionStart).",
+        "tags": [
+          "journal"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/etat": {
+      "get": {
+        "operationId": "Journal_etat",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "depot",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EtatTexteDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Équivalent REST de l'outil MCP etat_projet (texte Markdown injecté en début de session).",
+        "tags": [
+          "journal"
+        ]
+      }
     }
   },
   "info": {
@@ -4321,6 +4439,185 @@
           "projet",
           "bilan",
           "erreurs_lecture"
+        ]
+      },
+      "EvenementJournalDto": {
+        "type": "object",
+        "properties": {
+          "cle_idempotence": {
+            "type": "string",
+            "description": "uuid généré sur le poste : un renvoi après coupure ne crée pas de doublon.",
+            "format": "uuid"
+          },
+          "projet": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "depot": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "ts": {
+            "type": "string"
+          },
+          "evt": {
+            "type": "string",
+            "enum": [
+              "modification",
+              "creation",
+              "commande",
+              "commit",
+              "doc",
+              "agent"
+            ]
+          },
+          "outil": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "fichier": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "commande": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "hash": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "fonctionnalites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "session_externe": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "auteur": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Nom de git user.name sur le poste"
+          }
+        },
+        "required": [
+          "cle_idempotence",
+          "projet",
+          "depot",
+          "ts",
+          "evt"
+        ]
+      },
+      "LotJournalDto": {
+        "type": "object",
+        "properties": {
+          "evenements": {
+            "maxItems": 500,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvenementJournalDto"
+            }
+          }
+        },
+        "required": [
+          "evenements"
+        ]
+      },
+      "RejetDto": {
+        "type": "object",
+        "properties": {
+          "cle_idempotence": {
+            "type": "string"
+          },
+          "raison": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "cle_idempotence",
+          "raison"
+        ]
+      },
+      "BilanJournalDto": {
+        "type": "object",
+        "properties": {
+          "recus": {
+            "type": "number"
+          },
+          "enregistres": {
+            "type": "number"
+          },
+          "doublons": {
+            "type": "number",
+            "description": "Déjà reçus lors d'un envoi précédent (ignorés)."
+          },
+          "rejetes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RejetDto"
+            }
+          }
+        },
+        "required": [
+          "recus",
+          "enregistres",
+          "doublons",
+          "rejetes"
+        ]
+      },
+      "DemarrerSessionDto": {
+        "type": "object",
+        "properties": {
+          "projet": {
+            "type": "string"
+          },
+          "depot": {
+            "type": "string"
+          },
+          "session_externe": {
+            "type": "string",
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "projet"
+        ]
+      },
+      "SessionDemarreeDto": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id"
+        ]
+      },
+      "EtatTexteDto": {
+        "type": "object",
+        "properties": {
+          "texte": {
+            "type": "string"
+          },
+          "seuil_rappel_doc": {
+            "type": "number"
+          },
+          "genere_le": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "texte",
+          "seuil_rappel_doc",
+          "genere_le"
         ]
       }
     }

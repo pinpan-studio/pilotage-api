@@ -38,7 +38,7 @@ export async function chargerModele(em: EntityManager, projet: E.Projet): Promis
     campagnes.length ? em.findBy(E.ResultatTest, { campagne_id: In(campagnes.map((c) => c.id)) }) : [],
     retours.length ? em.findBy(E.RetourFonctionnalite, { retour_id: In(retours.map((r) => r.id)) }) : [],
     changements.length ? em.findBy(E.ChangementFonctionnalite, { changement_id: In(changements.map((c) => c.id)) }) : [],
-    jalons.length ? em.findBy(E.JalonDocument, { jalon_id: In(jalons.map((j) => j.id)) }) : [],
+    jalons.length ? em.find(E.JalonDocument, { where: { jalon_id: In(jalons.map((j) => j.id)) }, order: { ordre: 'ASC' } }) : [],
     em.find(E.TypeDocument, { where: { organisation_id: projet.organisation_id }, order: { ordre: 'ASC' } }),
     em.find(E.Fichier, { where: { projet_id: projet.id, categorie: 'scan_signe' } }),
     em.query(`SELECT ts, evt, fonctionnalites, depot_id, auteur, fichier, hash, message FROM evenement_journal

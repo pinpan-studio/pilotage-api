@@ -18,6 +18,7 @@ export class Jalon extends BaseProjet {
 export class JalonDocument {
   @Column('uuid', { primary: true }) jalon_id: string;
   @Column({ primary: true }) code_document: string;
+  @Column({ default: 0 }) ordre: number;
 }
 
 @Entity('risque')

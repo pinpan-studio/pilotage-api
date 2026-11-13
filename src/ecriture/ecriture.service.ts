@@ -299,4 +299,67 @@ export class EcritureService {
       return r;
     });
   }
+
+  // ------------------------------------------------------------- fonctionnalités, ADR, changelog
+
+  async creerFonctionnalite(a: Acteur, code: string, x: { titre: string; exigences?: string[]; lot?: string; poids?: number; origine?: string; depots?: string[] }, session_id?: string) {
+    const p = await this.ecrireProjet(a, code);
+    const origine = x.origine ?? 'interne';
+    if (a.role === 'agent' && !(origine === 'interne' || /^DC-\d{2,4}$/.test(origine)))
+      throw refuse("l'agent ne peut créer qu'une fonctionnalité d'origine « interne » ou issue d'une demande de changement (DC-xxx).");
+    if (x.poids != null && ![1, 2, 3, 5, 8].includes(x.poids)) throw invalide('poids attendu : 1, 2, 3, 5 ou 8.');
+    return this.tx(p, async (em) => {
+      if (/^DC-/.test(origine) && !(await em.findOneBy(E.Changement, { projet_id: p.id, ref: origine, decision: 'accepte' })))
+        throw refuse(`la demande de changement ${origine} n'existe pas ou n'est pas acceptée.`);
+      const ref = await this.prochaineRef(em, 'fonctionnalite', p.id, 'F');
+      const ordre = Number((await em.query('SELECT coalesce(max(ordre), -1) + 1 n FROM fonctionnalite WHERE projet_id = $1', [p.id]))[0].n);
+      const f = await em.save(E.Fonctionnalite, em.create(E.Fonctionnalite, {
+        organisation_id: p.organisation_id, projet_id: p.id, cree_par: a.utilisateur_id, ref, titre: x.titre, jalon: x.lot ?? '',
+        poids: x.poids ?? 1, statut: 'a_faire', origine, ordre,
+      }));
+      for (const e of x.exigences ?? []) {
+        const ex = await em.findOneBy(E.Exigence, { projet_id: p.id, ref: e });
+        if (!ex) throw introuvable(`exigence ${e}`);
+        await em.insert(E.FonctionnaliteExigence, { fonctionnalite_id: f.id, exigence_id: ex.id });
+      }
+      for (const nom of x.depots ?? []) {
+        const d = await em.findOneBy(E.Depot, { projet_id: p.id, nom });
+        if (!d) throw introuvable(`dépôt « ${nom} »`);
+        await em.insert(E.FonctionnaliteDepot, { fonctionnalite_id: f.id, depot_id: d.id, statut: 'a_faire' });
+      }
+      await this.hist.tracer(em, a, 'fonctionnalite', null, plain(f), { session_id });
+      return f;
+    });
+  }
+
+  async ajouterAdr(a: Acteur, code: string, x: { titre: string; contexte: string; decision: string; consequences?: string; alternatives?: string; depots?: string[]; fonctionnalites?: string[] }, session_id?: string) {
+    const p = await this.ecrireProjet(a, code);
+    return this.tx(p, async (em) => {
+      const ref = await this.prochaineRef(em, 'adr', p.id, 'ADR');
+      const date = new Date().toISOString().slice(0, 10);
+      const contenu = `# ${ref} — ${x.titre}\n\n## Contexte\n${x.contexte}\n\n## Décision\n${x.decision}\n\n## Conséquences\n${x.consequences ?? ''}\n\n## Alternatives écartées\n${x.alternatives ?? ''}\n`;
+      const r = await em.save(E.Adr, em.create(E.Adr, {
+        organisation_id: p.organisation_id, projet_id: p.id, cree_par: a.utilisateur_id, ref, titre: x.titre, date, statut: 'proposee',
+        depots: x.depots ?? [], fonctionnalites: x.fonctionnalites ?? [], contexte: x.contexte, decision: x.decision,
+        consequences: x.consequences ?? '', alternatives: x.alternatives ?? '', contenu,
+      }));
+      await this.hist.tracer(em, a, 'adr', null, plain(r), { session_id });
+      return r;
+    });
+  }
+
+  async ajouterEntreeChangelog(a: Acteur, code: string, x: { type: 'ajoute' | 'modifie' | 'corrige' | 'retire'; texte: string; fonctionnalite?: string; version?: string }, session_id?: string) {
+    const p = await this.ecrireProjet(a, code);
+    if (!['ajoute', 'modifie', 'corrige', 'retire'].includes(x.type)) throw invalide('type attendu : ajoute, modifie, corrige ou retire.');
+    return this.tx(p, async (em) => {
+      const f = x.fonctionnalite ? (await this.foncs(em, p, [x.fonctionnalite]))[0] : null;
+      const ordre = Number((await em.query('SELECT coalesce(min(ordre), 1) - 1 n FROM changelog_entree WHERE projet_id = $1', [p.id]))[0].n);
+      const r = await em.save(E.ChangelogEntree, em.create(E.ChangelogEntree, {
+        organisation_id: p.organisation_id, projet_id: p.id, cree_par: a.utilisateur_id, version: x.version ?? 'Non publié',
+        date: null, type: x.type, texte: x.texte, fonctionnalite_id: f?.id ?? null, ordre,
+      }));
+      await this.hist.tracer(em, a, 'changelog_entree', null, plain(r), { session_id });
+      return r;
+    });
+  }
 }
