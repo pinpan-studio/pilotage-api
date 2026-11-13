@@ -11,6 +11,8 @@ export interface Acteur {
   /** Projets autorisés par le jeton d'API (agent uniquement). */
   projets_jeton?: string[];
   jeton_id?: string;
+  /** Session de connexion (interface web). */
+  session_id?: string;
 }
 
 export const ActeurCourant = createParamDecorator((_: unknown, ctx: ExecutionContext): Acteur => ctx.switchToHttp().getRequest().acteur);

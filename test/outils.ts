@@ -10,8 +10,10 @@ process.env.DATABASE_URL = process.env.DATABASE_URL_TEST ?? 'postgres://postgres
 process.env.JWT_SECRET = 'secret-de-test';
 process.env.MIGRATIONS_AU_DEMARRAGE = '1';
 
-export async function creerApp(): Promise<{ app: INestApplication; db: DataSource }> {
-  const mod = await Test.createTestingModule({ imports: [AppModule] }).compile();
+export async function creerApp(remplacements: { provide: any; useValue: any }[] = []): Promise<{ app: INestApplication; db: DataSource }> {
+  let b = Test.createTestingModule({ imports: [AppModule] });
+  for (const r of remplacements) b = b.overrideProvider(r.provide).useValue(r.useValue);
+  const mod = await b.compile();
   const app = mod.createNestApplication({ logger: false });
   app.setGlobalPrefix('api/v1', { exclude: ['mcp'] });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));

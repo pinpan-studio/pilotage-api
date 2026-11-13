@@ -19,6 +19,10 @@ export class Utilisateur extends Base {
   @Column(texte) mot_de_passe_hache: string | null;
   @Column({ type: 'varchar', default: 'developpeur' }) role: RoleUtilisateur;
   @Column({ default: true }) actif: boolean;
+  /** Identifiant Google (« sub ») lié au compte, après la première connexion Google. */
+  @Index({ unique: true, where: 'google_sub IS NOT NULL' }) @Column({ type: 'varchar', nullable: true }) google_sub: string | null;
+  @Column({ type: 'varchar', nullable: true }) photo_url: string | null;
+  @Column({ type: 'timestamptz', nullable: true }) derniere_connexion: Date | null;
 }
 
 @Entity('jeton_api')
@@ -43,6 +47,12 @@ export class JetonRafraichissement {
   @Column({ type: 'timestamptz' }) expire_le: Date;
   @Column({ type: 'timestamptz', nullable: true }) revoque_le: Date | null;
   @CreateDateColumn({ type: 'timestamptz' }) cree_le: Date;
+  /** Session d'origine (stable à travers les rotations du jeton). */
+  @Index() @Column('uuid', { nullable: true }) session_id: string | null;
+  @Column({ type: 'varchar', default: 'mot_de_passe' }) methode: 'mot_de_passe' | 'google';
+  @Column({ type: 'varchar', default: '' }) appareil: string;
+  @Column({ type: 'varchar', default: '' }) ip: string;
+  @Column({ type: 'timestamptz', nullable: true }) utilise_le: Date | null;
 }
 
 @Entity('historique')

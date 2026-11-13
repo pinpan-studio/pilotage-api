@@ -15,7 +15,7 @@ export class CreerJetonDto {
   @ApiPropertyOptional() @IsOptional() @IsDateString() expire_le?: string;
 }
 
-export class UtilisateurSessionDto { id: string; email: string; nom: string; role: string; }
+export class UtilisateurSessionDto { id: string; email: string; nom: string; role: string; photo_url?: string | null; }
 export class SessionAuthDto {
   jeton_acces: string;
   /** Durée de validité du jeton d'accès, en secondes. */
@@ -34,3 +34,21 @@ export class JetonApiDto {
   expire_le: Date | null; revoque_le: Date | null; utilise_le: Date | null; cree_le: Date;
 }
 export class JetonApiCreeDto extends JetonApiDto { jeton: string; avertissement: string; }
+
+export class ConnexionGoogleDto {
+  /** Jeton d'identité (ID token) renvoyé par Google Identity Services. */
+  @ApiProperty() @IsString() @MinLength(20) credential: string;
+}
+export class MajProfilDto { @ApiProperty() @IsString() @MinLength(2) nom: string; }
+export class OrganisationResumeDto { code: string; nom: string; }
+export class ProfilDto {
+  id: string; email: string; nom: string; role: string; photo_url: string | null;
+  google_lie: boolean; mot_de_passe: boolean; derniere_connexion: Date | null; cree_le: Date;
+  organisation: OrganisationResumeDto | null;
+}
+export class SessionConnexionDto {
+  id: string; methode: 'mot_de_passe' | 'google'; appareil: string; ip: string;
+  derniere_activite: Date; ouverte_le: Date; courante: boolean;
+}
+export class RevocationDto { revoquees: number; }
+export class ConfigPubliqueDto { version_api: string; google_client_id: string | null; connexion_mot_de_passe: boolean; }

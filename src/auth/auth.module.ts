@@ -3,9 +3,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JetonApi, JetonRafraichissement, Utilisateur } from '../db/entities';
-import { AuthController, JetonsController } from './auth.controller';
+import { AuthController, CompteController, ConfigController, JetonsController } from './auth.controller';
 import { AuthGuard } from './auth.guard';
-import { AuthService } from './auth.service';
+import { AuthService, VERIFICATEUR_GOOGLE, VerificateurGoogleOfficiel } from './auth.service';
 
 @Global()
 @Module({
@@ -19,8 +19,8 @@ import { AuthService } from './auth.service';
       },
     }),
   ],
-  controllers: [AuthController, JetonsController],
-  providers: [AuthService, { provide: APP_GUARD, useClass: AuthGuard }],
+  controllers: [AuthController, JetonsController, CompteController, ConfigController],
+  providers: [AuthService, { provide: APP_GUARD, useClass: AuthGuard }, { provide: VERIFICATEUR_GOOGLE, useClass: VerificateurGoogleOfficiel }],
   exports: [AuthService],
 })
 export class AuthModule {}

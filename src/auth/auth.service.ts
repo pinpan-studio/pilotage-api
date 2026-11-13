@@ -1,4 +1,6 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException, ServiceUnavailableException } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
+import { OAuth2Client } from 'google-auth-library';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
@@ -10,43 +12,124 @@ import { introuvable, invalide } from '../common/erreurs';
 
 const DUREE_REFRESH_J = 30;
 
+/** Contexte de la connexion (affiché dans la liste des sessions). */
+export interface ContexteConnexion { appareil?: string; ip?: string }
+
+/** Vérification d'un jeton d'identité Google (remplaçable dans les tests). */
+export interface VerificateurGoogle { verifier(credential: string): Promise<{ sub: string; email: string; email_verified: boolean; name?: string; picture?: string }> }
+export const VERIFICATEUR_GOOGLE = 'VERIFICATEUR_GOOGLE';
+export class VerificateurGoogleOfficiel implements VerificateurGoogle {
+  private readonly client = new OAuth2Client();
+  async verifier(credential: string) {
+    const audience = process.env.GOOGLE_CLIENT_ID;
+    if (!audience) throw new ServiceUnavailableException('Connexion Google non configurée (GOOGLE_CLIENT_ID manquant).');
+    const ticket = await this.client.verifyIdToken({ idToken: credential, audience });
+    const p = ticket.getPayload();
+    if (!p?.sub || !p.email) throw new UnauthorizedException('Jeton Google invalide.');
+    return { sub: p.sub, email: p.email, email_verified: !!p.email_verified, name: p.name, picture: p.picture };
+  }
+}
+
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(VERIFICATEUR_GOOGLE) private readonly google: VerificateurGoogle,
     private readonly jwt: JwtService,
     @InjectRepository(Utilisateur) private readonly utilisateurs: Repository<Utilisateur>,
     @InjectRepository(JetonApi) private readonly jetonsApi: Repository<JetonApi>,
     @InjectRepository(JetonRafraichissement) private readonly refresh: Repository<JetonRafraichissement>,
   ) {}
 
-  async connexion(email: string, motDePasse: string) {
-    const u = await this.utilisateurs.findOneBy({ email: email.trim().toLowerCase(), actif: true });
+  async connexion(email: string, motDePasse: string, ctx: ContexteConnexion = {}) {
+    const u = await this.parEmail(email);
     const ok = u?.mot_de_passe_hache ? await argon2.verify(u.mot_de_passe_hache, motDePasse).catch(() => false) : false;
     if (!u || !ok) throw new UnauthorizedException('Identifiants incorrects.');
-    return this.emettre(u);
+    return this.emettre(u, { ...ctx, methode: 'mot_de_passe' });
   }
 
-  async rafraichir(jeton: string) {
+  private parEmail(email: string) {
+    return this.utilisateurs.createQueryBuilder('u').where('lower(u.email) = :e', { e: email.trim().toLowerCase() }).andWhere('u.actif = true').orderBy('u.cree_le').getOne();
+  }
+
+  /** Connexion Google : le jeton d'identité est vérifié par le serveur (signature, audience, expiration). */
+  async connexionGoogle(credential: string, ctx: ContexteConnexion = {}) {
+    let g;
+    try { g = await this.google.verifier(credential); } catch (e) {
+      if (e instanceof ServiceUnavailableException) throw e;
+      throw new UnauthorizedException('Jeton Google invalide ou expiré.');
+    }
+    if (!g.email_verified) throw new UnauthorizedException('Adresse Google non vérifiée.');
+    let u = await this.utilisateurs.findOneBy({ google_sub: g.sub, actif: true }) ?? await this.parEmail(g.email);
+    if (!u) throw new UnauthorizedException(`Aucun compte Pilotage pour ${g.email}. Demandez une invitation à l'administrateur de votre équipe.`);
+    if (u.google_sub && u.google_sub !== g.sub) throw new UnauthorizedException('Ce compte est lié à un autre compte Google.');
+    await this.utilisateurs.update(u.id, { google_sub: g.sub, photo_url: g.picture ?? u.photo_url, nom: u.nom === 'Administrateur' && g.name ? g.name : u.nom });
+    u = (await this.utilisateurs.findOneBy({ id: u.id }))!;
+    return this.emettre(u, { ...ctx, methode: 'google' });
+  }
+
+  async rafraichir(jeton: string, ctx: ContexteConnexion = {}) {
     const r = await this.refresh.findOneBy({ hache: hacher(jeton), revoque_le: IsNull() });
     if (!r || r.expire_le < new Date()) throw new UnauthorizedException('Session expirée, reconnectez-vous.');
     const u = await this.utilisateurs.findOneBy({ id: r.utilisateur_id, actif: true });
     if (!u) throw new UnauthorizedException('Compte désactivé.');
     await this.refresh.update(r.id, { revoque_le: new Date() }); // rotation
-    return this.emettre(u);
+    return this.emettre(u, { methode: r.methode, appareil: ctx.appareil || r.appareil, ip: ctx.ip || r.ip, session_id: r.session_id ?? r.id }, false);
   }
 
   async deconnexion(jeton: string) {
     await this.refresh.update({ hache: hacher(jeton) }, { revoque_le: new Date() });
   }
 
-  private async emettre(u: Utilisateur) {
-    const jeton_acces = await this.jwt.signAsync({ sub: u.id, org: u.organisation_id, role: u.role, nom: u.nom });
+  private async emettre(u: Utilisateur, ctx: ContexteConnexion & { methode: 'mot_de_passe' | 'google'; session_id?: string }, nouvelle = true) {
+    const session_id = ctx.session_id ?? randomUUID();
+    const jeton_acces = await this.jwt.signAsync({ sub: u.id, org: u.organisation_id, role: u.role, nom: u.nom, sid: session_id });
     const jeton_rafraichissement = genererJetonRafraichissement();
     await this.refresh.save(this.refresh.create({
-      utilisateur_id: u.id, hache: hacher(jeton_rafraichissement),
+      utilisateur_id: u.id, hache: hacher(jeton_rafraichissement), session_id, methode: ctx.methode,
+      appareil: (ctx.appareil ?? '').slice(0, 200), ip: (ctx.ip ?? '').slice(0, 64), utilise_le: new Date(),
       expire_le: new Date(Date.now() + DUREE_REFRESH_J * 86400_000),
     }));
-    return { jeton_acces, expire_dans: 900, jeton_rafraichissement, utilisateur: { id: u.id, email: u.email, nom: u.nom, role: u.role } };
+    if (nouvelle) await this.utilisateurs.update(u.id, { derniere_connexion: new Date() });
+    return { jeton_acces, expire_dans: 900, jeton_rafraichissement, utilisateur: { id: u.id, email: u.email, nom: u.nom, role: u.role, photo_url: u.photo_url } };
+  }
+
+  // ------------------------------------------------------------ compte et sessions
+
+  async profil(a: Acteur) {
+    const u = await this.utilisateurs.findOneBy({ id: a.utilisateur_id });
+    if (!u) throw introuvable('utilisateur');
+    const org = await this.utilisateurs.manager.query('SELECT code, nom FROM organisation WHERE id = $1', [u.organisation_id]);
+    return { id: u.id, email: u.email, nom: u.nom, role: u.role, photo_url: u.photo_url, google_lie: !!u.google_sub, mot_de_passe: !!u.mot_de_passe_hache,
+      derniere_connexion: u.derniere_connexion, cree_le: u.cree_le, organisation: org[0] ?? null };
+  }
+
+  async majProfil(a: Acteur, nom: string) {
+    const n = nom.trim();
+    if (n.length < 2 || n.length > 120) throw invalide('le nom doit faire entre 2 et 120 caractères.');
+    await this.utilisateurs.update(a.utilisateur_id, { nom: n });
+    return this.profil(a);
+  }
+
+  /** Sessions actives = dernier jeton de rafraîchissement non révoqué de chaque session. */
+  async sessions(a: Acteur) {
+    const rows: any[] = await this.refresh.query(
+      `SELECT DISTINCT ON (coalesce(session_id, id)) coalesce(session_id, id) AS id, methode, appareil, ip, utilise_le, cree_le, expire_le
+       FROM jeton_rafraichissement WHERE utilisateur_id = $1 AND revoque_le IS NULL AND expire_le > now()
+       ORDER BY coalesce(session_id, id), cree_le DESC`, [a.utilisateur_id]);
+    const debuts: any[] = await this.refresh.query(`SELECT coalesce(session_id, id) AS id, min(cree_le) AS debut FROM jeton_rafraichissement WHERE utilisateur_id = $1 GROUP BY 1`, [a.utilisateur_id]);
+    const debut = new Map(debuts.map((d) => [d.id, d.debut]));
+    return rows.map((r) => ({ id: r.id, methode: r.methode, appareil: r.appareil, ip: r.ip, derniere_activite: r.utilise_le ?? r.cree_le, ouverte_le: debut.get(r.id) ?? r.cree_le, courante: r.id === a.session_id }))
+      .sort((x, y) => +new Date(y.derniere_activite) - +new Date(x.derniere_activite));
+  }
+
+  async revoquerSession(a: Acteur, session_id: string) {
+    const r = await this.refresh.query(`UPDATE jeton_rafraichissement SET revoque_le = now() WHERE utilisateur_id = $1 AND (session_id = $2 OR id = $2) AND revoque_le IS NULL`, [a.utilisateur_id, session_id]);
+    if (!r[1]) throw introuvable('session');
+  }
+
+  async revoquerAutresSessions(a: Acteur) {
+    const r = await this.refresh.query(`UPDATE jeton_rafraichissement SET revoque_le = now() WHERE utilisateur_id = $1 AND revoque_le IS NULL AND coalesce(session_id, id) <> coalesce($2::uuid, '00000000-0000-0000-0000-000000000000')`, [a.utilisateur_id, a.session_id ?? null]);
+    return { revoquees: r[1] ?? 0 };
   }
 
   /** Résout un en-tête « Bearer » en acteur (JWT ou jeton d'API). */
@@ -62,7 +145,7 @@ export class AuthService {
     }
     try {
       const p = await this.jwt.verifyAsync(bearer);
-      return { utilisateur_id: p.sub, organisation_id: p.org, nom: p.nom, role: p.role, auteur_type: 'humain' };
+      return { utilisateur_id: p.sub, organisation_id: p.org, nom: p.nom, role: p.role, auteur_type: 'humain', session_id: p.sid };
     } catch {
       throw new UnauthorizedException('Jeton expiré ou invalide.');
     }
