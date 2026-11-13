@@ -67,5 +67,9 @@ describe('Équipes, invitations, rôles, création de projet', () => {
     // une équipe dont on n'est pas membre
     const autre = await creerOrg(db, 'etrangere');
     await request(http).post('/api/v1/equipes/changer').set(auth(admin)).send({ organisation_id: autre.id }).expect(404);
+    // Connexion par mot de passe après usage de la nouvelle équipe (sans mot de passe) : retrouve le compte qui en a un.
+    const argon2 = await import('argon2');
+    await db.query('UPDATE utilisateur SET mot_de_passe_hache = $1 WHERE email = $2 AND organisation_id <> $3', [await argon2.hash('secret'), 'patron@gmail.com', e.id]);
+    await request(http).post('/api/v1/auth/connexion').send({ email: 'patron@gmail.com', mot_de_passe: 'secret' }).expect(200);
   });
 });

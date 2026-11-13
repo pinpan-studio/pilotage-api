@@ -40,11 +40,14 @@ export class AuthService {
     @InjectRepository(JetonRafraichissement) private readonly refresh: Repository<JetonRafraichissement>,
   ) {}
 
+  /** Mot de passe : parmi les comptes de cette personne (une ligne par équipe), celui dont le mot de passe correspond, le plus récemment utilisé. */
   async connexion(email: string, motDePasse: string, ctx: ContexteConnexion = {}) {
-    const u = await this.parEmail(email);
-    const ok = u?.mot_de_passe_hache ? await argon2.verify(u.mot_de_passe_hache, motDePasse).catch(() => false) : false;
-    if (!u || !ok) throw new UnauthorizedException('Identifiants incorrects.');
-    return this.emettre(u, { ...ctx, methode: 'mot_de_passe' });
+    const comptes = await this.utilisateurs.createQueryBuilder('u').where('lower(u.email) = :e', { e: email.trim().toLowerCase() })
+      .andWhere('u.actif = true').andWhere('u.mot_de_passe_hache IS NOT NULL').orderBy('u.derniere_connexion', 'DESC', 'NULLS LAST').getMany();
+    for (const u of comptes) {
+      if (await argon2.verify(u.mot_de_passe_hache!, motDePasse).catch(() => false)) return this.emettre(u, { ...ctx, methode: 'mot_de_passe' });
+    }
+    throw new UnauthorizedException('Identifiants incorrects.');
   }
 
   /** Compte actif pour cet e-mail ; avec plusieurs équipes, la dernière utilisée. */
