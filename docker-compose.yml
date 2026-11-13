@@ -1,0 +1,16 @@
+# Développement local : API + PostgreSQL 16. En production, la base est sur Neon et les fichiers sur Vercel Blob.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment: { POSTGRES_PASSWORD: postgres, POSTGRES_DB: pilotage }
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+  api:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/pilotage
+      MIGRATIONS_AU_DEMARRAGE: "1"
+    ports: ["3000:3000"]
+    depends_on: [postgres]
+volumes: { pgdata: {} }
