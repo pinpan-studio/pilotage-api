@@ -90,6 +90,12 @@ describe('Saisie complète (REST) et droits', () => {
     expect(v.body).toBeTruthy();
     const docs = (await req(dev).get('/documents').expect(200)).body;
     expect(JSON.stringify(docs)).toContain('en_revue');
+    await request(http).patch(`${P}/documents/SFD/statut`).set('Authorization', `Bearer ${dev}`).send({ statut: 'valide' }).expect(403);
+    await request(http).patch(`${P}/documents/SFD/statut`).set('Authorization', `Bearer ${chef}`).send({ statut: 'valide' }).expect(200);
+    expect((await req(dev).get('/documents/SFD').expect(200)).body.date_validation).toBeTruthy();
+    const v2 = await req(dev).put('/documents/SFD/contenu', { contenu_md: '# SFD v2', resume_modif: 'Correction' }).expect(200);
+    expect(v2.body).toMatchObject({ statut: 'en_revue', repasse_en_revue: true });
+    expect((await req(dev).get('/documents/SFD').expect(200)).body.date_validation).toBeNull();
     await req(lecteur).put('/documents/SFD/contenu', { contenu_md: 'x', resume_modif: 'Interdit' }).expect(403);
   });
 });

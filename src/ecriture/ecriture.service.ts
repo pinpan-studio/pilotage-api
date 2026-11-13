@@ -166,6 +166,8 @@ export class EcritureService {
       const etaitFige = ['valide', 'signe'].includes(d.statut);
       d.statut = etaitFige ? 'en_revue' : statutCible;
       d.version = numero;
+      // La nouvelle version n'est pas validée : la date de validation de l'ancienne ne s'applique plus.
+      if (etaitFige) d.date_validation = null;
       await em.save(d);
       await this.hist.tracer(em, a, 'document', avant, plain(d), { session_id: opts.session_id });
       return { code: codeDoc, version: numero, statut: d.statut, version_id: v.id, repasse_en_revue: etaitFige };
