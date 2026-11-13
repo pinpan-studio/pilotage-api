@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Installe (ou met à jour) le kit Pilotage v2 dans un dépôt de code.
 //
-//   node claude-kit/installer.mjs --repo ../dgh-backend --api https://pilotage-api.exemple.com --projet dgh-declarations --depot backend
+//   node claude-kit/installer.mjs --repo ../dgh-backend --api https://pilotage-api.exemple.com --projet dgh-declarations --depot backend [--clients tous|aucun|cursor,vscode,gemini,windsurf,agents]
 // Sur le poste d'un collègue (le dépôt contient déjà .claude/pilotage.json) :
 //   node claude-kit/installer.mjs --repo ../dgh-backend
 //
@@ -15,6 +15,10 @@ const KIT = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
 const opt = (n) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : undefined; };
 const repoArg = opt('repo');
+// Assistants à configurer (en plus de Claude Code) : cursor, vscode, gemini, windsurf, agents (AGENTS.md) — ou « tous ».
+const CLIENTS_CONNUS = ['cursor', 'vscode', 'gemini', 'windsurf', 'agents'];
+const clientsArg = (opt('clients') || 'tous').toLowerCase();
+const clients = clientsArg === 'tous' ? CLIENTS_CONNUS : clientsArg === 'aucun' ? [] : clientsArg.split(',').map((s) => s.trim()).filter((c) => CLIENTS_CONNUS.includes(c));
 if (!repoArg) {
   console.error('Usage : node claude-kit/installer.mjs --repo <dépôt de code> [--api <URL de l’API>] [--projet <code>] [--depot <nom>]');
   process.exit(1);
@@ -65,6 +69,22 @@ mcp.mcpServers ??= {};
 mcp.mcpServers.pilotage = { type: 'http', url: `${api}/mcp`, headers: { Authorization: 'Bearer ${PILOTAGE_TOKEN}' } };
 ecrireJson(fMcp, mcp);
 
+// 4 bis. Autres assistants : configuration MCP du projet (jeton lu dans PILOTAGE_TOKEN, jamais écrit).
+const urlMcp = `${api}/mcp`;
+const fusionner = (fichier, cle, entree) => {
+  mkdirSync(dirname(fichier), { recursive: true });
+  const c = lireJson(fichier); c[cle] ??= {}; c[cle].pilotage = entree; ecrireJson(fichier, c);
+};
+if (clients.includes('cursor')) fusionner(join(repo, '.cursor', 'mcp.json'), 'mcpServers', { url: urlMcp, headers: { Authorization: 'Bearer ${env:PILOTAGE_TOKEN}' } });
+if (clients.includes('vscode')) {
+  const f = join(repo, '.vscode', 'mcp.json');
+  fusionner(f, 'servers', { type: 'http', url: urlMcp, headers: { Authorization: 'Bearer ${input:pilotage-token}' } });
+  const c = lireJson(f); c.inputs = (c.inputs ?? []).filter((i) => i.id !== 'pilotage-token');
+  c.inputs.push({ type: 'promptString', id: 'pilotage-token', description: "Jeton d'API Pilotage (plt_…)", password: true }); ecrireJson(f, c);
+}
+if (clients.includes('gemini')) fusionner(join(repo, '.gemini', 'settings.json'), 'mcpServers', { httpUrl: urlMcp, headers: { Authorization: 'Bearer $PILOTAGE_TOKEN' }, timeout: 30000 });
+if (clients.includes('windsurf')) fusionner(join(repo, '.windsurf', 'mcp_config.json'), 'mcpServers', { serverUrl: urlMcp, headers: { Authorization: 'Bearer ${env:PILOTAGE_TOKEN}' } });
+
 // 5. Bloc d'instructions dans CLAUDE.md
 const fClaude = join(repo, 'CLAUDE.md');
 const bloc = readFileSync(join(KIT, 'CLAUDE-pilotage.md'), 'utf8').trim();
@@ -72,6 +92,14 @@ let md = existsSync(fClaude) ? readFileSync(fClaude, 'utf8') : '';
 const re = /<!-- pilotage:debut[\s\S]*?<!-- pilotage:fin -->/;
 md = re.test(md) ? md.replace(re, bloc) : (md ? md.trimEnd() + '\n\n' : '') + bloc + '\n';
 writeFileSync(fClaude, md);
+// AGENTS.md : instructions lues par Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf…
+if (clients.includes('agents')) {
+  const fAgents = join(repo, 'AGENTS.md');
+  const blocAgents = readFileSync(join(KIT, 'AGENTS-pilotage.md'), 'utf8').trim();
+  let a = existsSync(fAgents) ? readFileSync(fAgents, 'utf8') : '';
+  a = re.test(a) ? a.replace(re, blocAgents) : (a ? a.trimEnd() + '\n\n' : '') + blocAgents + '\n';
+  writeFileSync(fAgents, a);
+}
 
 // 6. .gitignore : fichiers locaux du kit v1 éventuels
 const fIgnore = join(repo, '.gitignore');
@@ -83,6 +111,7 @@ console.log(`Kit Pilotage v2 installé dans ${repo}
   API : ${api} · projet : ${projet} · dépôt : ${depot}
   À versionner : .claude/pilotage.json, .claude/settings.json, .claude/hooks/pilotage.mjs,
     .claude/agents/, .claude/commands/, .mcp.json, CLAUDE.md
+  Autres assistants configurés : ${clients.length ? clients.join(', ') : 'aucun'} (.cursor/, .vscode/mcp.json, .gemini/, .windsurf/, AGENTS.md)
   Sur chaque poste : définir PILOTAGE_TOKEN (jeton d'API personnel, jamais versionné), par ex. dans ~/.bashrc :
     export PILOTAGE_TOKEN=plt_…
   Puis ouvrir Claude Code dans ce dépôt : le message « [Pilotage] » doit apparaître au démarrage.

@@ -169,7 +169,7 @@ export function creerServeurMcp(a: Acteur, s: Services): McpServer {
   // =================================================================== écriture
 
   outil('demarrer_session', 'Démarre une session de développement (appelé par le hook de début de session). Retourne session_id.',
-    { projet, depot: z.string().optional(), session_externe: z.string().optional().describe('Identifiant de session Claude Code') }, async ({ projet: c, depot, session_externe }) => {
+    { projet, depot: z.string().optional(), session_externe: z.string().optional().describe("Identifiant de session de l'assistant (Claude Code, Cursor, Codex…)") }, async ({ projet: c, depot, session_externe }) => {
       const { session } = await s.ecriture.demarrerSession(a, c, depot, session_externe);
       return rep(`Session démarrée : ${session.id}`, { session_id: session.id });
     }, false);
