@@ -118,6 +118,31 @@ export class LectureService {
     return { ...f, description: ent?.description ?? '', tests, journal, commits };
   }
 
+  // ------------------------------------------------------------- traçabilité
+
+  /** Matrice exigence → fonctionnalités → tests (dernier résultat) → retours ; plus les fonctionnalités hors TDR. */
+  async tracabilite(a: Acteur, code: string): Promise<V.TracabiliteDto> {
+    const p = await this.projet(a, code);
+    const { indicateurs: m, modele } = await this.ind.calculer(p);
+    const retoursPar: Record<string, { ref: string; statut: string; type: string }[]> = {};
+    for (const r of modele.retours) for (const f of r.fonctionnalites) (retoursPar[f] ??= []).push({ ref: r.id, statut: r.statut, type: r.type });
+    const ligneF = (f: any): V.TraceFonctionnaliteDto => ({
+      ref: f.id, titre: f.titre, statut: statutEffectif(f), avancement: f.statut === 'abandonne' ? 0 : avancementFonctionnalite(f),
+      tests: modele.tests.filter((t: any) => t.fonctionnalite === f.id).map((t: any) => ({ ref: t.id, titre: t.titre, resultat: m.resultatTest[t.id]?.resultat ?? 'non_teste', campagne: m.resultatTest[t.id]?.campagne ?? null })),
+      retours: retoursPar[f.id] ?? [],
+    });
+    const actives = modele.fonctionnalites.filter((f: any) => f.statut !== 'abandonne');
+    const exigences = modele.exigences.map((e: any) => {
+      const fs = actives.filter((f: any) => (f.exigences ?? []).includes(e.id)).map(ligneF);
+      const tests = fs.flatMap((f) => f.tests);
+      const etat: V.TraceExigenceDto['etat'] = !fs.length ? 'non_couverte' : tests.length && tests.every((t) => t.resultat === 'ok') ? 'recettee' : tests.some((t) => t.resultat === 'ko') ? 'ko' : tests.length ? 'en_recette' : 'sans_test';
+      return { ref: e.id, titre: e.titre, priorite: e.priorite, section_tdr: e.section_tdr, etat, fonctionnalites: fs };
+    });
+    const hors = actives.filter((f: any) => !(f.exigences ?? []).length).map(ligneF);
+    const n = (k: string) => exigences.filter((e) => e.etat === k).length;
+    return { exigences, hors_tdr: hors, synthese: { total: exigences.length, non_couvertes: n('non_couverte'), sans_test: n('sans_test'), ko: n('ko'), en_recette: n('en_recette'), recettees: n('recettee') } };
+  }
+
   // ------------------------------------------------------------- documents
 
   private async docs(p: E.Projet) {

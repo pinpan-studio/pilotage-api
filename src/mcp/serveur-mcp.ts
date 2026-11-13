@@ -86,6 +86,15 @@ export function creerServeurMcp(a: Acteur, s: Services): McpServer {
       return rep((elements.map((f) => `- ${f.ref} ${f.titre} [${L(f.statut_effectif)} · ${pct(f.avancement)}] ${f.jalon} · poids ${f.poids}${f.depots.length ? ' — ' + f.depots.map((d) => `${d.depot}: ${L(d.statut)}`).join(', ') : ''}`).join('\n') || '(aucune)') + suite, { total, elements });
     });
 
+  outil('tracabilite', 'Matrice de traçabilité : exigence → fonctionnalités → tests (dernier résultat) → retours ; exigences non couvertes et fonctionnalités hors TDR.', { projet }, async ({ projet: c }) => {
+    const t = await s.lecture.tracabilite(a, c);
+    const E2: Record<string, string> = { non_couverte: 'NON COUVERTE', sans_test: 'sans test', en_recette: 'en recette', ko: 'KO', recettee: 'recettée' };
+    const T = [`# Traçabilité — ${t.synthese.total} exigence(s) : ${t.synthese.recettees} recettée(s), ${t.synthese.en_recette} en recette, ${t.synthese.ko} KO, ${t.synthese.sans_test} sans test, ${t.synthese.non_couvertes} non couverte(s)`,
+      ...t.exigences.map((e) => `- ${e.ref} ${e.titre} [${e.priorite}] — ${E2[e.etat]}${e.fonctionnalites.length ? ' : ' + e.fonctionnalites.map((f) => `${f.ref} (${L(f.statut)}; tests ${f.tests.map((x) => `${x.ref}=${x.resultat}`).join(', ') || '—'}${f.retours.length ? '; retours ' + f.retours.map((r) => r.ref).join(', ') : ''})`).join(' · ') : ''}`),
+      t.hors_tdr.length ? `## Hors TDR\n${t.hors_tdr.map((f) => `- ${f.ref} ${f.titre} (${L(f.statut)})`).join('\n')}` : ''];
+    return rep(T.filter(Boolean).join('\n'), t);
+  });
+
   outil('lire_fonctionnalite', 'Fiche d’une fonctionnalité : exigences, tests, retours, dernière activité, commits.', { projet, ref: z.string() }, async ({ projet: c, ref }) => {
     const f = await s.lecture.fonctionnalite(a, c, ref);
     const T = [`# ${f.ref} — ${f.titre}`, `Statut : ${L(f.statut_effectif)} (global : ${L(f.statut)}) · Avancement ${pct(f.avancement)} · ${f.jalon} · poids ${f.poids} · origine ${f.origine}`,

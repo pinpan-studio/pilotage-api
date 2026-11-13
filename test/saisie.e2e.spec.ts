@@ -98,4 +98,54 @@ describe('Saisie complète (REST) et droits', () => {
     expect((await req(dev).get('/documents/SFD').expect(200)).body.date_validation).toBeNull();
     await req(lecteur).put('/documents/SFD/contenu', { contenu_md: 'x', resume_modif: 'Interdit' }).expect(403);
   });
+
+  it('export DOCX / PDF d’un livrable et comparaison de versions', async () => {
+    const md = "# Spécifications\n\n## Règles métier\n\nUn **déclarant** peut *saisir* une déclaration — délai : `30 j`.\n\n- Étape 1\n- Étape 2\n  - sous-étape\n\n1. Premier\n2. Second\n\n| Rôle | Droits |\n|---|---|\n| Chef | Valide |\n| Lecteur | Lit |\n\n```ts\nconst x = 1;\n```\n\n> Remarque importante\n\n---\n\nFin → suite œuvre €";
+    await req(dev).put('/documents/DAT/contenu', { contenu_md: '# DAT\n\nPremière version.', resume_modif: 'Initiale' }).expect(200);
+    await req(dev).put('/documents/DAT/contenu', { contenu_md: md, resume_modif: 'Complète' }).expect(200);
+    const bin = (r: any, cb: any) => { const c: Buffer[] = []; r.on('data', (d: Buffer) => c.push(d)); r.on('end', () => cb(null, Buffer.concat(c))); };
+    const docx = await request(http).get(`${P}/documents/DAT/export?format=docx`).set('Authorization', `Bearer ${lecteur}`).buffer(true).parse(bin).expect(200);
+    expect(docx.headers['content-disposition']).toContain('saisie-DAT-v');
+    const AdmZip = require('adm-zip');
+    const xml = new AdmZip(docx.body).readAsText('word/document.xml');
+    for (const t of ['Spécifications', 'Règles métier', 'déclarant', 'Chef', 'const x = 1;', 'Remarque importante', 'sous-étape']) expect(xml).toContain(t);
+    const pdf = await request(http).get(`${P}/documents/DAT/export?format=pdf`).set('Authorization', `Bearer ${lecteur}`).buffer(true).parse(bin).expect(200);
+    expect(pdf.body.subarray(0, 5).toString()).toBe('%PDF-');
+    expect(pdf.body.length).toBeGreaterThan(2000);
+    const ancienne = await request(http).get(`${P}/documents/DAT/export?format=pdf&version=0.1`).set('Authorization', `Bearer ${dev}`).buffer(true).parse(bin);
+    expect([200, 404]).toContain(ancienne.status);
+    await request(http).get(`${P}/documents/DAT/export?format=odt`).set('Authorization', `Bearer ${dev}`).expect(400);
+    await request(http).get(`${P}/documents/MCD/export?format=pdf`).set('Authorization', `Bearer ${dev}`).expect(404);
+    const d = await req(lecteur).get('/documents/DAT/diff').expect(200);
+    expect(d.body.ajouts).toBeGreaterThan(5); expect(d.body.retraits).toBe(2);
+    expect(d.body.blocs.some((b: any) => b.type === 'retrait' && b.texte.includes('Première version'))).toBe(true);
+  });
+
+  it('portail client : le lecteur dépose un retour, rien d’autre ; traçabilité', async () => {
+    const r = await req(lecteur).post('/retours', { retour_md: 'Le bouton Envoyer est peu visible', type: 'remarque', fonctionnalites: ['F-001'] }).expect(201);
+    expect(r.body).toMatchObject({ source: 'portail client', statut: 'nouveau' });
+    await req(lecteur).patch(`/retours/${r.body.ref}`, { statut: 'resolu' }).expect(403);
+    await req(lecteur).post('/risques', { titre: 'Interdit', probabilite: 1, impact: 1 }).expect(403);
+    const t = (await req(lecteur).get('/tracabilite').expect(200)).body;
+    expect(t.synthese.total).toBe(1);
+    expect(t.exigences[0]).toMatchObject({ ref: 'EX-01', etat: 'recettee' });
+    expect(t.exigences[0].fonctionnalites[0]).toMatchObject({ ref: 'F-001' });
+    expect(t.exigences[0].fonctionnalites[0].retours.map((x: any) => x.ref)).toContain(r.body.ref);
+    expect(t.hors_tdr.map((f: any) => f.ref)).toContain('F-002');
+  });
+
+  it('notifications « à traiter » selon le rôle', async () => {
+    await req(dev).post('/changements', { titre: 'Mode sombre' }).expect(201);
+    await req(dev).put('/documents/MCD/contenu', { contenu_md: '# MCD', resume_modif: 'Initiale', statut: 'en_revue' }).expect(200);
+    const n = (j: string) => request(http).get('/api/v1/notifications').set('Authorization', `Bearer ${j}`).expect(200).then((r) => r.body);
+    const chef_ = await n(chef); const dev_ = await n(dev);
+    const types = (l: any[]) => new Set(l.map((x) => x.type));
+    expect(types(chef_)).toEqual(expect.objectContaining({}));
+    expect([...types(chef_)]).toEqual(expect.arrayContaining(['changement_a_decider', 'document_en_revue', 'retour_nouveau']));
+    expect([...types(dev_)]).toContain('retour_nouveau');
+    expect([...types(dev_)]).not.toContain('changement_a_decider');
+    expect(await n(lecteur)).toEqual([]);
+    expect(chef_[0].priorite).toBe('haute');
+    expect(chef_.find((x: any) => x.type === 'document_en_revue').lien).toBe('/projets/saisie/livrables/MCD');
+  });
 });

@@ -222,7 +222,10 @@ export class EcritureService {
   // ------------------------------------------------------------- registres
 
   async creerRetour(a: Acteur, code: string, x: { date?: string; source?: string; contact_client?: string; type?: string; priorite?: string; retour_md: string; fonctionnalites?: string[] }, session_id?: string) {
-    const p = await this.ecrireProjet(a, code);
+    // Portail client : un lecteur (client) peut déposer ses retours, sans autre droit d'écriture.
+    const p = await this.acces.projet(a, code);
+    const lecteur = (await this.acces.roleSurProjet(a, p)) === 'client_lecteur';
+    if (lecteur) x = { ...x, source: x.source || 'portail client', contact_client: x.contact_client || a.nom };
     return this.tx(p, async (em) => {
       const ref = await this.prochaineRef(em, 'retour_client', p.id, 'RC');
       const foncs = await this.foncs(em, p, x.fonctionnalites ?? []);

@@ -61,6 +61,9 @@ export class ProjetsController {
   @Get(':code/fonctionnalites/:ref') @ApiOkResponse({ type: V.FonctionnaliteDetailDto })
   fonctionnalite(@ActeurCourant() a: Acteur, @Param('code') code: string, @Param('ref') ref: string) { return this.l.fonctionnalite(a, code, ref); }
 
+  @Get(':code/tracabilite') @ApiOkResponse({ type: V.TracabiliteDto })
+  tracabilite(@ActeurCourant() a: Acteur, @Param('code') code: string) { return this.l.tracabilite(a, code); }
+
   @Get(':code/exigences') @ApiOkResponse({ type: [E.Exigence] })
   exigences(@ActeurCourant() a: Acteur, @Param('code') code: string) { return this.l.registre(a, code, E.Exigence, { ordre: 'ASC', ref: 'ASC' }); }
 

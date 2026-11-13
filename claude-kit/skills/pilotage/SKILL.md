@@ -39,7 +39,7 @@ Les écritures sont toujours marquées « Agent » dans l'historique.
 
 ## Cycles de travail
 
-**Démarrer sur un projet** → `etat_projet` → `lire_tdr` + `lister_exigences` →
+**Démarrer sur un projet** → `etat_projet` → `lire_tdr` + `lister_exigences` (ou `tracabilite` pour voir la couverture) →
 `lister_fonctionnalites(lot?, statut?)` → résumer périmètre, avancement, bloquants.
 
 **Session de développement**

@@ -310,3 +310,15 @@ export class ProjetMinDto {
   code: string;
   nom: string;
 }
+
+export class TraceTestDto { ref: string; titre: string; resultat: string; campagne: string | null; }
+export class TraceRetourDto { ref: string; statut: string; type: string; }
+export class TraceFonctionnaliteDto { ref: string; titre: string; statut: string; avancement: number; tests: TraceTestDto[]; retours: TraceRetourDto[]; }
+export class TraceExigenceDto {
+  ref: string; titre: string; priorite: string; section_tdr: string;
+  /** non_couverte (aucune fonctionnalité), sans_test, en_recette, ko (un test KO), recettee (tous les tests OK). */
+  etat: 'non_couverte' | 'sans_test' | 'en_recette' | 'ko' | 'recettee';
+  fonctionnalites: TraceFonctionnaliteDto[];
+}
+export class SyntheseTraceDto { total: number; non_couvertes: number; sans_test: number; ko: number; en_recette: number; recettees: number; }
+export class TracabiliteDto { exigences: TraceExigenceDto[]; hors_tdr: TraceFonctionnaliteDto[]; synthese: SyntheseTraceDto; }

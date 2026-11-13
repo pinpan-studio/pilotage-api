@@ -421,6 +421,164 @@
         ]
       }
     },
+    "/api/v1/projets/{code}/documents/{doc}/export": {
+      "get": {
+        "operationId": "Export_exporter",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "doc",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "format",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "docx",
+                "pdf"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Export d'un livrable (version courante ou `version`) en Word ou PDF, avec page de garde et pagination.",
+        "tags": [
+          "livrables"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/documents/{doc}/diff": {
+      "get": {
+        "operationId": "Export_diff",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "doc",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "de",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "a",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiffDocumentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Comparaison de deux versions (par défaut : l'avant-dernière et la dernière).",
+        "tags": [
+          "livrables"
+        ]
+      }
+    },
+    "/api/v1/notifications": {
+      "get": {
+        "operationId": "Notifications_lister",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
     "/api/v1/referentiels": {
       "get": {
         "operationId": "Referentiels_referentiels",
@@ -919,6 +1077,41 @@
         ],
         "tags": [
           "saisie"
+        ]
+      }
+    },
+    "/api/v1/projets/{code}/tracabilite": {
+      "get": {
+        "operationId": "Projets_tracabilite",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TracabiliteDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "projets"
         ]
       }
     },
@@ -3824,6 +4017,115 @@
           "connexion_mot_de_passe"
         ]
       },
+      "BlocDiffDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "ajout",
+              "retrait",
+              "commun"
+            ]
+          },
+          "texte": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "texte"
+        ]
+      },
+      "DiffDocumentDto": {
+        "type": "object",
+        "properties": {
+          "de": {
+            "type": "string"
+          },
+          "a": {
+            "type": "string"
+          },
+          "ajouts": {
+            "type": "number"
+          },
+          "retraits": {
+            "type": "number"
+          },
+          "blocs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlocDiffDto"
+            }
+          }
+        },
+        "required": [
+          "de",
+          "a",
+          "ajouts",
+          "retraits",
+          "blocs"
+        ]
+      },
+      "NotificationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identifiant stable (pour marquer comme lu côté client)."
+          },
+          "projet": {
+            "type": "string"
+          },
+          "projet_nom": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "document_en_revue",
+              "changement_a_decider",
+              "fonctionnalite_a_valider",
+              "retour_nouveau",
+              "jalon_proche",
+              "action_en_retard"
+            ]
+          },
+          "titre": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "lien": {
+            "type": "string",
+            "description": "Chemin dans l'interface web."
+          },
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "priorite": {
+            "type": "string",
+            "enum": [
+              "moyenne",
+              "haute",
+              "basse"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "projet",
+          "projet_nom",
+          "type",
+          "titre",
+          "detail",
+          "lien",
+          "date",
+          "priorite"
+        ]
+      },
       "EntreeReferentielDto": {
         "type": "object",
         "properties": {
@@ -5055,6 +5357,184 @@
           "tests",
           "journal",
           "commits"
+        ]
+      },
+      "TraceTestDto": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "resultat": {
+            "type": "string"
+          },
+          "campagne": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ref",
+          "titre",
+          "resultat",
+          "campagne"
+        ]
+      },
+      "TraceRetourDto": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "statut": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ref",
+          "statut",
+          "type"
+        ]
+      },
+      "TraceFonctionnaliteDto": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "statut": {
+            "type": "string"
+          },
+          "avancement": {
+            "type": "number"
+          },
+          "tests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TraceTestDto"
+            }
+          },
+          "retours": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TraceRetourDto"
+            }
+          }
+        },
+        "required": [
+          "ref",
+          "titre",
+          "statut",
+          "avancement",
+          "tests",
+          "retours"
+        ]
+      },
+      "TraceExigenceDto": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "titre": {
+            "type": "string"
+          },
+          "priorite": {
+            "type": "string"
+          },
+          "section_tdr": {
+            "type": "string"
+          },
+          "etat": {
+            "type": "string",
+            "description": "non_couverte (aucune fonctionnalité), sans_test, en_recette, ko (un test KO), recettee (tous les tests OK).",
+            "enum": [
+              "ko",
+              "non_couverte",
+              "sans_test",
+              "en_recette",
+              "recettee"
+            ]
+          },
+          "fonctionnalites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TraceFonctionnaliteDto"
+            }
+          }
+        },
+        "required": [
+          "ref",
+          "titre",
+          "priorite",
+          "section_tdr",
+          "etat",
+          "fonctionnalites"
+        ]
+      },
+      "SyntheseTraceDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "non_couvertes": {
+            "type": "number"
+          },
+          "sans_test": {
+            "type": "number"
+          },
+          "ko": {
+            "type": "number"
+          },
+          "en_recette": {
+            "type": "number"
+          },
+          "recettees": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total",
+          "non_couvertes",
+          "sans_test",
+          "ko",
+          "en_recette",
+          "recettees"
+        ]
+      },
+      "TracabiliteDto": {
+        "type": "object",
+        "properties": {
+          "exigences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TraceExigenceDto"
+            }
+          },
+          "hors_tdr": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TraceFonctionnaliteDto"
+            }
+          },
+          "synthese": {
+            "$ref": "#/components/schemas/SyntheseTraceDto"
+          }
+        },
+        "required": [
+          "exigences",
+          "hors_tdr",
+          "synthese"
         ]
       },
       "Exigence": {

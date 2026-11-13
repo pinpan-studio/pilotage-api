@@ -22,6 +22,7 @@
 | `lire_reunion` | date | compte rendu |
 | `lire_doc_technique` | depot, chemin | documentation technique |
 | `rechercher` | texte* | plein texte sur tout le projet |
+| `tracabilite` | — | exigence → fonctionnalités → tests → retours ; exigences non couvertes |
 | `lister_membres` | — | équipe du projet et rôles |
 
 ## Écriture

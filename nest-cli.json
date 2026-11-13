@@ -5,6 +5,6 @@
   "compilerOptions": {
     "tsConfigPath": "tsconfig.build.json",
     "deleteOutDir": true,
-    "plugins": [{ "name": "@nestjs/swagger", "options": { "dtoFileNameSuffix": [".dto.ts", "entities/organisation.ts", "entities/projet.ts", "entities/recette.ts", "entities/documents.ts", "entities/gestion.ts", "entities/journal.ts", "entities/base.ts"], "classValidatorShim": true, "introspectComments": true } }]
+    "plugins": [{ "name": "@nestjs/swagger", "options": { "dtoFileNameSuffix": [".dto.ts", "entities/organisation.ts", "entities/projet.ts", "entities/recette.ts", "entities/documents.ts", "entities/gestion.ts", "entities/journal.ts", "entities/base.ts", "lecture/notifications.ts"], "classValidatorShim": true, "introspectComments": true } }]
   }
 }

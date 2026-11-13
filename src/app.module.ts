@@ -13,12 +13,14 @@ import { McpModule } from './mcp/mcp.module';
 import { JournalModule } from './journal/journal.module';
 import { StockageModule } from './stockage/stockage.module';
 import { EquipesModule } from './equipes/equipes.module';
+import { ExportModule } from './export/export.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({ useFactory: () => ({ ...optionsBase(), migrationsRun: process.env.MIGRATIONS_AU_DEMARRAGE === '1', manualInitialization: process.env.OPENAPI_SEULEMENT === '1' }) }),
     AuthModule,
+    ExportModule,
     CommonModule,
     IndicateursModule,
     ImportModule,
